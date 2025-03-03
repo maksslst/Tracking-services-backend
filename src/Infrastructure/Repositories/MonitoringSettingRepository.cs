@@ -46,4 +46,9 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
     {
         return Task.FromResult(_monitoringSettings.Find(i => i.ServiceId == serviceId));
     }
+    
+    public Task<List<MonitoringSetting?>> ReadAll()
+    {
+        return Task.FromResult(_monitoringSettings);
+    }
 }

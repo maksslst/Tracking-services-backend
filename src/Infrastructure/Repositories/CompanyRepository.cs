@@ -107,7 +107,7 @@ public class CompanyRepository : ICompanyRepository
         return Task.FromResult(company);
     }
 
-    public Task<List<Company?>> ReadAllCompany()
+    public Task<List<Company?>> ReadAllCompanies()
     {
         return Task.FromResult(_companies);
     }
