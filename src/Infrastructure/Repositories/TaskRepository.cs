@@ -1,4 +1,6 @@
+using System.Data;
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -15,6 +17,7 @@ public class TaskRepository : ITaskRepository
         _serviceRepository = serviceRepository;
         _userRepository = userRepository;
         _companyRepository = companyRepository;
+        DataGeneration();
     }
 
     public Task CreateTask(ServiceTask serviceTask)
@@ -55,9 +58,9 @@ public class TaskRepository : ITaskRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteTask(ServiceTask serviceTask)
+    public Task<bool> DeleteTask(int serviceTaskId)
     {
-        var task = _tasks.Find(i => i.Id == serviceTask.Id);
+        var task = _tasks.Find(i => i.Id == serviceTaskId);
         if (task == null)
         {
             return Task.FromResult(false);
@@ -190,5 +193,26 @@ public class TaskRepository : ITaskRepository
     {
         var task = _tasks.FindAll(i => i.AssignedUserId == userId);
         return Task.FromResult(task);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            ServiceTask serviceTask = new ServiceTask()
+            {
+                Id = i + 1,
+                ServiceId = random.Next(1, 5),
+                Description = faker.Random.Word(),
+                CreatedById = random.Next(1, 5),
+                StartTime = DateTime.Today,
+                CompletionTime = DateTime.Now,
+                Status = faker.PickRandom<ServiceTask.TaskStatus>()
+            };
+            
+            _tasks.Add(serviceTask);
+        }
     }
 }

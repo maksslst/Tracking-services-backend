@@ -1,51 +1,81 @@
 using Application.DTOs.Mappings;
+using Infrastructure.Repositories;
+using Domain.Entities;
+using AutoMapper;
 
 namespace Application.Services;
 
 public class ServiceService : IServiceService
 {
-    public Task Add(ServiceDto serviceDto)
+    private readonly IServiceRepository _serviceRepository;
+    private readonly IMapper _mapper;
+
+    public ServiceService(IServiceRepository serviceRepository, IMapper mapper)
     {
-        throw new NotImplementedException();
+        _serviceRepository = serviceRepository;
+        _mapper = mapper;
     }
 
-    public Task<bool> Update(ServiceDto serviceDto)
+    public async Task Add(ServiceDto serviceDto)
     {
-        throw new NotImplementedException();
+        Service mappedService = _mapper.Map<Service>(serviceDto);
+        if (mappedService != null)
+        {
+            await _serviceRepository.AddService(mappedService);
+        }
     }
 
-    public Task<bool> Delete(int serviceId)
+    public async Task<bool> Update(ServiceDto serviceDto)
     {
-        throw new NotImplementedException();
+        Service mappedService = _mapper.Map<Service>(serviceDto);
+        return await _serviceRepository.UpdateService(mappedService);
     }
 
-    public Task<bool> AddCompanyService(int companyId, int serviceId = -1, ServiceDto? serviceDto = default(ServiceDto?))
+    public async Task<bool> Delete(int serviceId)
     {
-        throw new NotImplementedException();
+        return await _serviceRepository.DeleteService(serviceId);
     }
 
-    public Task<bool> UpdateCompanyService(int companyId, ServiceDto serviceDto, int serviceUpdateId)
+    public async Task<bool> AddCompanyService(int companyId, int serviceId = -1, ServiceDto? serviceDto = null)
     {
-        throw new NotImplementedException();
+        if (serviceDto != null)
+        {
+            Service mappedService = _mapper.Map<Service>(serviceDto);
+            return await _serviceRepository.AddCompanyService(companyId, serviceId, mappedService);
+        }
+
+        return await _serviceRepository.AddCompanyService(companyId, serviceId);
     }
 
-    public Task<bool> DeleteCompanyService(int serviceId, int companyId)
+    public async Task<bool> UpdateCompanyService(int companyId, ServiceDto serviceDto, int serviceUpdateId)
     {
-        throw new NotImplementedException();
+        Service mappedService = _mapper.Map<Service>(serviceDto);
+        return await _serviceRepository.UpdateCompanyService(companyId, mappedService, serviceUpdateId);
     }
 
-    public Task<ServiceDto?> ReadByServiceId(int serviceId)
+    public async Task<bool> DeleteCompanyService(int serviceId, int companyId)
     {
-        throw new NotImplementedException();
+        return await _serviceRepository.DeleteCompanyService(serviceId, companyId);
     }
 
-    public Task<List<ServiceDto?>> GetAllServices()
+    public async Task<ServiceDto?> GetByServiceId(int serviceId)
     {
-        throw new NotImplementedException();
+        Service? service = await _serviceRepository.ReadByServiceId(serviceId);
+        ServiceDto mappedService = _mapper.Map<ServiceDto>(service);
+        return mappedService;
     }
 
-    public Task<List<ServiceDto?>> GetCompanyServices(int companyId)
+    public async Task<List<ServiceDto?>> GetAllServices()
     {
-        throw new NotImplementedException();
+        List<Service?> services = await _serviceRepository.ReadAllServices();
+        List<ServiceDto> mappedServices = services.Select(i => _mapper.Map<ServiceDto>(i)).ToList();
+        return mappedServices;
+    }
+
+    public async Task<List<ServiceDto?>> GetCompanyServices(int companyId)
+    {
+        List<Service?> servicesCompany = await _serviceRepository.ReadCompanyServices(companyId);
+        List<ServiceDto> mappedServicesCompany = servicesCompany.Select(i => _mapper.Map<ServiceDto>(i)).ToList();
+        return mappedServicesCompany;
     }
 }

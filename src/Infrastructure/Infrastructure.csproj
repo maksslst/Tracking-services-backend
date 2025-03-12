@@ -11,7 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Bogus" Version="35.6.2" />
       <PackageReference Include="Cronos" Version="0.9.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0-preview.1.25080.5" />
       <PackageReference Include="Quartz" Version="3.13.1" />
     </ItemGroup>
 

@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -11,6 +12,7 @@ public class MetricRepository : IMetricRepository
     {
         _metrics = new List<Metric>();
         _serviceRepository = serviceRepository;
+        DataGeneration();
     }
     
     public Task CreateMetric(Metric metric)
@@ -71,5 +73,24 @@ public class MetricRepository : IMetricRepository
     public Task<List<Metric?>> ReadAll()
     {
         return Task.FromResult(_metrics);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            Metric metric = new Metric()
+            {
+                Id = i +1,
+                Name = "Проверка доступности ping",
+                ServiceId = random.Next(1,3),
+                Created = DateTime.Now,
+                Unit = "мс"
+            };
+            
+            _metrics.Add(metric);
+        }
     }
 }

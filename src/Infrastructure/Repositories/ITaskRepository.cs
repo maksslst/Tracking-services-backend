@@ -6,7 +6,7 @@ public interface ITaskRepository
 {
     public Task CreateTask(ServiceTask serviceTask);
     public Task<bool> UpdateTask(ServiceTask serviceTask);
-    public Task<bool> DeleteTask(ServiceTask serviceTask);
+    public Task<bool> DeleteTask(int serviceTaskId);
     public Task<ServiceTask?> ReadTaskId(int taskId);
     public Task<List<ServiceTask?>> ReadAllTasksCompanyId (int companyId);
     public Task<bool> AssignTaskToUser(int userId, int taskId);

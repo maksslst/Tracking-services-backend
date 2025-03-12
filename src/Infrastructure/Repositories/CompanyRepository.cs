@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -11,6 +12,7 @@ public class CompanyRepository : ICompanyRepository
     {
         _companies = new List<Company>();
         _userRepository = userRepository;
+        DataGeneration();
     }
 
     public Task CreateCompany(Company company)
@@ -35,7 +37,7 @@ public class CompanyRepository : ICompanyRepository
                 return Task.FromResult(false);
             }
         }
-        
+
         companyToUpdate.CompanyName = company.CompanyName;
         companyToUpdate.Users = users;
         return Task.FromResult(true);
@@ -101,7 +103,7 @@ public class CompanyRepository : ICompanyRepository
         return Task.FromResult(true);
     }
 
-    public Task<Company?> ReadByCompanyId(int companyId)
+    public Task<Company?> ReadByCompanyId(int? companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         return Task.FromResult(company);
@@ -121,5 +123,20 @@ public class CompanyRepository : ICompanyRepository
         }
 
         return Task.FromResult(company.Users);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        for (int i = 0; i < 3; i++)
+        {
+            Company company = new Company()
+            {
+                Id = i + 1,
+                CompanyName = faker.Company.CompanyName()
+            };
+
+            _companies.Add(company);
+        }
     }
 }

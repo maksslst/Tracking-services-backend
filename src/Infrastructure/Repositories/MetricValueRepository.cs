@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -11,6 +12,7 @@ public class MetricValueRepository : IMetricValueRepository
     {
         _metricValues = new List<MetricValue>();
         _metricRepository = metricRepository;
+        DataGeneration();
     }
     
     public Task CreateMetricValue(MetricValue metricValue)
@@ -38,5 +40,21 @@ public class MetricValueRepository : IMetricValueRepository
         }
         
         return Task.FromResult(metricsValues);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 10;i++)
+        {
+            MetricValue metricValue = new MetricValue()
+            {
+                Id = i + 1,
+                MetricId = random.Next(1, 5),
+                Value = faker.Random.Double(),
+            };
+            _metricValues.Add(metricValue);
+        }
     }
 }

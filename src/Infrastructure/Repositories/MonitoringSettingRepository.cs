@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -9,8 +10,9 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
     public MonitoringSettingRepository()
     {
         _monitoringSettings = new List<MonitoringSetting>();
+        DataGeneration();
     }
-    
+
     public Task CreateSetting(MonitoringSetting monitoringSetting)
     {
         _monitoringSettings.Add(monitoringSetting);
@@ -19,7 +21,7 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
 
     public Task<bool> UpdateSetting(MonitoringSetting monitoringSetting)
     {
-        var monitoringSettingToUpdate = _monitoringSettings.Find(i=> i.Id == monitoringSetting.Id);
+        var monitoringSettingToUpdate = _monitoringSettings.Find(i => i.Id == monitoringSetting.Id);
         if (monitoringSettingToUpdate == null)
         {
             return Task.FromResult(false);
@@ -30,14 +32,14 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteSetting(MonitoringSetting monitoringSetting)
+    public Task<bool> DeleteSetting(int monitoringSettingId)
     {
-        var monitoringSettingToDelete = _monitoringSettings.Find(i => i.Id == monitoringSetting.Id);
+        var monitoringSettingToDelete = _monitoringSettings.Find(i => i.Id == monitoringSettingId);
         if (monitoringSettingToDelete == null)
         {
             return Task.FromResult(false);
         }
-        
+
         _monitoringSettings.Remove(monitoringSettingToDelete);
         return Task.FromResult(true);
     }
@@ -46,9 +48,27 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
     {
         return Task.FromResult(_monitoringSettings.Find(i => i.ServiceId == serviceId));
     }
-    
+
     public Task<List<MonitoringSetting?>> ReadAll()
     {
         return Task.FromResult(_monitoringSettings);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 5;i++)
+        {
+            MonitoringSetting monitoringSetting = new MonitoringSetting()
+            {
+                Id = i + 1,
+                ServiceId = i + 1,
+                CheckInterval = "0 0/5 * * * ?",
+                Mode = i % 2 == 0 ? true : false
+            };
+            
+            _monitoringSettings.Add(monitoringSetting);
+        }
     }
 }

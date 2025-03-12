@@ -1,16 +1,17 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
     private List<User> _users;
-    private readonly ICompanyRepository _companyRepository;
+    // private readonly ICompanyRepository _companyRepository; - пришлось удалить из-за ошибки, связанной с циклической зависимостью между репозиториями User и Company
 
-    public UserRepository(ICompanyRepository companyRepository)
+    public UserRepository()
     {
         _users = new List<User>();
-        _companyRepository = companyRepository;
+        DataGeneration();
     }
     
     public Task CreateUser(User user)
@@ -27,11 +28,6 @@ public class UserRepository : IUserRepository
             return Task.FromResult(false);
         }
         
-        if (_companyRepository.ReadByCompanyId(user.CompanyId).Result == null)
-        {
-            return Task.FromResult(false);
-        }
-
         userToUpdate.Username = user.Username;
         userToUpdate.FirstName = user.FirstName;
         userToUpdate.LastName = user.LastName; 
@@ -64,5 +60,24 @@ public class UserRepository : IUserRepository
     public Task<List<User?>> ReadAll()
     {
         return Task.FromResult(_users);
+    }
+    
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        for (int i = 0; i < 5; i++)
+        {
+            User user = new User()
+            {
+                Id = i + 1,
+                FirstName = faker.Person.FirstName,
+                LastName = faker.Person.LastName,
+                Username = faker.Person.UserName,
+                Patronymic = faker.Name.LastName(),
+                Email = faker.Person.Email
+            };
+            
+            _users.Add(user);
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
@@ -11,6 +12,7 @@ public class ServiceRepository : IServiceRepository
     {
         _services = new List<Service>();
         _companyRepository = companyRepository;
+        DataGeneration();
     }
 
     public Task AddService(Service service)
@@ -174,5 +176,23 @@ public class ServiceRepository : IServiceRepository
 
         var services = company.Services;
         return Task.FromResult(services);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        for (int i = 0; i < 5; i++)
+        {
+            Service service = new Service()
+            {
+                Id = i + 1,
+                Name = faker.Internet.DomainName(),
+                Type = "website",
+                Source = faker.Internet.Ip(),
+                Status = faker.PickRandom<Service.ServiceStatus>()
+            };
+            
+            _services.Add(service);
+        }
     }
 }
