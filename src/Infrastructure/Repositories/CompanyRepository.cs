@@ -6,19 +6,17 @@ namespace Infrastructure.Repositories;
 public class CompanyRepository : ICompanyRepository
 {
     private List<Company> _companies;
-    private readonly IUserRepository _userRepository;
 
-    public CompanyRepository(IUserRepository userRepository)
+    public CompanyRepository()
     {
         _companies = new List<Company>();
-        _userRepository = userRepository;
         DataGeneration();
     }
 
-    public Task CreateCompany(Company company)
+    public Task<Company> CreateCompany(Company company)
     {
         _companies.Add(company);
-        return Task.CompletedTask;
+        return Task.FromResult(company);
     }
 
     public Task<bool> UpdateCompany(Company company)
@@ -29,17 +27,8 @@ public class CompanyRepository : ICompanyRepository
             return Task.FromResult(false);
         }
 
-        var users = company.Users.ToList();
-        foreach (var user in users)
-        {
-            if (_userRepository.ReadById(user.Id).Result == null)
-            {
-                return Task.FromResult(false);
-            }
-        }
-
         companyToUpdate.CompanyName = company.CompanyName;
-        companyToUpdate.Users = users;
+        companyToUpdate.Users = company.Users;
         return Task.FromResult(true);
     }
 
@@ -55,7 +44,7 @@ public class CompanyRepository : ICompanyRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> AddUserToCompany(int userId, int companyId)
+    public Task<bool> AddUserToCompany(User user, int companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         if (company == null)
@@ -63,24 +52,17 @@ public class CompanyRepository : ICompanyRepository
             return Task.FromResult(false);
         }
 
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
+        if (!company.Users.Any(i => i.Id == user.Id))
         {
-            return Task.FromResult(false);
-        }
-
-        user.CompanyId = companyId;
-        user.Company = company;
-
-        if (!company.Users.Any(i => i.Id == userId))
-        {
+            user.CompanyId = companyId;
+            user.Company = company;
             company.Users.Add(user);
         }
 
         return Task.FromResult(true);
     }
 
-    public Task<bool> RemoveUserFromCompany(int userId, int companyId)
+    public Task<bool> RemoveUserFromCompany(User user, int companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         if (company == null)
@@ -88,13 +70,7 @@ public class CompanyRepository : ICompanyRepository
             return Task.FromResult(false);
         }
 
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        if (!company.Users.Any(i => i.Id == userId))
+        if (!company.Users.Any(i => i.Id == user.Id))
         {
             return Task.FromResult(false);
         }
@@ -109,12 +85,12 @@ public class CompanyRepository : ICompanyRepository
         return Task.FromResult(company);
     }
 
-    public Task<List<Company?>> ReadAllCompanies()
+    public Task<IEnumerable<Company?>> ReadAllCompanies()
     {
-        return Task.FromResult(_companies);
+        return Task.FromResult<IEnumerable<Company?>>(_companies);
     }
 
-    public Task<List<User?>> ReadCompanyUsers(int companyId)
+    public Task<IEnumerable<User?>> ReadCompanyUsers(int companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         if (company == null)
@@ -122,7 +98,7 @@ public class CompanyRepository : ICompanyRepository
             throw new ArgumentException();
         }
 
-        return Task.FromResult(company.Users);
+        return Task.FromResult<IEnumerable<User?>>(company.Users);
     }
 
     private void DataGeneration()

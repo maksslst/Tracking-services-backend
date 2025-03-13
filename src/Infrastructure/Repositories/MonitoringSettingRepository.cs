@@ -13,10 +13,10 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
         DataGeneration();
     }
 
-    public Task CreateSetting(MonitoringSetting monitoringSetting)
+    public Task<MonitoringSetting> CreateSetting(MonitoringSetting monitoringSetting)
     {
         _monitoringSettings.Add(monitoringSetting);
-        return Task.CompletedTask;
+        return Task.FromResult(monitoringSetting);
     }
 
     public Task<bool> UpdateSetting(MonitoringSetting monitoringSetting)
@@ -49,9 +49,9 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
         return Task.FromResult(_monitoringSettings.Find(i => i.ServiceId == serviceId));
     }
 
-    public Task<List<MonitoringSetting?>> ReadAll()
+    public Task<IEnumerable<MonitoringSetting?>> ReadAll()
     {
-        return Task.FromResult(_monitoringSettings);
+        return Task.FromResult<IEnumerable<MonitoringSetting?>>(_monitoringSettings);
     }
 
     private void DataGeneration()

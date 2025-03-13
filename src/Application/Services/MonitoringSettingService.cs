@@ -16,18 +16,26 @@ public class MonitoringSettingService : IMonitoringSettingService
         _monitoringSettingRepository = monitoringSettingRepository;
     }
 
-    public async Task Add(MonitoringSettingDto monitoringSettingDto)
+    public async Task<MonitoringSetting?> Add(MonitoringSettingDto monitoringSettingDto)
     {
         MonitoringSetting mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
         if (mappedMonitoringSetting != null)
         {
             await _monitoringSettingRepository.CreateSetting(mappedMonitoringSetting);
+            return mappedMonitoringSetting;
         }
+
+        return null;
     }
 
     public async Task<bool> Update(MonitoringSettingDto monitoringSettingDto)
     {
         MonitoringSetting mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
+        if (mappedMonitoringSetting == null)
+        {
+            return false;
+        }
+
         return await _monitoringSettingRepository.UpdateSetting(mappedMonitoringSetting);
     }
 
@@ -36,7 +44,7 @@ public class MonitoringSettingService : IMonitoringSettingService
         return await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
     }
 
-    public async Task<MonitoringSettingDto?> GetByServiceId(int serviceId)
+    public async Task<MonitoringSettingDto?> GetMonitoringSetting(int serviceId)
     {
         MonitoringSetting? monitoringSetting = await _monitoringSettingRepository.ReadByServiceId(serviceId);
         MonitoringSettingDto mappedMonitoringSetting = _mapper.Map<MonitoringSettingDto>(monitoringSetting);

@@ -6,7 +6,6 @@ namespace Infrastructure.Repositories;
 public class UserRepository : IUserRepository
 {
     private List<User> _users;
-    // private readonly ICompanyRepository _companyRepository; - пришлось удалить из-за ошибки, связанной с циклической зависимостью между репозиториями User и Company
 
     public UserRepository()
     {
@@ -14,10 +13,10 @@ public class UserRepository : IUserRepository
         DataGeneration();
     }
     
-    public Task CreateUser(User user)
+    public Task<User> CreateUser(User user)
     {
         _users.Add(user);
-        return Task.CompletedTask;
+        return Task.FromResult(user);
     }
 
     public Task<bool> UpdateUser(User user)
@@ -57,9 +56,9 @@ public class UserRepository : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task<List<User?>> ReadAll()
+    public Task<IEnumerable<User?>> ReadAll()
     {
-        return Task.FromResult(_users);
+        return Task.FromResult<IEnumerable<User?>>(_users);
     }
     
     private void DataGeneration()

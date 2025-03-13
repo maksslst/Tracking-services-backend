@@ -1,9 +1,10 @@
 using Application.DTOs.Mappings;
+using Domain.Entities;
 
 namespace Application.Services;
 
 public interface IMetricValueService
 {
-    public Task AddMetricValue(MetricValueDto metricValueDto);
-    public Task<List<MetricValueDto?>> GetAllMetricValuesServiceId (int serviceId);
+    public Task<MetricValue?> AddMetricValue(MetricValueDto metricValueDto);
+    public Task<IEnumerable<MetricValueDto?>> GetAllMetricValuesForService (int serviceId);
 }

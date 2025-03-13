@@ -1,6 +1,7 @@
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
+using Domain.Entities;
 
 namespace Api.Controllers;
 
@@ -8,7 +9,7 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class MonitoringSettingController : ControllerBase
 {
-    private IMonitoringSettingService _monitoringSettingService;
+    private readonly IMonitoringSettingService _monitoringSettingService;
 
     public MonitoringSettingController(IMonitoringSettingService monitoringSettingService)
     {
@@ -19,8 +20,13 @@ public class MonitoringSettingController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MonitoringSettingDto monitoringSettingDto)
     {
-        await _monitoringSettingService.Add(monitoringSettingDto);
-        return Created();
+        MonitoringSetting? monitoringSetting =  await _monitoringSettingService.Add(monitoringSettingDto);
+        if (monitoringSetting == null)
+        {
+            return BadRequest("Не удалось создать настройку");
+        }
+        
+        return Created(monitoringSetting.Id.ToString(), monitoringSettingDto);
     }
     #endregion
 
@@ -40,15 +46,20 @@ public class MonitoringSettingController : ControllerBase
 
     #region HttpDelete
     [HttpDelete("{monitoringSettingId}")]
-    public async Task<IActionResult> Delete([FromQuery] int monitoringSettingId)
+    public async Task<IActionResult> Delete(int monitoringSettingId)
     {
+        if (await _monitoringSettingService.GetMonitoringSetting(monitoringSettingId) == null)
+        {
+            return NotFound("Настройка не найдена");
+        }
+        
         var result = await _monitoringSettingService.Delete(monitoringSettingId);
         if (!result)
         {
             return BadRequest("Не удалось удалить настройку");
         }
 
-        return Ok();
+        return NoContent();
     }
     #endregion
 
@@ -56,7 +67,7 @@ public class MonitoringSettingController : ControllerBase
     [HttpGet("{serviceId}")]
     public async Task<IActionResult> GetByServiceId([FromQuery] int serviceId)
     {
-        MonitoringSettingDto? monitoringSetting = await _monitoringSettingService.GetByServiceId(serviceId);
+        MonitoringSettingDto? monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось найти настройку");

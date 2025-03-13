@@ -11,7 +11,7 @@ public static class DependencyInjection
         services.AddAutoMapper(typeof(MappingProfile));
         services.AddTransient<ICompanyService, CompanyService>();
         services.AddTransient<IMonitoringSettingService, MonitoringSettingService>();
-        services.AddTransient<IServiceService, ServiceService>();
+        services.AddTransient<IResourceService, ResourceResourceService>();
         services.AddTransient<ITaskService, TaskService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IMetricService, MetricService>();

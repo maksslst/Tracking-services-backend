@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
+using Domain.Entities;
 
 namespace Api.Controllers;
 
@@ -8,20 +9,28 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class MetricServiceController : ControllerBase
 {
-    private IMetricService _metricService;
+    private readonly IMetricService _metricService;
 
     public MetricServiceController(IMetricService metricService)
     {
         _metricService = metricService;
     }
 
+    #region HttpPost
     [HttpPost]
     public async Task<IActionResult> AddMetric([FromBody]MetricDto metricDto)
     {
-        await _metricService.AddMetric(metricDto);
-        return Created();
+        Metric? metric = await _metricService.AddMetric(metricDto);
+        if (metric == null)
+        {
+            return BadRequest("Не удалось создать метрику");
+        }
+        
+        return Created(metricDto.Id.ToString(), metricDto);
     }
+    #endregion
 
+    #region HttpPut
     [HttpPut]
     public async Task<IActionResult> UpdateMetric([FromBody]MetricDto metricDto)
     {
@@ -33,22 +42,31 @@ public class MetricServiceController : ControllerBase
         
         return Ok();
     }
-
+    #endregion
+    
+    #region HttpDelete
     [HttpDelete("{metricId}")]
-    public async Task<IActionResult> DeleteMetric([FromQuery]int metricId)
+    public async Task<IActionResult> DeleteMetric(int metricId)
     {
+        if (await _metricService.GetMetricService(metricId) == null)
+        {
+            return NotFound("Метрика не найдена");
+        }
+        
         var result = await _metricService.DeleteMetric(metricId);
         if (!result)
         {
             return BadRequest("Не удалось удалить метрику");
         }
-        return Ok();
+        return NoContent();
     }
+    #endregion
 
+    #region HttpGet
     [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetMetricServiceId([FromQuery]int serviceId)
+    public async Task<IActionResult> GetMetricServiceId(int serviceId)
     {
-        MetricDto? metric = await _metricService.GetMetricServiceId(serviceId);
+        MetricDto? metric = await _metricService.GetMetricService(serviceId);
         if (metric == null)
         {
             return BadRequest("Не удалось получить метрику");
@@ -58,10 +76,10 @@ public class MetricServiceController : ControllerBase
     }
 
     [HttpGet("GetAllMetricServiceId/{serviceId}")]
-    public async Task<IActionResult> GetAllMetricServiceId([FromQuery]int serviceId)
+    public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
     {
-        List<MetricDto?> metrics = await _metricService.GetAllMetricServiceId(serviceId);
-        if (metrics.Count == 0)
+        IEnumerable<MetricDto?> metrics = await _metricService.GetAllMetricsService(serviceId);
+        if (metrics == null)
         {
             return BadRequest("Не удалось получить метрики сервиса");
         }
@@ -72,11 +90,12 @@ public class MetricServiceController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        List<MetricDto?> metrics = await _metricService.GetAll();
-        if (metrics.Count == 0)
+        IEnumerable<MetricDto?> metrics = await _metricService.GetAll();
+        if (metrics == null)
         {
             return BadRequest("Не удалось получить метрики");
         }
         return Ok(metrics);
     }
+    #endregion
 }

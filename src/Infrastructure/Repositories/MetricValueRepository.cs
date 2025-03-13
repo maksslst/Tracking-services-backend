@@ -6,47 +6,31 @@ namespace Infrastructure.Repositories;
 public class MetricValueRepository : IMetricValueRepository
 {
     private List<MetricValue> _metricValues;
-    private readonly IMetricRepository _metricRepository;
 
-    public MetricValueRepository(IMetricRepository metricRepository)
+    public MetricValueRepository()
     {
         _metricValues = new List<MetricValue>();
-        _metricRepository = metricRepository;
         DataGeneration();
     }
-    
-    public Task CreateMetricValue(MetricValue metricValue)
+
+    public Task<MetricValue> CreateMetricValue(MetricValue metricValue)
     {
         _metricValues.Add(metricValue);
-        return Task.CompletedTask;
+        return Task.FromResult(metricValue);
     }
 
-    public Task<List<MetricValue?>> ReadAllMetricValuesServiceId(int serviceId)
+    public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesMetricId(IEnumerable<int> metricsId)
     {
-        var metrics = _metricRepository.ReadAllMetricServiceId(serviceId).Result;
-        if (metrics == null)
-        {
-            return Task.FromResult<List<MetricValue?>>(null);
-        }
+        IEnumerable<MetricValue?> metricValues = _metricValues.Where(i => metricsId.Contains(i.MetricId));
 
-        List<MetricValue?> metricsValues = new List<MetricValue?>();
-        foreach (var metric in metrics)
-        {
-            var metricValue = _metricValues.FindAll(i => i.MetricId == metric.Id);
-            if(metricValue.Count > 0)
-            {
-                metricsValues.AddRange(metricValue);
-            }
-        }
-        
-        return Task.FromResult(metricsValues);
+        return Task.FromResult(metricValues);
     }
 
     private void DataGeneration()
     {
         var faker = new Faker();
         Random random = new Random();
-        for (int i = 0; i < 10;i++)
+        for (int i = 0; i < 10; i++)
         {
             MetricValue metricValue = new MetricValue()
             {

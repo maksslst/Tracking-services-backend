@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Services;
 using Application.DTOs.Mappings;
+using Domain.Entities;
 
 namespace Api.Controllers;
 
@@ -8,7 +9,7 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class CompanyController : ControllerBase
 {
-    private ICompanyService _companyService;
+    private readonly ICompanyService _companyService;
 
     public CompanyController(ICompanyService companyService)
     {
@@ -19,12 +20,17 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody]CompanyDto companyDto)
     {
-        await _companyService.Add(companyDto);
-        return Created();
+        Company? company =  await _companyService.Add(companyDto);
+        if (company == null)
+        {
+            return BadRequest("Не удалось создать компанию");
+        }
+        
+        return Created(company.Id.ToString(), company);
     }
     
     [HttpPost("{userId}/{companyId}")]
-    public async Task<IActionResult> AddUserToCompany([FromQuery]int userId, int companyId)
+    public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
         var result = await _companyService.AddUserToCompany(userId, companyId);
         if (!result)
@@ -52,19 +58,24 @@ public class CompanyController : ControllerBase
 
     #region HttpDelete
     [HttpDelete("{companyId}")]
-    public async Task<IActionResult> Delete([FromQuery]int companyId)
+    public async Task<IActionResult> Delete(int companyId)
     {
+        if (await _companyService.GetCompany(companyId) == null)
+        {
+            return NotFound("Такой компании не найдено");
+        }
+        
         var result = await _companyService.Delete(companyId);
         if (!result)
         {
             return BadRequest("Не удалось удалить компанию");
         }
 
-        return Ok();
+        return NoContent();
     }
     
     [HttpDelete("{userId}/{companyId}")]
-    public async Task<IActionResult> DeleteUserFromCompany([FromQuery]int userId, int companyId)
+    public async Task<IActionResult> DeleteUserFromCompany(int userId, int companyId)
     {
         var result = await _companyService.DeleteUserFromCompany(userId, companyId);
         if (!result)
@@ -72,15 +83,15 @@ public class CompanyController : ControllerBase
             return BadRequest("Не удалось удалить пользователя из компании");
         }
 
-        return Ok();
+        return NoContent();
     }
     #endregion
 
     #region HttpGet
     [HttpGet("{companyId}")]
-    public async Task<IActionResult> GetByCompanyId([FromQuery] int companyId)
+    public async Task<IActionResult> GetByCompanyId(int companyId)
     {
-        var company = await _companyService.GetByCompanyId(companyId);
+        var company = await _companyService.GetCompany(companyId);
         if (company == null)
         {
             return BadRequest("Не удалось найти компанию");
@@ -91,8 +102,8 @@ public class CompanyController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllCompany()
     {
-        List<CompanyDto?> companies = await _companyService.GetAllCompany();
-        if (companies.Count == 0)
+        IEnumerable<CompanyDto?> companies = await _companyService.GetAllCompanies();
+        if (companies == null)
         {
             return BadRequest("Не удалось получить список компаний");
         }
@@ -101,10 +112,10 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet("GetCompanyUsers/{companyId}")]
-    public async Task<IActionResult> GetCompanyUsers([FromQuery]int companyId)
+    public async Task<IActionResult> GetCompanyUsers(int companyId)
     {
-        List<UserDto?> users = await _companyService.GetCompanyUsers(companyId);
-        if (users.Count == 0)
+        IEnumerable<UserDto?> users = await _companyService.GetCompanyUsers(companyId);
+        if (users == null)
         {
             return BadRequest("Не удалось найти список пользователей");
         }

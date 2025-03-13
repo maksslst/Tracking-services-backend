@@ -6,7 +6,7 @@ public class MetricDto
     public double Value { get; set; }
     public string Name { get; set; }
     public int ServiceId { get; set; }
-    public ServiceDto ServiceDto { get; set; }
+    public ResourceDto ResourceDto { get; set; }
     public DateTime Created { get; set; }
     public string Unit { get; set; }
 }

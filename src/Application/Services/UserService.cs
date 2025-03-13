@@ -7,8 +7,8 @@ namespace Application.Services;
 
 public class UserService : IUserService
 {
-    private IUserRepository _userRepository;
-    private IMapper _mapper;
+    private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
 
     public UserService(IUserRepository userRepository, IMapper mapper)
     {
@@ -16,18 +16,26 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task Add(UserDto userDto)
+    public async Task<User?> Add(UserDto userDto)
     {
         User mappedUser = _mapper.Map<User>(userDto);
         if (mappedUser != null)
         {
             await _userRepository.CreateUser(mappedUser);
+            return mappedUser;
         }
+        
+        return null;
     }
 
     public async Task<bool> Update(UserDto userDto)
     {
         User mappedUser = _mapper.Map<User>(userDto);
+        if (mappedUser == null)
+        {
+            return false;
+        }
+        
         return await _userRepository.UpdateUser(mappedUser);
     }
 
@@ -43,10 +51,10 @@ public class UserService : IUserService
         return mappedUser;
     }
 
-    public async Task<List<UserDto?>> GetAll()
+    public async Task<IEnumerable<UserDto?>> GetAll()
     {
-        List<User?> users = await _userRepository.ReadAll();
-        var mappedUsers = users.Select(i => _mapper.Map<UserDto>(i)).ToList();
+        IEnumerable<User?> users = await _userRepository.ReadAll();
+        IEnumerable<UserDto> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
         return mappedUsers;
     }
 }

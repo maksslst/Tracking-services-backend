@@ -16,6 +16,6 @@ public class MappingProfile : Profile
         CreateMap<MonitoringSetting, MonitoringSettingDto>().ReverseMap();
         CreateMap<Metric, MetricDto>().ReverseMap();
         CreateMap<MetricValue, MetricValueDto>().ReverseMap();
-        CreateMap<Service, ServiceDto>().ReverseMap();
+        CreateMap<Resource, ResourceDto>().ReverseMap();
     }
 }

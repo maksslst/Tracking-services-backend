@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
+using Domain.Entities;
 
 namespace Api.Controllers;
 
@@ -8,7 +9,7 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class UserController : ControllerBase
 {
-    private IUserService _userService;
+    private readonly IUserService _userService;
 
     public UserController(IUserService userService)
     {
@@ -19,8 +20,13 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] UserDto userDto)
     {
-        await _userService.Add(userDto);
-        return Created();
+        User? user = await _userService.Add(userDto);
+        if (user == null)
+        {
+            return BadRequest("Не удалось создать пользователя");
+        }
+
+        return Created(userDto.Id.ToString(), user);
     }
     #endregion
 
@@ -29,37 +35,42 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UserDto userDto)
     {
         var result = await _userService.Update(userDto);
-        if (result)
+        if (!result)
         {
-            return Ok(result);
+            return NotFound("Не удалось обновить пользователя");
         }
-
-        return BadRequest("Не удалось обновить пользователя");
+        
+        return Ok(result);
     }
     #endregion
-    
+
     #region HttDelete
     [HttpDelete("{userId}")]
-    public async Task<IActionResult> Delete([FromQuery]int userId)
+    public async Task<IActionResult> Delete(int userId)
     {
-        var result = await _userService.Delete(userId);
-        if (result)
+        if (await _userService.GetById(userId) == null)
         {
-            return Ok(result);
+            return NotFound("Пользователь не найден");
+        }
+        
+        var result = await _userService.Delete(userId);
+        if (!result)
+        {
+            return NotFound("Не удалось удалить пользователя");
         }
 
-        return BadRequest("Не удалось удалить пользователя");
+        return NoContent();
     }
     #endregion
 
     #region HttGet
     [HttpGet("{userId}")]
-    public async Task<IActionResult> GetById([FromQuery] int userId)
+    public async Task<IActionResult> GetById(int userId)
     {
         UserDto? user = await _userService.GetById(userId);
         if (user == null)
         {
-            return BadRequest("Такой польователь не найден");
+            return NotFound("Такой польователь не найден");
         }
 
         return Ok(user);
@@ -68,10 +79,10 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        List<UserDto?> users = await _userService.GetAll();
-        if (users.Count == 0)
+        IEnumerable<UserDto?> users = await _userService.GetAll();
+        if (users ==null)
         {
-            return BadRequest("Список пользователей не найден");
+            return NotFound("Список пользователей не найден");
         }
 
         return Ok(users);

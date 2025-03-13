@@ -1,32 +1,26 @@
-using System.Data;
 using Domain.Entities;
 using Bogus;
+using TaskStatus = Domain.Enums.TaskStatus;
 
 namespace Infrastructure.Repositories;
 
 public class TaskRepository : ITaskRepository
 {
     private List<ServiceTask> _tasks;
-    private readonly IServiceRepository _serviceRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly ICompanyRepository _companyRepository;
 
-    public TaskRepository(IServiceRepository serviceRepository, IUserRepository userRepository, ICompanyRepository companyRepository)
+    public TaskRepository()
     {
         _tasks = new List<ServiceTask>();
-        _serviceRepository = serviceRepository;
-        _userRepository = userRepository;
-        _companyRepository = companyRepository;
         DataGeneration();
     }
 
-    public Task CreateTask(ServiceTask serviceTask)
+    public Task<ServiceTask> CreateTask(ServiceTask serviceTask)
     {
         _tasks.Add(serviceTask);
-        return Task.CompletedTask;
+        return Task.FromResult(serviceTask);
     }
 
-    public Task<bool> UpdateTask(ServiceTask serviceTask)
+    public Task<bool> UpdateTask(ServiceTask serviceTask,User assignedUserToUpdate)
     {
         var task = _tasks.Find(i => i.Id == serviceTask.Id);
         if (task == null)
@@ -34,22 +28,9 @@ public class TaskRepository : ITaskRepository
             return Task.FromResult(false);
         }
 
-        if (_serviceRepository.ReadByServiceId(serviceTask.ServiceId).Result == null)
-        {
-            return Task.FromResult(false);
-        }
-
         task.ServiceId = serviceTask.ServiceId;
-        task.Service = serviceTask.Service;
+        task.Resource = serviceTask.Resource;
         task.Description = serviceTask.Description;
-
-        var assignedUserToUpdate = _userRepository.ReadById(serviceTask.AssignedUserId).Result;
-        if (assignedUserToUpdate == null || assignedUserToUpdate.CompanyId !=
-            _userRepository.ReadById(serviceTask.AssignedUserId).Result.CompanyId)
-        {
-            return Task.FromResult(false);
-        }
-
         task.AssignedUserId = assignedUserToUpdate.Id;
         task.AssignedUser = assignedUserToUpdate;
         task.StartTime = serviceTask.StartTime;
@@ -81,19 +62,8 @@ public class TaskRepository : ITaskRepository
         return Task.FromResult(task);
     }
 
-    public Task<List<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
+    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(IEnumerable<Resource> companyServices)
     {
-        if (_companyRepository.ReadByCompanyId(companyId).Result == null)
-        {
-            return Task.FromResult(new List<ServiceTask?>());
-        }
-
-        var companyServices = _serviceRepository.ReadCompanyServices(companyId).Result;
-        if (companyServices == null)
-        {
-            return Task.FromResult(new List<ServiceTask?>());
-        }
-
         List<ServiceTask> companyTasks = new List<ServiceTask>();
         foreach (var task in _tasks)
         {
@@ -103,16 +73,11 @@ public class TaskRepository : ITaskRepository
             }
         }
         
-        return Task.FromResult(companyTasks);
+        return Task.FromResult<IEnumerable<ServiceTask?>>(companyTasks);
     }
 
-    public Task<bool> AssignTaskToUser(int userId, int taskId)
+    public Task<bool> AssignTaskToUser(User user, int taskId)
     {
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
-        {
-            return Task.FromResult(false);
-        }
         
         var task = _tasks.Find(i => i.Id == taskId);
         if (task == null)
@@ -125,26 +90,20 @@ public class TaskRepository : ITaskRepository
             return Task.FromResult(false);
         }
         
-        task.AssignedUserId = userId;
+        task.AssignedUserId = user.Id;
         task.AssignedUser = user;
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteTaskToUser(int userId, int taskId)
+    public Task<bool> DeleteTaskToUser(User user, int taskId)
     {
-        var user =_userRepository.ReadById(userId).Result;
-        if (user == null)
-        {
-            return Task.FromResult(false);
-        }
-        
         var task = _tasks.Find(i => i.Id == taskId);
         if (task == null)
         {
             return Task.FromResult(false);
         }
 
-        if (task.AssignedUserId != userId)
+        if (task.AssignedUserId != user.Id)
         {
             return Task.FromResult(false);
         }
@@ -154,14 +113,8 @@ public class TaskRepository : ITaskRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
+    public Task<bool> ReassignTaskToUser(int oldUserId, User newUser, int taskId)
     {
-        var user = _userRepository.ReadById(newUserId).Result;
-        if (user == null)
-        {
-            return Task.FromResult(false);
-        }
-        
         var task = _tasks.Find(i => i.Id == taskId && i.AssignedUserId == oldUserId);
         if (task == null)
         {
@@ -173,8 +126,8 @@ public class TaskRepository : ITaskRepository
             return Task.FromResult(false);
         }
 
-        task.AssignedUserId = newUserId;
-        task.AssignedUser = user;
+        task.AssignedUserId = newUser.Id;
+        task.AssignedUser = newUser;
         return Task.FromResult(true);
     }
 
@@ -189,10 +142,10 @@ public class TaskRepository : ITaskRepository
         return Task.FromResult(task);
     }
 
-    public Task<List<ServiceTask?>> ReadAllUserTasks(int userId)
+    public Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)
     {
         var task = _tasks.FindAll(i => i.AssignedUserId == userId);
-        return Task.FromResult(task);
+        return Task.FromResult<IEnumerable<ServiceTask?>>(task);
     }
 
     private void DataGeneration()
@@ -209,7 +162,7 @@ public class TaskRepository : ITaskRepository
                 CreatedById = random.Next(1, 5),
                 StartTime = DateTime.Today,
                 CompletionTime = DateTime.Now,
-                Status = faker.PickRandom<ServiceTask.TaskStatus>()
+                Status = faker.PickRandom<TaskStatus>()
             };
             
             _tasks.Add(serviceTask);
