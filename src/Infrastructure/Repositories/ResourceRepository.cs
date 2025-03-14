@@ -6,30 +6,28 @@ namespace Infrastructure.Repositories;
 
 public class ResourceRepository : IResourceRepository
 {
-    private List<Resource> _services;
+    private List<Resource> _resources;
 
     public ResourceRepository()
     {
-        _services = new List<Resource>();
+        _resources = new List<Resource>();
         DataGeneration();
     }
 
-    public Task<Resource> CreateService(Resource resource)
+    public Task<Resource> CreateResource(Resource resource)
     {
-        _services.Add(resource);
+        _resources.Add(resource);
         return Task.FromResult(resource);
     }
 
-    public Task<bool> UpdateService(Resource resource)
+    public Task<bool> UpdateResource(Resource resource)
     {
-        var serviceToUpdate = _services.Find(i => i.Id == resource.Id);
+        var serviceToUpdate = _resources.Find(i => i.Id == resource.Id);
         if (serviceToUpdate == null)
         {
             return Task.FromResult(false);
         }
 
-        serviceToUpdate.CompanyId = resource.CompanyId;
-        serviceToUpdate.Company = resource.Company;
         serviceToUpdate.Name = resource.Name;
         serviceToUpdate.Type = resource.Type;
         serviceToUpdate.Source = resource.Source;
@@ -38,73 +36,80 @@ public class ResourceRepository : IResourceRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteService(int serviceId)
+    public Task<bool> DeleteResource(int resourceId)
     {
-        var service = _services.Find(i => i.Id == serviceId);
+        var service = _resources.Find(i => i.Id == resourceId);
         if (service == null)
         {
             return Task.FromResult(false);
         }
 
-        _services.Remove(service);
+        _resources.Remove(service);
         return Task.FromResult(true);
     }
 
-    public Task<bool> AddCompanyService(Company company, Resource? service = null)
+    public Task<bool> AddCompanyResource(Company company, Resource? resource = null)
     {
-        bool isCorrect = DataVerification(company, service);
+        bool isCorrect = DataVerification(company, resource);
+        if (isCorrect)
+        {
+            company.Resources.Add(resource);
+        }
+
         return Task.FromResult(isCorrect);
     }
+    
+    // вместо этого метода в UpdateCompanyResource (ResourceService) вызываю UpdateResource
+    // public Task<bool> UpdateCompanyResource(Company company, Resource resource, int resourceUpdateId)
+    // {
+    //     if (resource.CompanyId != company.Id)
+    //     {
+    //         return Task.FromResult(false);
+    //     }
+    //
+    //     var resourceToUpdate = company.Resources.Find(i => i.Id == resourceUpdateId);
+    //     if (resourceToUpdate == null)
+    //     {
+    //         return Task.FromResult(false);
+    //     }
+    //
+    //     resourceToUpdate.Name = resource.Name;
+    //     resourceToUpdate.Type = resource.Type;
+    //     resourceToUpdate.Status = resource.Status;
+    //     resourceToUpdate.Source = resource.Source;
+    //     
+    //     resourceToUpdate.CompanyId = company.Id;
+    //     resourceToUpdate.Company = company;
+    //
+    //     return Task.FromResult(true);
+    // }
 
-    public Task<bool> UpdateCompanyService(Company company, Resource resource, int serviceUpdateId)
+    public Task<bool> DeleteCompanyResource(int resourceId, Company company)
     {
-        if (resource.CompanyId != company.Id)
-        {
-            return Task.FromResult(false);
-        }
-
-        var serviceToUpdate = company.Services.Find(i => i.Id == serviceUpdateId);
-        if (serviceToUpdate == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        serviceToUpdate.Name = resource.Name;
-        serviceToUpdate.Type = resource.Type;
-        serviceToUpdate.Status = resource.Status;
-        serviceToUpdate.Source = resource.Source;
-        serviceToUpdate.CompanyId = company.Id;
-        serviceToUpdate.Company = company;
-
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> DeleteCompanyService(int serviceId, Company company)
-    {
-        var serviceToDelete = company.Services.Find(i => i.Id == serviceId);
+        var serviceToDelete = company.Resources.Find(i => i.Id == resourceId);
         if (serviceToDelete == null)
         {
             return Task.FromResult(false);
         }
 
-        company.Services.Remove(serviceToDelete);
+        company.Resources.Remove(serviceToDelete);
         return Task.FromResult(true);
     }
 
-    public Task<Resource?> ReadByServiceId(int serviceId)
+    public Task<Resource?> ReadByResourceId(int resourceId)
     {
-        var service = _services.Find(i => i.Id == serviceId);
+        var service = _resources.Find(i => i.Id == resourceId);
         return Task.FromResult(service);
     }
 
-    public Task<IEnumerable<Resource?>> ReadAllServices()
+    public Task<IEnumerable<Resource?>> ReadAllResources()
     {
-        return Task.FromResult<IEnumerable<Resource?>>(_services);
+        return Task.FromResult<IEnumerable<Resource?>>(_resources);
     }
 
-    public Task<IEnumerable<Resource?>> ReadCompanyServices(Company company)
+    public Task<IEnumerable<Resource?>> ReadCompanyResources(Company company)
     {
-        var services = company.Services;
+        var services = company.Resources;
         return Task.FromResult<IEnumerable<Resource?>>(services);
     }
 
@@ -122,33 +127,28 @@ public class ResourceRepository : IResourceRepository
                 Status = faker.PickRandom<ServiceStatus>()
             };
 
-            _services.Add(resource);
+            _resources.Add(resource);
         }
     }
 
-    private bool DataVerification(Company company, Resource? service)
+    private bool DataVerification(Company company, Resource? resource)
     {
-        if (service == null)
-        {
-            return false;
-        }
-        
-        Resource? addedService = _services.Find(i => i.Id == service.Id);
-        if (addedService == null)
+        if (resource == null)
         {
             return false;
         }
 
-        if (!company.Services.Any(i => i.Id == addedService.Id))
+        Resource? addedResource = _resources.Find(i => i.Id == resource.Id);
+        if (addedResource == null)
         {
-            AddingService(company,addedService);
+            return false;
+        }
+
+        if (company.Resources.Any(i => i.Id == addedResource.Id))
+        {
+            return false;
         }
 
         return true;
-    }
-
-    private void AddingService(Company company, Resource addedResource)
-    {
-        company.Services.Add(addedResource);
     }
 }

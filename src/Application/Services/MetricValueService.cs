@@ -31,16 +31,16 @@ public class MetricValueService : IMetricValueService
         return null;
     }
 
-    public async Task<IEnumerable<MetricValueDto?>> GetAllMetricValuesForService(int serviceId)
+    public async Task<IEnumerable<MetricValueDto?>> GetAllMetricValuesForResource(int resourceId)
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricServiceId(serviceId);
+        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricForServiceId(resourceId);
         if (metrics == null)
         {
             return null;
         }
 
         IEnumerable<int> metricsId = metrics.Select(i => i.Id);
-        var metricValue = await _metricValueRepository.ReadAllMetricValuesMetricId(metricsId);
+        var metricValue = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
 
         IEnumerable<MetricValueDto> mappedMetricValues = metricValue.Select(i => _mapper.Map<MetricValueDto>(i));
         return mappedMetricValues;

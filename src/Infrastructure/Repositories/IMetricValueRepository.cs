@@ -5,5 +5,5 @@ namespace Infrastructure.Repositories;
 public interface IMetricValueRepository
 {
     public Task<MetricValue> CreateMetricValue(MetricValue metricValue);
-    public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesMetricId (IEnumerable<int> metricsId);
+    public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId (IEnumerable<int> metricsId);
 }

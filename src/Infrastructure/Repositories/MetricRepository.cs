@@ -57,7 +57,7 @@ public class MetricRepository : IMetricRepository
         return Task.FromResult(metric);
     }
 
-    public Task<IEnumerable<Metric?>> ReadAllMetricServiceId(int serviceId)
+    public Task<IEnumerable<Metric?>> ReadAllMetricForServiceId(int serviceId)
     {
         var metric = _metrics.FindAll(i => i.ServiceId == serviceId);
         return Task.FromResult<IEnumerable<Metric?>>(metric);

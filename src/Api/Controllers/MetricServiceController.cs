@@ -48,7 +48,7 @@ public class MetricServiceController : ControllerBase
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
     {
-        if (await _metricService.GetMetricService(metricId) == null)
+        if (await _metricService.GetMetricByServiceId(metricId) == null)
         {
             return NotFound("Метрика не найдена");
         }
@@ -66,7 +66,7 @@ public class MetricServiceController : ControllerBase
     [HttpGet("{serviceId}")]
     public async Task<IActionResult> GetMetricServiceId(int serviceId)
     {
-        MetricDto? metric = await _metricService.GetMetricService(serviceId);
+        MetricDto? metric = await _metricService.GetMetricByServiceId(serviceId);
         if (metric == null)
         {
             return BadRequest("Не удалось получить метрику");
@@ -78,7 +78,7 @@ public class MetricServiceController : ControllerBase
     [HttpGet("GetAllMetricServiceId/{serviceId}")]
     public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
     {
-        IEnumerable<MetricDto?> metrics = await _metricService.GetAllMetricsService(serviceId);
+        IEnumerable<MetricDto?> metrics = await _metricService.GetAllMetricsByServiceId(serviceId);
         if (metrics == null)
         {
             return BadRequest("Не удалось получить метрики сервиса");

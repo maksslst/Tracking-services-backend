@@ -20,19 +20,19 @@ public class ResourceController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] ResourceDto resourceDto)
     {
-        Resource? service = await _resourceService.Add(resourceDto);
-        if (service == null)
+        Resource? resource = await _resourceService.Add(resourceDto);
+        if (resource == null)
         {
             return BadRequest("Не удалось добавить сервис");
         }
         
-        return Created(resourceDto.Id.ToString(), service);
+        return Created(resourceDto.Id.ToString(), resource);
     }
 
-    [HttpPost("{companyId}/{serviceId}")]
-    public async Task<IActionResult> AddCompanyService([FromBody] ResourceDto? serviceDto,int companyId)
+    [HttpPost("{companyId}")]
+    public async Task<IActionResult> AddCompanyResource([FromBody] ResourceDto? resourceDto, int companyId)
     {
-        var result = await _resourceService.AddCompanyService(companyId, serviceDto);
+        var result = await _resourceService.AddCompanyResource(companyId, resourceDto);
         if (!result)
         {
             return BadRequest("Не удалось добавить сервис компании");
@@ -55,10 +55,10 @@ public class ResourceController : ControllerBase
         return Ok();
     }
     
-    [HttpPut("{companyId}/{serviceUpdateId}")]
-    public async Task<IActionResult> UpdateCompanyService([FromBody] ResourceDto resourceDto, int companyId, int serviceUpdateId)
+    [HttpPut("{companyId}/{resourceUpdateId}")]
+    public async Task<IActionResult> UpdateCompanyResource([FromBody] ResourceDto resourceDto, int companyId, int resourceUpdateId)
     {
-        var result = await _resourceService.UpdateCompanyService(companyId, resourceDto, serviceUpdateId);
+        var result = await _resourceService.UpdateCompanyResource(companyId, resourceDto, resourceUpdateId);
         if (!result)
         {
             return BadRequest("Не удалось изменить сервис");
@@ -69,15 +69,15 @@ public class ResourceController : ControllerBase
     #endregion
     
     #region HttpDelete
-    [HttpDelete("{serviceId}")]
-    public async Task<IActionResult> Delete(int serviceId)
+    [HttpDelete("{resourceId}")]
+    public async Task<IActionResult> Delete(int resourceId)
     {
-        if (await _resourceService.GetService(serviceId) == null)
+        if (await _resourceService.GetResource(resourceId) == null)
         {
             return NotFound("Сервис не найден");
         }
         
-        var result = await _resourceService.Delete(serviceId);
+        var result = await _resourceService.Delete(resourceId);
         if (!result)
         {
             return BadRequest("Не удалось удалить сервис");
@@ -86,10 +86,10 @@ public class ResourceController : ControllerBase
         return NoContent();
     }
     
-    [HttpDelete("{serviceId}/{companyId}")]
-    public async Task<IActionResult> DeleteCompanyService(int serviceId, int companyId)
+    [HttpDelete("{resourceId}/{companyId}")]
+    public async Task<IActionResult> DeleteCompanyService(int resourceId, int companyId)
     {
-        var result = await _resourceService.DeleteCompanyService(serviceId, companyId);
+        var result = await _resourceService.DeleteCompanyResource(resourceId, companyId);
         if (!result)
         {
             return BadRequest("Не удалось удалить сервис");
@@ -100,10 +100,10 @@ public class ResourceController : ControllerBase
     #endregion
 
     #region HttpGet
-    [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetByServiceId(int serviceId)
+    [HttpGet("{resourceId}")]
+    public async Task<IActionResult> GetByResourceId(int resourceId)
     {
-        ResourceDto? service = await _resourceService.GetService(serviceId);
+        ResourceDto? service = await _resourceService.GetResource(resourceId);
         if (service == null)
         {
             return BadRequest("Не удалось найти сервис");
@@ -113,27 +113,27 @@ public class ResourceController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllServices()
+    public async Task<IActionResult> GetAllResources()
     {
-        IEnumerable<ResourceDto?> services = await _resourceService.GetAllServices();
-        if (services == null)
+        IEnumerable<ResourceDto?> resources = await _resourceService.GetAllResources();
+        if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов");
         }
 
-        return Ok(services);
+        return Ok(resources);
     }
 
-    [HttpGet("GetCompanyServices/{companyId}")]
-    public async Task<IActionResult> GetCompanyServices(int companyId)
+    [HttpGet("GetCompanyResources/{companyId}")]
+    public async Task<IActionResult> GetCompanyResources(int companyId)
     {
-        IEnumerable<ResourceDto?> services = await _resourceService.GetCompanyServices(companyId);
-        if (services == null)
+        IEnumerable<ResourceDto?> resources = await _resourceService.GetCompanyResources(companyId);
+        if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов компании");
         }
 
-        return Ok(services);
+        return Ok(resources);
     }
     #endregion
 }

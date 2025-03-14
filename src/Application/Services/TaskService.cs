@@ -43,7 +43,7 @@ public class TaskService : ITaskService
             return false;
         }
 
-        if (await _resourceRepository.ReadByServiceId(serviceTaskDto.ServiceId) == null)
+        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ServiceId) == null)
         {
             return false;
         }
@@ -70,7 +70,7 @@ public class TaskService : ITaskService
         return mappedTask;
     }
 
-    public async Task<IEnumerable<ServiceTaskDto?>> GetAllTasksCompany(int companyId)
+    public async Task<IEnumerable<ServiceTaskDto?>> GetAllCompanyTasks(int companyId)
     {
         Company? company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
@@ -78,7 +78,7 @@ public class TaskService : ITaskService
             return null;
         }
 
-        var companyServices = _resourceRepository.ReadCompanyServices(company).Result;
+        var companyServices = _resourceRepository.ReadCompanyResources(company).Result;
         if (companyServices == null)
         {
             return null;

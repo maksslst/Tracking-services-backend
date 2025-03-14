@@ -38,7 +38,7 @@ public class CompanyService : ICompanyService
             return false;
         }
 
-        List<UserDto> users = companyDto.UsersDto;
+        List<UserDto> users = companyDto.Users;
         foreach (var user in users)
         {
             if (_userRepository.ReadById(user.Id).Result != null)

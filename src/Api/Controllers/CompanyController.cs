@@ -100,7 +100,7 @@ public class CompanyController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllCompany()
+    public async Task<IActionResult> GetAllCompanies()
     {
         IEnumerable<CompanyDto?> companies = await _companyService.GetAllCompanies();
         if (companies == null)

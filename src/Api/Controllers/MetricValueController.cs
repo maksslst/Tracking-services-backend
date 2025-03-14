@@ -23,7 +23,7 @@ public class MetricValueController : ControllerBase
         MetricValue? metricValue = await _metricValueService.AddMetricValue(metricValueDto);
         if (metricValue == null)
         {
-            return BadRequest("Не удалось дабавить значение");
+            return BadRequest("Не удалось добавить значение");
         }
         
         return Created(metricValue.Id.ToString(), metricValue);
@@ -31,10 +31,10 @@ public class MetricValueController : ControllerBase
     #endregion
 
     #region HttpGet
-    [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetAllMetricValuesServiceId(int serviceId)
+    [HttpGet("{resourceId}")]
+    public async Task<IActionResult> GetAllMetricValuesByResourceId(int resourceId)
     {
-        IEnumerable<MetricValueDto?> metricValue = await _metricValueService.GetAllMetricValuesForService(serviceId);
+        IEnumerable<MetricValueDto?> metricValue = await _metricValueService.GetAllMetricValuesForResource(resourceId);
         if (metricValue == null)
         {
             return BadRequest("Не удалось получить собранные заначения метрики");

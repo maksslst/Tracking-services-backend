@@ -115,7 +115,7 @@ public class TaskController : ControllerBase
     [HttpGet("GetAllTasksCompanyId/{companyId}")]
     public async Task<IActionResult> GetAllTasksCompanyId(int companyId)
     {
-        IEnumerable<ServiceTaskDto?> serviceTasks = await _taskService.GetAllTasksCompany(companyId);
+        IEnumerable<ServiceTaskDto?> serviceTasks = await _taskService.GetAllCompanyTasks(companyId);
         if (serviceTasks == null)
         {
             return BadRequest("Не удалось получить задачи компании");

@@ -65,7 +65,7 @@ public class MonitoringSettingController : ControllerBase
 
     #region HttpGet
     [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetByServiceId([FromQuery] int serviceId)
+    public async Task<IActionResult> GetByServiceId(int serviceId)
     {
         MonitoringSettingDto? monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
         if (monitoringSetting == null)
