@@ -1,6 +1,6 @@
 namespace Application.DTOs.Enums;
 
-public enum ServiceStatus
+public enum ResourceStatus
 {
     Active,
     Inactive

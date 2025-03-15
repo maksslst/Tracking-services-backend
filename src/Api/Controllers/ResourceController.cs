@@ -87,7 +87,7 @@ public class ResourceController : ControllerBase
     }
     
     [HttpDelete("{resourceId}/{companyId}")]
-    public async Task<IActionResult> DeleteCompanyService(int resourceId, int companyId)
+    public async Task<IActionResult> DeleteCompanyResource(int resourceId, int companyId)
     {
         var result = await _resourceService.DeleteCompanyResource(resourceId, companyId);
         if (!result)

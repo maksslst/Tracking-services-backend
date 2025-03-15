@@ -7,7 +7,8 @@ public interface IMetricRepository
     public Task<Metric> CreateMetric(Metric metric);
     public Task<bool> UpdateMetric(Metric metric);
     public Task<bool> DeleteMetric(int metricId);
-    public Task<Metric?> ReadMetricServiceId(int serviceId);
-    public Task<IEnumerable<Metric?>> ReadAllMetricForServiceId (int serviceId);
+    public Task<Metric?> ReadMetricByServiceId(int serviceId);
+    public Task<Metric?> ReadMetricId(int metricId);
+    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource (int serviceId);
     public Task<IEnumerable<Metric?>> ReadAll();
 }

@@ -77,19 +77,19 @@ public class ResourceService : IResourceService
 
     public async Task<bool> UpdateCompanyResource(int companyId, ResourceDto resourceDto, int resourceUpdateId)
     {
-        Resource? resourseToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
-        if (resourseToUpdate == null || await _companyRepository.ReadByCompanyId(companyId) == null ||
-            resourseToUpdate.CompanyId != companyId)
+        Resource? resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
+        if (resourceToUpdate == null || await _companyRepository.ReadByCompanyId(companyId) == null ||
+            resourceToUpdate.CompanyId != companyId)
         {
             return false;
         }
 
-        resourseToUpdate.Name = resourceDto.Name;
-        resourseToUpdate.Type = resourceDto.Type;
-        resourseToUpdate.Status = (ServiceStatus)resourceDto.Status;
-        resourseToUpdate.Source = resourceDto.Source;
+        resourceToUpdate.Name = resourceDto.Name;
+        resourceToUpdate.Type = resourceDto.Type;
+        resourceToUpdate.Status = (ResourceStatus)resourceDto.Status;
+        resourceToUpdate.Source = resourceDto.Source;
 
-        return await _resourceRepository.UpdateResource(resourseToUpdate);
+        return await _resourceRepository.UpdateResource(resourceToUpdate);
     }
 
     public async Task<bool> DeleteCompanyResource(int resourceId, int companyId)
@@ -111,16 +111,16 @@ public class ResourceService : IResourceService
 
     public async Task<ResourceDto?> GetResource(int resourceId)
     {
-        Resource? service = await _resourceRepository.ReadByResourceId(resourceId);
-        ResourceDto mappedResource = _mapper.Map<ResourceDto>(service);
+        Resource? resource = await _resourceRepository.ReadByResourceId(resourceId);
+        ResourceDto mappedResource = _mapper.Map<ResourceDto>(resource);
         return mappedResource;
     }
 
     public async Task<IEnumerable<ResourceDto?>> GetAllResources()
     {
-        IEnumerable<Resource?> services = await _resourceRepository.ReadAllResources();
-        List<ResourceDto> mappedServices = services.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
-        return mappedServices;
+        IEnumerable<Resource?> resource = await _resourceRepository.ReadAllResources();
+        List<ResourceDto> mappedResource = resource.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
+        return mappedResource;
     }
 
     public async Task<IEnumerable<ResourceDto?>> GetCompanyResources(int companyId)
@@ -131,8 +131,8 @@ public class ResourceService : IResourceService
             return null;
         }
 
-        IEnumerable<Resource?> servicesCompany = await _resourceRepository.ReadCompanyResources(company);
-        IEnumerable<ResourceDto> mappedServicesCompany = servicesCompany.Select(i => _mapper.Map<ResourceDto>(i));
-        return mappedServicesCompany;
+        IEnumerable<Resource?> resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
+        IEnumerable<ResourceDto> mappedResourcesCompany = resourcesCompany.Select(i => _mapper.Map<ResourceDto>(i));
+        return mappedResourcesCompany;
     }
 }

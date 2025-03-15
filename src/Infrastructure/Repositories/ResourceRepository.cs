@@ -22,29 +22,29 @@ public class ResourceRepository : IResourceRepository
 
     public Task<bool> UpdateResource(Resource resource)
     {
-        var serviceToUpdate = _resources.Find(i => i.Id == resource.Id);
-        if (serviceToUpdate == null)
+        var resourceToUpdate = _resources.Find(i => i.Id == resource.Id);
+        if (resourceToUpdate == null)
         {
             return Task.FromResult(false);
         }
 
-        serviceToUpdate.Name = resource.Name;
-        serviceToUpdate.Type = resource.Type;
-        serviceToUpdate.Source = resource.Source;
-        serviceToUpdate.Status = resource.Status;
+        resourceToUpdate.Name = resource.Name;
+        resourceToUpdate.Type = resource.Type;
+        resourceToUpdate.Source = resource.Source;
+        resourceToUpdate.Status = resource.Status;
 
         return Task.FromResult(true);
     }
 
     public Task<bool> DeleteResource(int resourceId)
     {
-        var service = _resources.Find(i => i.Id == resourceId);
-        if (service == null)
+        var resource = _resources.Find(i => i.Id == resourceId);
+        if (resource == null)
         {
             return Task.FromResult(false);
         }
 
-        _resources.Remove(service);
+        _resources.Remove(resource);
         return Task.FromResult(true);
     }
 
@@ -59,47 +59,22 @@ public class ResourceRepository : IResourceRepository
         return Task.FromResult(isCorrect);
     }
     
-    // вместо этого метода в UpdateCompanyResource (ResourceService) вызываю UpdateResource
-    // public Task<bool> UpdateCompanyResource(Company company, Resource resource, int resourceUpdateId)
-    // {
-    //     if (resource.CompanyId != company.Id)
-    //     {
-    //         return Task.FromResult(false);
-    //     }
-    //
-    //     var resourceToUpdate = company.Resources.Find(i => i.Id == resourceUpdateId);
-    //     if (resourceToUpdate == null)
-    //     {
-    //         return Task.FromResult(false);
-    //     }
-    //
-    //     resourceToUpdate.Name = resource.Name;
-    //     resourceToUpdate.Type = resource.Type;
-    //     resourceToUpdate.Status = resource.Status;
-    //     resourceToUpdate.Source = resource.Source;
-    //     
-    //     resourceToUpdate.CompanyId = company.Id;
-    //     resourceToUpdate.Company = company;
-    //
-    //     return Task.FromResult(true);
-    // }
-
     public Task<bool> DeleteCompanyResource(int resourceId, Company company)
     {
-        var serviceToDelete = company.Resources.Find(i => i.Id == resourceId);
-        if (serviceToDelete == null)
+        var resourceToDelete = company.Resources.Find(i => i.Id == resourceId);
+        if (resourceToDelete == null)
         {
             return Task.FromResult(false);
         }
 
-        company.Resources.Remove(serviceToDelete);
+        company.Resources.Remove(resourceToDelete);
         return Task.FromResult(true);
     }
 
     public Task<Resource?> ReadByResourceId(int resourceId)
     {
-        var service = _resources.Find(i => i.Id == resourceId);
-        return Task.FromResult(service);
+        var resource = _resources.Find(i => i.Id == resourceId);
+        return Task.FromResult(resource);
     }
 
     public Task<IEnumerable<Resource?>> ReadAllResources()
@@ -109,8 +84,8 @@ public class ResourceRepository : IResourceRepository
 
     public Task<IEnumerable<Resource?>> ReadCompanyResources(Company company)
     {
-        var services = company.Resources;
-        return Task.FromResult<IEnumerable<Resource?>>(services);
+        var resource = company.Resources;
+        return Task.FromResult<IEnumerable<Resource?>>(resource);
     }
 
     private void DataGeneration()
@@ -124,7 +99,7 @@ public class ResourceRepository : IResourceRepository
                 Name = faker.Internet.DomainName(),
                 Type = "website",
                 Source = faker.Internet.Ip(),
-                Status = faker.PickRandom<ServiceStatus>()
+                Status = faker.PickRandom<ResourceStatus>()
             };
 
             _resources.Add(resource);

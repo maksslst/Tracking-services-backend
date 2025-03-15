@@ -19,6 +19,17 @@ public class MetricValueRepository : IMetricValueRepository
         return Task.FromResult(metricValue);
     }
 
+    public Task<MetricValue?> ReadMetricValueId(int metricValueId)
+    {
+        MetricValue? metricValue = _metricValues.Find(i => i.Id == metricValueId);
+        if (metricValue == null)
+        {
+            return Task.FromResult<MetricValue?>(null);
+        }
+        
+        return Task.FromResult(metricValue);
+    }
+
     public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId(IEnumerable<int> metricsId)
     {
         IEnumerable<MetricValue?> metricValues = _metricValues.Where(i => metricsId.Contains(i.MetricId));

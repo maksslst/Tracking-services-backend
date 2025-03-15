@@ -25,6 +25,11 @@ public class TaskService : ITaskService
 
     public async Task<ServiceTask?> Add(ServiceTaskDto serviceTaskDto)
     {
+        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ResourceId) == null)
+        {
+            return null;
+        }
+        
         ServiceTask mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
         if (mappedTask != null)
         {
@@ -43,7 +48,7 @@ public class TaskService : ITaskService
             return false;
         }
 
-        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ServiceId) == null)
+        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ResourceId) == null)
         {
             return false;
         }

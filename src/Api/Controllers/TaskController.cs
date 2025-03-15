@@ -112,8 +112,8 @@ public class TaskController : ControllerBase
         return Ok(serviceTask);
     }
 
-    [HttpGet("GetAllTasksCompanyId/{companyId}")]
-    public async Task<IActionResult> GetAllTasksCompanyId(int companyId)
+    [HttpGet("GetAllCompanyTasks/{companyId}")]
+    public async Task<IActionResult> GetAllCompanyTasks(int companyId)
     {
         IEnumerable<ServiceTaskDto?> serviceTasks = await _taskService.GetAllCompanyTasks(companyId);
         if (serviceTasks == null)

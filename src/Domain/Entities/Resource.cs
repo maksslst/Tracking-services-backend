@@ -10,5 +10,5 @@ public class Resource
     public string Name { get; set; }
     public string Type { get; set; }
     public string Source { get; set; }
-    public ServiceStatus Status { get; set; }
+    public ResourceStatus Status { get; set; }
 }

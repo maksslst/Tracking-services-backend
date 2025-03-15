@@ -20,6 +20,11 @@ public class MetricService : IMetricService
 
     public async Task<Metric?> AddMetric(MetricDto metricDto)
     {
+        if (await _resourceRepository.ReadByResourceId(metricDto.ResourceId) == null)
+        {
+            return null;
+        }
+        
         Metric mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric != null)
         {
@@ -38,7 +43,7 @@ public class MetricService : IMetricService
             return false;
         }
 
-        if (_resourceRepository.ReadByResourceId(metricDto.ServiceId).Result == null)
+        if (_resourceRepository.ReadByResourceId(metricDto.ResourceId).Result == null)
         {
             return false;    
         }
@@ -53,14 +58,14 @@ public class MetricService : IMetricService
 
     public async Task<MetricDto?> GetMetricByServiceId(int serviceId)
     {
-        Metric? metric = await _metricRepository.ReadMetricServiceId(serviceId);
+        Metric? metric = await _metricRepository.ReadMetricByServiceId(serviceId);
         MetricDto mappedMetric = _mapper.Map<MetricDto>(metric);
         return mappedMetric;
     }
 
     public async Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId)
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricForServiceId(serviceId);
+        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
         IEnumerable<MetricDto> mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
         return mappedMetrics;
     }
