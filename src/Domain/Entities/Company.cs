@@ -5,11 +5,11 @@ public class Company
     public int Id { get; set; }
     public string CompanyName { get; set; }
     public List<User> Users { get; set; }
-    public List<Service> Services { get; set; }
+    public List<Resource> Resources { get; set; }
 
     public Company()
     {
         Users = new List<User>();
-        Services = new List<Service>();
+        Resources = new List<Resource>();
     }
 }

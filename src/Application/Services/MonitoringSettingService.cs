@@ -1,26 +1,53 @@
 using Application.DTOs.Mappings;
+using AutoMapper;
+using Domain.Entities;
+using Infrastructure.Repositories;
 
 namespace Application.Services;
 
 public class MonitoringSettingService : IMonitoringSettingService
 {
-    public Task Add(MonitoringSettingDto monitoringSettingDto)
+    private readonly IMonitoringSettingRepository _monitoringSettingRepository;
+    private readonly IMapper _mapper;
+
+    public MonitoringSettingService(IMonitoringSettingRepository monitoringSettingRepository, IMapper mapper)
     {
-        throw new NotImplementedException();
+        _mapper = mapper;
+        _monitoringSettingRepository = monitoringSettingRepository;
     }
 
-    public Task<bool> Update(MonitoringSettingDto monitoringSettingDto)
+    public async Task<MonitoringSetting?> Add(MonitoringSettingDto monitoringSettingDto)
     {
-        throw new NotImplementedException();
+        MonitoringSetting mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
+        if (mappedMonitoringSetting != null)
+        {
+            await _monitoringSettingRepository.CreateSetting(mappedMonitoringSetting);
+            return mappedMonitoringSetting;
+        }
+
+        return null;
     }
 
-    public Task<bool> Delete(MonitoringSettingDto monitoringSettingDto)
+    public async Task<bool> Update(MonitoringSettingDto monitoringSettingDto)
     {
-        throw new NotImplementedException();
+        MonitoringSetting mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
+        if (mappedMonitoringSetting == null)
+        {
+            return false;
+        }
+
+        return await _monitoringSettingRepository.UpdateSetting(mappedMonitoringSetting);
     }
 
-    public Task<MonitoringSettingDto?> GetByServiceId(int serviceId)
+    public async Task<bool> Delete(int monitoringSettingId)
     {
-        throw new NotImplementedException();
+        return await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
+    }
+
+    public async Task<MonitoringSettingDto?> GetMonitoringSetting(int serviceId)
+    {
+        MonitoringSetting? monitoringSetting = await _monitoringSettingRepository.ReadByServiceId(serviceId);
+        MonitoringSettingDto mappedMonitoringSetting = _mapper.Map<MonitoringSettingDto>(monitoringSetting);
+        return mappedMonitoringSetting;
     }
 }

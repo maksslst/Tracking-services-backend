@@ -4,14 +4,14 @@ namespace Infrastructure.Repositories;
 
 public interface ITaskRepository
 {
-    public Task CreateTask(ServiceTask serviceTask);
-    public Task<bool> UpdateTask(ServiceTask serviceTask);
-    public Task<bool> DeleteTask(ServiceTask serviceTask);
+    public Task<ServiceTask> CreateTask(ServiceTask serviceTask);
+    public Task<bool> UpdateTask(ServiceTask serviceTask, User assignedUserToUpdate);
+    public Task<bool> DeleteTask(int serviceTaskId);
     public Task<ServiceTask?> ReadTaskId(int taskId);
-    public Task<List<ServiceTask?>> ReadAllTasksCompanyId (int companyId);
-    public Task<bool> AssignTaskToUser(int userId, int taskId);
-    public Task<bool> DeleteTaskToUser (int userId, int taskId);
-    public Task<bool> ReassignTaskToUser (int oldUserId, int newUserId, int taskId);
-    public Task<ServiceTask?> ReadTaskUser (int userId, int taskId);
-    public Task<List<ServiceTask?>> ReadAllUserTasks (int userId);
+    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(IEnumerable<Resource> companyServices);
+    public Task<bool> AssignTaskToUser(User user, int taskId);
+    public Task<bool> DeleteTaskToUser(User user, int taskId);
+    public Task<bool> ReassignTaskToUser(int oldUserId, User newUserId, int taskId);
+    public Task<ServiceTask?> ReadTaskUser(int userId, int taskId);
+    public Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId);
 }

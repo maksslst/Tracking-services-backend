@@ -16,7 +16,7 @@ public class MonitoringScheduler
     
     public async Task StartMonitoring()
     {
-        List<MonitoringSetting> monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
+        IEnumerable<MonitoringSetting> monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
         foreach (var monitoringSetting in monitoringSettings)
         {
             MonitoringTaskSchedule(monitoringSetting);

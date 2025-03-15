@@ -1,22 +1,22 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
     private List<User> _users;
-    private readonly ICompanyRepository _companyRepository;
 
-    public UserRepository(ICompanyRepository companyRepository)
+    public UserRepository()
     {
         _users = new List<User>();
-        _companyRepository = companyRepository;
+        DataGeneration();
     }
     
-    public Task CreateUser(User user)
+    public Task<User> CreateUser(User user)
     {
         _users.Add(user);
-        return Task.CompletedTask;
+        return Task.FromResult(user);
     }
 
     public Task<bool> UpdateUser(User user)
@@ -27,11 +27,6 @@ public class UserRepository : IUserRepository
             return Task.FromResult(false);
         }
         
-        if (_companyRepository.ReadByCompanyId(user.CompanyId).Result == null)
-        {
-            return Task.FromResult(false);
-        }
-
         userToUpdate.Username = user.Username;
         userToUpdate.FirstName = user.FirstName;
         userToUpdate.LastName = user.LastName; 
@@ -61,8 +56,27 @@ public class UserRepository : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task<List<User?>> ReadAll()
+    public Task<IEnumerable<User?>> ReadAll()
     {
-        return Task.FromResult(_users);
+        return Task.FromResult<IEnumerable<User?>>(_users);
+    }
+    
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        for (int i = 0; i < 5; i++)
+        {
+            User user = new User()
+            {
+                Id = i + 1,
+                FirstName = faker.Person.FirstName,
+                LastName = faker.Person.LastName,
+                Username = faker.Person.UserName,
+                Patronymic = faker.Name.LastName(),
+                Email = faker.Person.Email
+            };
+            
+            _users.Add(user);
+        }
     }
 }

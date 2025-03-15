@@ -1,42 +1,55 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
 public class MetricValueRepository : IMetricValueRepository
 {
     private List<MetricValue> _metricValues;
-    private readonly IMetricRepository _metricRepository;
 
-    public MetricValueRepository(IMetricRepository metricRepository)
+    public MetricValueRepository()
     {
         _metricValues = new List<MetricValue>();
-        _metricRepository = metricRepository;
+        DataGeneration();
     }
-    
-    public Task CreateMetricValue(MetricValue metricValue)
+
+    public Task<MetricValue> CreateMetricValue(MetricValue metricValue)
     {
         _metricValues.Add(metricValue);
-        return Task.CompletedTask;
+        return Task.FromResult(metricValue);
     }
 
-    public Task<List<MetricValue?>> ReadAllMetricValuesServiceId(int serviceId)
+    public Task<MetricValue?> ReadMetricValueId(int metricValueId)
     {
-        var metrics = _metricRepository.ReadAllMetricServiceId(serviceId).Result;
-        if (metrics == null)
+        MetricValue? metricValue = _metricValues.Find(i => i.Id == metricValueId);
+        if (metricValue == null)
         {
-            return Task.FromResult<List<MetricValue?>>(null);
-        }
-
-        List<MetricValue?> metricsValues = new List<MetricValue?>();
-        foreach (var metric in metrics)
-        {
-            var metricValue = _metricValues.FindAll(i => i.MetricId == metric.Id);
-            if(metricValue.Count > 0)
-            {
-                metricsValues.AddRange(metricValue);
-            }
+            return Task.FromResult<MetricValue?>(null);
         }
         
-        return Task.FromResult(metricsValues);
+        return Task.FromResult(metricValue);
+    }
+
+    public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId(IEnumerable<int> metricsId)
+    {
+        IEnumerable<MetricValue?> metricValues = _metricValues.Where(i => metricsId.Contains(i.MetricId));
+
+        return Task.FromResult(metricValues);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 10; i++)
+        {
+            MetricValue metricValue = new MetricValue()
+            {
+                Id = i + 1,
+                MetricId = random.Next(1, 5),
+                Value = faker.Random.Double(),
+            };
+            _metricValues.Add(metricValue);
+        }
     }
 }

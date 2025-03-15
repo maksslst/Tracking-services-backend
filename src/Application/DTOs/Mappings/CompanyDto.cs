@@ -4,12 +4,12 @@ public class CompanyDto
 {
     public int Id { get; set; }
     public string CompanyName { get; set; }
-    public List<UserDto> UsersDto { get; set; }
-    public List<ServiceDto> ServicesDto { get; set; }
+    public List<UserDto> Users { get; set; }
+    public List<ResourceDto> Services { get; set; }
 
     public CompanyDto()
     {
-        UsersDto = new List<UserDto>();
-        ServicesDto = new List<ServiceDto>();
+        Users = new List<UserDto>();
+        Services = new List<ResourceDto>();
     }
 }

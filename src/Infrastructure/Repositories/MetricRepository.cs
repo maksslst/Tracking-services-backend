@@ -1,22 +1,22 @@
 using Domain.Entities;
+using Bogus;
 
 namespace Infrastructure.Repositories;
 
 public class MetricRepository : IMetricRepository
 {
     private List<Metric> _metrics;
-    private readonly IServiceRepository _serviceRepository;
 
-    public MetricRepository(IServiceRepository serviceRepository)
+    public MetricRepository()
     {
         _metrics = new List<Metric>();
-        _serviceRepository = serviceRepository;
+        DataGeneration();
     }
     
-    public Task CreateMetric(Metric metric)
+    public Task<Metric> CreateMetric(Metric metric)
     {
         _metrics.Add(metric);
-        return Task.CompletedTask;
+        return Task.FromResult(metric);
     }
 
     public Task<bool> UpdateMetric(Metric metric)
@@ -26,14 +26,9 @@ public class MetricRepository : IMetricRepository
         {
             return Task.FromResult(false);
         }
-
-        if (_serviceRepository.ReadByServiceId(metric.ServiceId).Result == null)
-        {
-            return Task.FromResult(false);
-        }
         
         metricToUpdate.ServiceId = metric.ServiceId;
-        metricToUpdate.Service = metric.Service;
+        metricToUpdate.Resource = metric.Resource;
         metricToUpdate.Name = metric.Name;
         metricToUpdate.Unit = metric.Unit;
         return Task.FromResult(true);
@@ -51,7 +46,18 @@ public class MetricRepository : IMetricRepository
         return Task.FromResult(true);
     }
 
-    public Task<Metric?> ReadMetricServiceId(int serviceId)
+    public Task<Metric?> ReadMetricId(int metricId)
+    {
+        var metric = _metrics.Find(i => i.Id == metricId);
+        if (metric == null)
+        {
+            return Task.FromResult<Metric?>(null);
+        }
+        
+        return Task.FromResult(metric);
+    }
+
+    public Task<Metric?> ReadMetricByServiceId(int serviceId)
     {
         var metric = _metrics.Find(i => i.ServiceId == serviceId);
         if (metric == null)
@@ -62,14 +68,33 @@ public class MetricRepository : IMetricRepository
         return Task.FromResult(metric);
     }
 
-    public Task<List<Metric?>> ReadAllMetricServiceId(int serviceId)
+    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int serviceId)
     {
         var metric = _metrics.FindAll(i => i.ServiceId == serviceId);
-        return Task.FromResult(metric);
+        return Task.FromResult<IEnumerable<Metric?>>(metric);
     }
 
-    public Task<List<Metric?>> ReadAll()
+    public Task<IEnumerable<Metric?>> ReadAll()
     {
-        return Task.FromResult(_metrics);
+        return Task.FromResult<IEnumerable<Metric?>>(_metrics);
+    }
+
+    private void DataGeneration()
+    {
+        var faker = new Faker();
+        Random random = new Random();
+        for (int i = 0; i < 5; i++)
+        {
+            Metric metric = new Metric()
+            {
+                Id = i +1,
+                Name = "Проверка доступности ping",
+                ServiceId = random.Next(1,3),
+                Created = DateTime.Now,
+                Unit = "мс"
+            };
+            
+            _metrics.Add(metric);
+        }
     }
 }
