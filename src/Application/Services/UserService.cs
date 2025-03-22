@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Repositories;
 using Infrastructure.Repositories.UserRepository;
 
 namespace Application.Services;
@@ -25,7 +24,7 @@ public class UserService : IUserService
             await _userRepository.CreateUser(mappedUser);
             return mappedUser;
         }
-        
+
         return null;
     }
 
@@ -36,7 +35,7 @@ public class UserService : IUserService
         {
             return false;
         }
-        
+
         return await _userRepository.UpdateUser(mappedUser);
     }
 

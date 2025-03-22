@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
-using Domain.Entities;
-using Infrastructure.Repositories;
 using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.ResourceRepository;
 
@@ -26,7 +25,7 @@ public class MetricService : IMetricService
         {
             return null;
         }
-        
+
         Metric mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric != null)
         {
@@ -47,9 +46,9 @@ public class MetricService : IMetricService
 
         if (_resourceRepository.ReadByResourceId(metricDto.ResourceId).Result == null)
         {
-            return false;    
+            return false;
         }
-        
+
         return await _metricRepository.UpdateMetric(mappedMetric);
     }
 

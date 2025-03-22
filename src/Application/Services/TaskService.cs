@@ -1,5 +1,4 @@
 using Application.DTOs.Mappings;
-using Infrastructure.Repositories;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
@@ -33,7 +32,7 @@ public class TaskService : ITaskService
         {
             return null;
         }
-        
+
         ServiceTask mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
         if (mappedTask != null)
         {
@@ -105,7 +104,7 @@ public class TaskService : ITaskService
         {
             return false;
         }
-        
+
         return await _taskRepository.AssignTaskToUser(user, taskId);
     }
 
@@ -126,7 +125,7 @@ public class TaskService : ITaskService
         {
             return false;
         }
-        
+
         return await _taskRepository.ReassignTaskToUser(oldUserId, newUser, taskId);
     }
 

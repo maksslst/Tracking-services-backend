@@ -9,6 +9,6 @@ public interface IMetricRepository
     public Task<bool> DeleteMetric(int metricId);
     public Task<Metric?> ReadMetricByResourceId(int resourceId);
     public Task<Metric?> ReadMetricId(int metricId);
-    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource (int resourceId);
+    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int resourceId);
     public Task<IEnumerable<Metric?>> ReadAll();
 }

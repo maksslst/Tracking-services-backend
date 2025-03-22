@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Repositories;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.MetricValueRepository;
 
@@ -27,7 +26,7 @@ public class MetricValueService : IMetricValueService
         {
             return null;
         }
-        
+
         MetricValue mappedMetricValue = _mapper.Map<MetricValue>(metricValueDto);
         if (mappedMetricValue != null)
         {

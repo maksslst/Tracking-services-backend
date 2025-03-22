@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Application.Services;
 using Application.DTOs.Mappings;
-using Domain.Entities;
+using Application.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -25,7 +24,7 @@ public class ResourceController : ControllerBase
         {
             return BadRequest("Не удалось добавить сервис");
         }
-        
+
         return Created(resourceId.ToString(), resourceId);
     }
 
@@ -54,7 +53,7 @@ public class ResourceController : ControllerBase
 
         return Ok();
     }
-    
+
     [HttpPut("{companyId}/{resourceUpdateId}")]
     public async Task<IActionResult> UpdateCompanyResource([FromBody] ResourceDto resourceDto, int companyId, int resourceUpdateId)
     {
@@ -67,7 +66,7 @@ public class ResourceController : ControllerBase
         return Ok();
     }
     #endregion
-    
+
     #region HttpDelete
     [HttpDelete("{resourceId}")]
     public async Task<IActionResult> Delete(int resourceId)
@@ -76,7 +75,7 @@ public class ResourceController : ControllerBase
         {
             return NotFound("Сервис не найден");
         }
-        
+
         var result = await _resourceService.Delete(resourceId);
         if (!result)
         {
@@ -85,7 +84,7 @@ public class ResourceController : ControllerBase
 
         return NoContent();
     }
-    
+
     [HttpDelete("{resourceId}/{companyId}")]
     public async Task<IActionResult> DeleteCompanyResource(int resourceId, int companyId)
     {

@@ -1,5 +1,4 @@
 using Application.DTOs.Mappings;
-using Domain.Entities;
 
 namespace Application.Services;
 

@@ -12,7 +12,7 @@ public class MetricPostgresRepository : IMetricRepository
     {
         _connection = connection;
     }
-    
+
     public async Task<int> CreateMetric(Metric metric)
     {
         await _connection.OpenAsync();
@@ -22,7 +22,7 @@ public class MetricPostgresRepository : IMetricRepository
                 VALUES (@name, @resourceId, @created, @unit)
                 RETURNING id",
             new { metric.ResourceId, metric.Name, metric.Created, metric.Unit });
-        
+
         await _connection.CloseAsync();
         return metricId;
     }
@@ -37,7 +37,7 @@ public class MetricPostgresRepository : IMetricRepository
                     resource_id = @resourceId, 
                     unit = @unit
                 WHERE id = @Id", metric);
-        
+
         await _connection.CloseAsync();
         return metricToUpdate > 0;
     }
@@ -45,11 +45,11 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<bool> DeleteMetric(int metricId)
     {
         await _connection.OpenAsync();
-        
+
         var metricToDelete = await _connection.ExecuteAsync(
             @"DELETE FROM metrics
-                WHERE id = @Id", new {Id = metricId});
-        
+                WHERE id = @Id", new { Id = metricId });
+
         await _connection.CloseAsync();
         return metricToDelete > 0;
     }
@@ -57,12 +57,12 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<Metric?> ReadMetricByResourceId(int resourceId)
     {
         await _connection.OpenAsync();
-        
+
         Metric metric = await _connection.QueryFirstOrDefaultAsync<Metric>(
             @"SELECT id, name, resource_id as ResourceId, unit
                 FROM metrics
-                WHERE resource_id=@resource", new { resource = resourceId});
-        
+                WHERE resource_id=@resource", new { resource = resourceId });
+
         await _connection.CloseAsync();
         return metric;
     }
@@ -70,12 +70,12 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<Metric?> ReadMetricId(int metricId)
     {
         await _connection.OpenAsync();
-        
+
         Metric metric = await _connection.QueryFirstOrDefaultAsync<Metric>(
             @"SELECT id, name, resource_id as ResourceId, unit
                 FROM metrics
-                WHERE id = @Id", new {Id = metricId});
-        
+                WHERE id = @Id", new { Id = metricId });
+
         await _connection.CloseAsync();
         return metric;
     }
@@ -83,12 +83,12 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int resourceId)
     {
         await _connection.OpenAsync();
-        
+
         var metrics = await _connection.QueryAsync<Metric>(
             @"SELECT id, name, resource_id as ResourceId, unit
                 FROM metrics
-                WHERE resource_id=@ResourceId", new {ResourceId = resourceId});
-        
+                WHERE resource_id=@ResourceId", new { ResourceId = resourceId });
+
         await _connection.CloseAsync();
         return metrics;
     }
@@ -96,11 +96,11 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<IEnumerable<Metric?>> ReadAll()
     {
         await _connection.OpenAsync();
-        
+
         var metrics = await _connection.QueryAsync<Metric>(
             @"SELECT id, name, resource_id as ResourceId, unit
                 FROM metrics");
-        
+
         await _connection.CloseAsync();
         return metrics;
     }

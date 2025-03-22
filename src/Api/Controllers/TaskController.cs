@@ -76,7 +76,7 @@ public class TaskController : ControllerBase
         {
             return NotFound("Задача не найдена");
         }
-        
+
         var result = await _taskService.Delete(taskId);
         if (!result)
         {

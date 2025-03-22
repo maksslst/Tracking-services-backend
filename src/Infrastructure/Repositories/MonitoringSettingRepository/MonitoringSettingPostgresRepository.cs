@@ -1,6 +1,6 @@
 using Dapper;
-using Npgsql;
 using Domain.Entities;
+using Npgsql;
 
 namespace Infrastructure.Repositories.MonitoringSettingRepository;
 
@@ -12,17 +12,17 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
     {
         _connection = connection;
     }
-    
+
     public async Task<int> CreateSetting(MonitoringSetting monitoringSetting)
     {
         await _connection.OpenAsync();
-        
+
         var settingId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO ""monitoringSettings"" (resource_id, checkinterval, mode)
                 VALUES(@ResourceId, @CheckInterval, @Mode)
                 RETURNING id",
-            new {monitoringSetting.ResourceId, monitoringSetting.CheckInterval, monitoringSetting.Mode});
-        
+            new { monitoringSetting.ResourceId, monitoringSetting.CheckInterval, monitoringSetting.Mode });
+
         await _connection.CloseAsync();
         return settingId;
     }
@@ -37,7 +37,7 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
                     checkinterval = @CheckInterval, 
                     mode = @Mode
                 WHERE id=@Id", monitoringSetting);
-        
+
         await _connection.CloseAsync();
         return settingToUpdate > 0;
     }
@@ -45,11 +45,11 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
     public async Task<bool> DeleteSetting(int monitoringSettingId)
     {
         await _connection.OpenAsync();
-        
+
         var settingToDelete = await _connection.ExecuteAsync(
             @"DELETE FROM ""monitoringSettings""
-                WHERE id = @Id", new {Id = monitoringSettingId});
-        
+                WHERE id = @Id", new { Id = monitoringSettingId });
+
         await _connection.CloseAsync();
         return settingToDelete > 0;
     }
@@ -57,12 +57,12 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
     public async Task<MonitoringSetting?> ReadByResourceId(int resourceId)
     {
         await _connection.OpenAsync();
-        
+
         MonitoringSetting monitoringSetting = await _connection.QueryFirstOrDefaultAsync<MonitoringSetting>(
             @"SELECT id, resource_id as ResourceId, checkinterval, mode
                 FROM ""monitoringSettings""
-                WHERE resource_id = @ResourceId",new {ResourceId = resourceId});
-        
+                WHERE resource_id = @ResourceId", new { ResourceId = resourceId });
+
         await _connection.CloseAsync();
         return monitoringSetting;
     }
@@ -70,11 +70,11 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
     public async Task<IEnumerable<MonitoringSetting?>> ReadAll()
     {
         await _connection.OpenAsync();
-        
+
         var settings = await _connection.QueryAsync<MonitoringSetting>(
             @"SELECT id, resource_id as ResourceId, checkinterval, mode
                 FROM ""monitoringSettings""");
-        
+
         await _connection.CloseAsync();
         return settings;
     }

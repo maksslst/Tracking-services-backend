@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -18,32 +18,32 @@ public class MetricServiceController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> AddMetric([FromBody]MetricDto metricDto)
+    public async Task<IActionResult> AddMetric([FromBody] MetricDto metricDto)
     {
         Metric? metric = await _metricService.AddMetric(metricDto);
         if (metric == null)
         {
             return BadRequest("Не удалось создать метрику");
         }
-        
+
         return Created(metricDto.Id.ToString(), metricDto);
     }
     #endregion
 
     #region HttpPut
     [HttpPut]
-    public async Task<IActionResult> UpdateMetric([FromBody]MetricDto metricDto)
+    public async Task<IActionResult> UpdateMetric([FromBody] MetricDto metricDto)
     {
         var result = await _metricService.UpdateMetric(metricDto);
         if (!result)
         {
             return BadRequest("Не удалось обновить метрику");
         }
-        
+
         return Ok();
     }
     #endregion
-    
+
     #region HttpDelete
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
@@ -52,7 +52,7 @@ public class MetricServiceController : ControllerBase
         {
             return NotFound("Метрика не найдена");
         }
-        
+
         var result = await _metricService.DeleteMetric(metricId);
         if (!result)
         {
@@ -83,7 +83,7 @@ public class MetricServiceController : ControllerBase
         {
             return BadRequest("Не удалось получить метрики сервиса");
         }
-        
+
         return Ok(metrics);
     }
 

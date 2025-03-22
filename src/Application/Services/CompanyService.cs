@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
-using Domain.Entities;
-using Infrastructure.Repositories;
 using AutoMapper;
+using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.UserRepository;
 
@@ -100,7 +99,7 @@ public class CompanyService : ICompanyService
         {
             return null;
         }
-        
+
         IEnumerable<UserDto?> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
         return mappedUsers;
     }

@@ -1,5 +1,5 @@
-using System.Data;
 using FluentMigrator;
+using System.Data;
 
 namespace Infrastructure.Database.Migrations;
 
@@ -13,7 +13,7 @@ public class InitialMigration : Migration
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
             .WithColumn("company_name").AsString(100).NotNullable();
         #endregion
-             
+
         #region Users
         Create.Table("users")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -26,7 +26,7 @@ public class InitialMigration : Migration
             .ForeignKey("companies", "id")
             .OnDeleteOrUpdate(Rule.Cascade);
         #endregion
-        
+
         #region Resources
         Create.Table("resources")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -34,11 +34,11 @@ public class InitialMigration : Migration
             .WithColumn("type").AsString(100).NotNullable()
             .WithColumn("source").AsString(100).NotNullable()
             .WithColumn("company_id").AsInt32().Nullable()
-            .ForeignKey("companies","id")
+            .ForeignKey("companies", "id")
             .OnDelete(Rule.SetNull)
             .WithColumn("status").AsInt32().NotNullable();
         #endregion
-        
+
         #region Metrics
         Create.Table("metrics")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -49,7 +49,7 @@ public class InitialMigration : Migration
             .WithColumn("unit").AsString(10).NotNullable()
             .WithColumn("created").AsDateTime().NotNullable();
         #endregion
-        
+
         #region MetricValues
         Create.Table("metricValues")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -57,8 +57,8 @@ public class InitialMigration : Migration
             .ForeignKey("metrics", "id")
             .OnDeleteOrUpdate(Rule.Cascade)
             .WithColumn("value").AsDouble().NotNullable();
-        #endregion  
-            
+        #endregion
+
         #region MonitoringSettings
         Create.Table("monitoringSettings")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -68,7 +68,7 @@ public class InitialMigration : Migration
             .WithColumn("checkinterval").AsString(50).NotNullable()
             .WithColumn("mode").AsBoolean().NotNullable();
         #endregion
-        
+
         #region ServiceTasks
         Create.Table("serviceTasks")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
@@ -77,22 +77,22 @@ public class InitialMigration : Migration
             .OnDeleteOrUpdate(Rule.Cascade)
             .WithColumn("description").AsString(100).NotNullable()
             .WithColumn("assigned_user_id").AsInt32().NotNullable()
-            .ForeignKey("fk_serviceTasks_assigned_user_id","users", "id")
+            .ForeignKey("fk_serviceTasks_assigned_user_id", "users", "id")
             .OnDeleteOrUpdate(Rule.Cascade)
             .WithColumn("created_by_id").AsInt32().NotNullable()
-            .ForeignKey("fk_serviceTasks_created_by_id","users", "id")
+            .ForeignKey("fk_serviceTasks_created_by_id", "users", "id")
             .OnDeleteOrUpdate(Rule.Cascade)
             .WithColumn("start_time").AsDateTime().NotNullable()
             .WithColumn("completion_time").AsDateTime().Nullable()
             .WithColumn("status").AsInt32().NotNullable();
         #endregion
-        
+
         #region TestDataCompanies
         Insert.IntoTable("companies")
             .Row(new { company_name = "Kub Group" })
             .Row(new { company_name = "Schoen, Lang and Reichert" });
         #endregion
-                
+
         #region TestDataUsers
         Insert.IntoTable("users")
             .Row(new
@@ -143,7 +143,7 @@ public class InitialMigration : Migration
                 status = 1
             });
         #endregion
-        
+
         #region TestDataMetrics
         Insert.IntoTable("metrics")
             .Row(new
@@ -161,15 +161,15 @@ public class InitialMigration : Migration
                 unit = "мс"
             });
         #endregion
-        
+
         #region TestDataMetricValues
         Insert.IntoTable("metricValues")
-            .Row(new { metric_id = 1, value = 0.73})
-            .Row(new { metric_id = 1, value = 0.19})
-            .Row(new { metric_id = 2, value = 0.5})
-            .Row(new { metric_id = 2, value = 0.29});
+            .Row(new { metric_id = 1, value = 0.73 })
+            .Row(new { metric_id = 1, value = 0.19 })
+            .Row(new { metric_id = 2, value = 0.5 })
+            .Row(new { metric_id = 2, value = 0.29 });
         #endregion
-        
+
         #region TestDateMonitoringSettings
         Insert.IntoTable("monitoringSettings")
             .Row(new

@@ -12,7 +12,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     {
         _connection = connection;
     }
-    
+
     public async Task<int> CreateCompany(Company company)
     {
         await _connection.OpenAsync();
@@ -21,7 +21,7 @@ public class CompanyPostgresRepository : ICompanyRepository
             @"INSERT INTO companies (company_name)
                 VALUES (@companyName)
                 RETURNING id", new { company.CompanyName });
-        
+
         await _connection.CloseAsync();
         return companyId;
     }
@@ -34,7 +34,7 @@ public class CompanyPostgresRepository : ICompanyRepository
             @"UPDATE companies
                 SET company_name = @companyName
                 WHERE id = @Id", company);
-        
+
         await _connection.CloseAsync();
         return companyToUpdate > 0;
     }
@@ -42,11 +42,11 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<bool> DeleteCompany(int companyId)
     {
         await _connection.OpenAsync();
-        
+
         var companyToDelete = await _connection.ExecuteAsync(
             @"DELETE FROM companies
-                WHERE id = @Id", new {Id = companyId});
-        
+                WHERE id = @Id", new { Id = companyId });
+
         await _connection.CloseAsync();
         return companyToDelete > 0;
     }
@@ -54,7 +54,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<bool> AddUserToCompany(User user, int companyId)
     {
         await _connection.OpenAsync();
-        
+
         var company = await _connection.QueryFirstOrDefaultAsync<Company>(
             @"SELECT id 
                 FROM companies 
@@ -74,7 +74,7 @@ public class CompanyPostgresRepository : ICompanyRepository
                 CompanyId = companyId,
                 Id = user.Id
             });
-        
+
         await _connection.CloseAsync();
         return addedUser > 0;
     }
@@ -82,7 +82,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<bool> RemoveUserFromCompany(User user, int companyId)
     {
         await _connection.OpenAsync();
-        
+
         var company = await _connection.QueryFirstOrDefaultAsync<Company>(
             @"SELECT id 
                 FROM companies 
@@ -102,7 +102,7 @@ public class CompanyPostgresRepository : ICompanyRepository
                 Id = user.Id,
                 CompanyId = companyId
             });
-        
+
         await _connection.CloseAsync();
         return deletedUser > 0;
     }
@@ -114,8 +114,8 @@ public class CompanyPostgresRepository : ICompanyRepository
         Company company = await _connection.QueryFirstOrDefaultAsync<Company>(
             @"SELECT id, company_name as CompanyName
                 FROM companies
-                WHERE id = @Id", new {Id = companyId});
-        
+                WHERE id = @Id", new { Id = companyId });
+
         await _connection.CloseAsync();
         return company;
     }
@@ -123,11 +123,11 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<IEnumerable<Company?>> ReadAllCompanies()
     {
         await _connection.OpenAsync();
-        
+
         var companies = await _connection.QueryAsync<Company>(
             @"SELECT id, company_name as CompanyName
                 FROM companies");
-        
+
         await _connection.CloseAsync();
         return companies;
     }
@@ -135,7 +135,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<IEnumerable<User?>> ReadCompanyUsers(int companyId)
     {
         await _connection.OpenAsync();
-        
+
         var company = await _connection.QueryFirstOrDefaultAsync<Company>(
             @"SELECT id
                 FROM companies 
@@ -145,12 +145,12 @@ public class CompanyPostgresRepository : ICompanyRepository
         {
             return null;
         }
-        
+
         var users = await _connection.QueryAsync<User>(
             @"SELECT id, username, ""firstName"", ""lastName"", patronymic, email, company_id as CompanyId
                 FROM users
                 WHERE company_id = @CompanyId", new { CompanyId = companyId });
-        
+
         await _connection.CloseAsync();
         return users;
     }

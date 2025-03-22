@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Repositories;
 using Infrastructure.Repositories.MonitoringSettingRepository;
 
 namespace Application.Services;

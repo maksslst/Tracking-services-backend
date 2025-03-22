@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -25,7 +25,7 @@ public class MetricValueController : ControllerBase
         {
             return BadRequest("Не удалось добавить значение");
         }
-        
+
         return Created(metricValue.Id.ToString(), metricValue);
     }
     #endregion
@@ -38,8 +38,8 @@ public class MetricValueController : ControllerBase
         if (metricValue == null)
         {
             return BadRequest("Не удалось получить собранные заначения метрики");
-        } 
-        
+        }
+
         return Ok(metricValue);
     }
     #endregion

@@ -1,9 +1,8 @@
-using Quartz;
-using Infrastructure.Repositories;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.MetricValueRepository;
 using Infrastructure.Repositories.MonitoringSettingRepository;
+using Quartz;
 
 namespace Infrastructure.Services;
 

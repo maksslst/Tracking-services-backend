@@ -1,7 +1,6 @@
 using Application.DTOs.Mappings;
-using Infrastructure.Repositories;
-using Domain.Entities;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.ResourceRepository;

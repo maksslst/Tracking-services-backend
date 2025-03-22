@@ -1,7 +1,7 @@
-using Application.Services;
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
+using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -20,12 +20,12 @@ public class MonitoringSettingController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MonitoringSettingDto monitoringSettingDto)
     {
-        MonitoringSetting? monitoringSetting =  await _monitoringSettingService.Add(monitoringSettingDto);
+        MonitoringSetting? monitoringSetting = await _monitoringSettingService.Add(monitoringSettingDto);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось создать настройку");
         }
-        
+
         return Created(monitoringSetting.Id.ToString(), monitoringSettingDto);
     }
     #endregion
@@ -52,7 +52,7 @@ public class MonitoringSettingController : ControllerBase
         {
             return NotFound("Настройка не найдена");
         }
-        
+
         var result = await _monitoringSettingService.Delete(monitoringSettingId);
         if (!result)
         {

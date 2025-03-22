@@ -12,7 +12,7 @@ public class UserPostgresRepository : IUserRepository
     {
         _connection = connection;
     }
-        
+
     public async Task<int> CreateUser(User user)
     {
         await _connection.OpenAsync();
@@ -30,7 +30,7 @@ public class UserPostgresRepository : IUserRepository
                 user.Email,
                 user.CompanyId
             });
-        
+
         await _connection.CloseAsync();
         return userId;
     }
@@ -38,7 +38,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<bool> UpdateUser(User user)
     {
         await _connection.OpenAsync();
-        
+
         var userToUpdate = await _connection.ExecuteAsync(
             @"UPDATE users
                 SET username = @Username,
@@ -48,7 +48,7 @@ public class UserPostgresRepository : IUserRepository
                     email = @Email,
                     company_id = @CompanyId
                 WHERE Id = @Id", user);
-        
+
         await _connection.CloseAsync();
         return userToUpdate > 0;
     }
@@ -59,8 +59,8 @@ public class UserPostgresRepository : IUserRepository
 
         var userToDelete = await _connection.ExecuteAsync(
             @"DELETE FROM users
-                WHERE id = @Id", new {Id = userId});
-        
+                WHERE id = @Id", new { Id = userId });
+
         await _connection.CloseAsync();
         return userToDelete > 0;
     }
@@ -73,7 +73,7 @@ public class UserPostgresRepository : IUserRepository
             @"SELECT id, username, ""firstName"", ""lastName"", patronymic, email, company_id as CompanyId
                 FROM users
                 WHERE id = @Id", new { Id = id });
-        
+
         await _connection.CloseAsync();
         return user;
     }
@@ -84,7 +84,7 @@ public class UserPostgresRepository : IUserRepository
         IEnumerable<User?> users = await _connection.QueryAsync<User>(
             @"SELECT id, username, ""firstName"", ""lastName"", patronymic, email, company_id as CompanyId
                 FROM users");
-        
+
         await _connection.CloseAsync();
         return users;
     }

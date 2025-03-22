@@ -12,7 +12,7 @@ public class UserInMemoryRepository : IUserRepository
         _users = new List<User>();
         DataGeneration();
     }
-    
+
     public Task<int> CreateUser(User user)
     {
         _users.Add(user);
@@ -26,15 +26,15 @@ public class UserInMemoryRepository : IUserRepository
         {
             return Task.FromResult(false);
         }
-        
+
         userToUpdate.Username = user.Username;
         userToUpdate.FirstName = user.FirstName;
-        userToUpdate.LastName = user.LastName; 
+        userToUpdate.LastName = user.LastName;
         userToUpdate.Patronymic = user.Patronymic;
         userToUpdate.Company = user.Company;
         userToUpdate.Email = user.Email;
         userToUpdate.CompanyId = user.CompanyId;
-        
+
         return Task.FromResult(true);
     }
 
@@ -60,7 +60,7 @@ public class UserInMemoryRepository : IUserRepository
     {
         return Task.FromResult<IEnumerable<User?>>(_users);
     }
-    
+
     private void DataGeneration()
     {
         var faker = new Faker();
@@ -75,7 +75,7 @@ public class UserInMemoryRepository : IUserRepository
                 Patronymic = faker.Name.LastName(),
                 Email = faker.Person.Email
             };
-            
+
             _users.Add(user);
         }
     }

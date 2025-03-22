@@ -15,5 +15,5 @@ public class ServiceTask
     public DateTime StartTime { get; set; }
     public DateTime CompletionTime { get; set; }
     public TaskStatus Status { get; set; }
-    
+
 }

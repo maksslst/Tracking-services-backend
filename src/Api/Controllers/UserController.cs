@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -39,7 +39,7 @@ public class UserController : ControllerBase
         {
             return NotFound("Не удалось обновить пользователя");
         }
-        
+
         return Ok(result);
     }
     #endregion
@@ -52,7 +52,7 @@ public class UserController : ControllerBase
         {
             return NotFound("Пользователь не найден");
         }
-        
+
         var result = await _userService.Delete(userId);
         if (!result)
         {
@@ -80,7 +80,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         IEnumerable<UserDto?> users = await _userService.GetAll();
-        if (users ==null)
+        if (users == null)
         {
             return NotFound("Список пользователей не найден");
         }

@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Application.Services;
 using Application.DTOs.Mappings;
-using Domain.Entities;
+using Application.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -18,17 +17,17 @@ public class CompanyController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody]CompanyDto companyDto)
+    public async Task<IActionResult> Add([FromBody] CompanyDto companyDto)
     {
-        int? companyId =  await _companyService.Add(companyDto);
+        int? companyId = await _companyService.Add(companyDto);
         if (companyId == null)
         {
             return BadRequest("Не удалось создать компанию");
         }
-        
+
         return Created(companyId.ToString(), companyId.Value);
     }
-    
+
     [HttpPost("AddUserToCompany/{userId}/{companyId}")]
     public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
@@ -44,14 +43,14 @@ public class CompanyController : ControllerBase
 
     #region HttpPut
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody]CompanyDto companyDto)
+    public async Task<IActionResult> Update([FromBody] CompanyDto companyDto)
     {
         var result = await _companyService.Update(companyDto);
         if (!result)
         {
             return BadRequest("Не удалось обновить компанию");
         }
-        
+
         return Ok();
     }
     #endregion
@@ -64,7 +63,7 @@ public class CompanyController : ControllerBase
         {
             return NotFound("Такой компании не найдено");
         }
-        
+
         var result = await _companyService.Delete(companyId);
         if (!result)
         {
@@ -73,7 +72,7 @@ public class CompanyController : ControllerBase
 
         return NoContent();
     }
-    
+
     [HttpDelete("DeleteUserFromCompany/{userId}/{companyId}")]
     public async Task<IActionResult> DeleteUserFromCompany(int userId, int companyId)
     {
