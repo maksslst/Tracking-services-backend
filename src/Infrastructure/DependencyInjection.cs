@@ -1,6 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.CompanyRepository;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.MetricValueRepository;
+using Infrastructure.Repositories.MonitoringSettingRepository;
+using Infrastructure.Repositories.ResourceRepository;
+using Infrastructure.Repositories.TaskRepository;
+using Infrastructure.Repositories.UserRepository;
 using Infrastructure.Services;
+using Npgsql;
+using Microsoft.Extensions.Configuration;
+using FluentMigrator.Runner;
+using System.Reflection;
 
 namespace Infrastructure;
 
@@ -8,14 +18,38 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddSingleton<ICompanyRepository, CompanyRepository>();
-        services.AddSingleton<IMetricRepository, MetricRepository>();
-        services.AddSingleton<IMonitoringSettingRepository, MonitoringSettingRepository>();
-        services.AddSingleton<IResourceRepository, ResourceRepository>();
-        services.AddSingleton<ITaskRepository, TaskRepository>();
-        services.AddSingleton<IMetricValueRepository, MetricValueRepository>();
-        services.AddSingleton<IUserRepository, UserRepository>();
-        services.AddSingleton<MonitoringScheduler>();
+        services.AddSingleton(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var connectionString = configuration.GetConnectionString("PostgresDB");
+            return new NpgsqlDataSourceBuilder(connectionString).Build();
+        });
+        
+        services.AddScoped(sp =>
+        {
+            var dataSource = sp.GetRequiredService<NpgsqlDataSource>();
+            return dataSource.CreateConnection();
+        }); 
+        
+        services.AddTransient<ICompanyRepository, CompanyPostgresRepository>();
+        services.AddTransient<IMetricRepository, MetricPostgresRepository>();
+        services.AddTransient<IMonitoringSettingRepository, MonitoringSettingPostgresRepository>();
+        services.AddTransient<IResourceRepository, ResourcePostgresRepository>();
+        services.AddTransient<ITaskRepository, TaskPostgresRepository>();
+        services.AddTransient<IMetricValueRepository, MetricValuePostgresRepository>();
+        services.AddTransient<IUserRepository, UserPostgresRepository>();
+        services.AddTransient<MonitoringScheduler>();
+        
+        services
+            .AddFluentMigratorCore()
+            .ConfigureRunner(
+                rb => rb
+                    .AddPostgres()
+                    .WithGlobalConnectionString("PostgresDB")
+                    .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
+            .AddLogging(lb => lb.AddFluentMigratorConsole());
+
+        services.AddScoped<Database.MigrationRunner>();
 
         return services;
     }

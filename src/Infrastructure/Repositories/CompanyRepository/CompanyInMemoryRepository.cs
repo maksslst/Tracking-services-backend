@@ -1,22 +1,22 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.CompanyRepository;
 
-public class CompanyRepository : ICompanyRepository
+public class CompanyInMemoryRepository : ICompanyRepository
 {
     private List<Company> _companies;
 
-    public CompanyRepository()
+    public CompanyInMemoryRepository()
     {
         _companies = new List<Company>();
         DataGeneration();
     }
 
-    public Task<Company> CreateCompany(Company company)
+    public Task<int> CreateCompany(Company company)
     {
         _companies.Add(company);
-        return Task.FromResult(company);
+        return Task.FromResult(company.Id);
     }
 
     public Task<bool> UpdateCompany(Company company)

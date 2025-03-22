@@ -1,10 +1,10 @@
 using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.TaskRepository;
 
 public interface ITaskRepository
 {
-    public Task<ServiceTask> CreateTask(ServiceTask serviceTask);
+    public Task<int> CreateTask(ServiceTask serviceTask);
     public Task<bool> UpdateTask(ServiceTask serviceTask, User assignedUserToUpdate);
     public Task<bool> DeleteTask(int serviceTaskId);
     public Task<ServiceTask?> ReadTaskId(int taskId);

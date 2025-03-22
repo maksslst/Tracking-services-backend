@@ -20,16 +20,16 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody]CompanyDto companyDto)
     {
-        Company? company =  await _companyService.Add(companyDto);
-        if (company == null)
+        int? companyId =  await _companyService.Add(companyDto);
+        if (companyId == null)
         {
             return BadRequest("Не удалось создать компанию");
         }
         
-        return Created(company.Id.ToString(), company);
+        return Created(companyId.ToString(), companyId.Value);
     }
     
-    [HttpPost("{userId}/{companyId}")]
+    [HttpPost("AddUserToCompany/{userId}/{companyId}")]
     public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
         var result = await _companyService.AddUserToCompany(userId, companyId);
@@ -74,7 +74,7 @@ public class CompanyController : ControllerBase
         return NoContent();
     }
     
-    [HttpDelete("{userId}/{companyId}")]
+    [HttpDelete("DeleteUserFromCompany/{userId}/{companyId}")]
     public async Task<IActionResult> DeleteUserFromCompany(int userId, int companyId)
     {
         var result = await _companyService.DeleteUserFromCompany(userId, companyId);
@@ -117,7 +117,7 @@ public class CompanyController : ControllerBase
         IEnumerable<UserDto?> users = await _companyService.GetCompanyUsers(companyId);
         if (users == null)
         {
-            return BadRequest("Не удалось найти список пользователей");
+            return NotFound("Не удалось найти список пользователей");
         }
         return Ok(users);
     }

@@ -3,6 +3,8 @@ using Infrastructure.Repositories;
 using Domain.Entities;
 using AutoMapper;
 using Domain.Enums;
+using Infrastructure.Repositories.CompanyRepository;
+using Infrastructure.Repositories.ResourceRepository;
 
 namespace Application.Services;
 
@@ -19,13 +21,13 @@ public class ResourceService : IResourceService
         _companyRepository = companyRepository;
     }
 
-    public async Task<Resource?> Add(ResourceDto resourceDto)
+    public async Task<int?> Add(ResourceDto resourceDto)
     {
         Resource mappedResource = _mapper.Map<Resource>(resourceDto);
         if (mappedResource != null)
         {
-            await _resourceRepository.CreateResource(mappedResource);
-            return mappedResource;
+            int resourceId = await _resourceRepository.CreateResource(mappedResource);
+            return resourceId;
         }
 
         return null;
@@ -69,7 +71,8 @@ public class ResourceService : IResourceService
 
         if (mappedResource.Id == 0)
         {
-            mappedResource = await _resourceRepository.CreateResource(mappedResource);
+            int resourceId = await _resourceRepository.CreateResource(mappedResource);
+            mappedResource = await _resourceRepository.ReadByResourceId(resourceId);
         }
 
         return await _resourceRepository.AddCompanyResource(company, mappedResource);

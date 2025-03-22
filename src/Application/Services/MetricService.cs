@@ -2,6 +2,8 @@ using Application.DTOs.Mappings;
 using Domain.Entities;
 using Infrastructure.Repositories;
 using AutoMapper;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.ResourceRepository;
 
 namespace Application.Services;
 
@@ -58,7 +60,7 @@ public class MetricService : IMetricService
 
     public async Task<MetricDto?> GetMetricByServiceId(int serviceId)
     {
-        Metric? metric = await _metricRepository.ReadMetricByServiceId(serviceId);
+        Metric? metric = await _metricRepository.ReadMetricByResourceId(serviceId);
         MetricDto mappedMetric = _mapper.Map<MetricDto>(metric);
         return mappedMetric;
     }

@@ -1,10 +1,10 @@
 using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.CompanyRepository;
 
 public interface ICompanyRepository
 {
-    public Task<Company> CreateCompany(Company company);
+    public Task<int> CreateCompany(Company company);
     public Task<bool> UpdateCompany(Company company);
     public Task<bool> DeleteCompany(int companyId);
     public Task<bool> AddUserToCompany(User user, int companyId);

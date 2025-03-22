@@ -1,6 +1,9 @@
 using Quartz;
 using Infrastructure.Repositories;
 using Domain.Entities;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.MetricValueRepository;
+using Infrastructure.Repositories.MonitoringSettingRepository;
 
 namespace Infrastructure.Services;
 
@@ -23,7 +26,7 @@ public class MonitoringSettingJob : IJob
         var monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
         foreach (var monitoringSetting in monitoringSettings)
         {
-            var metrics = _metricRepository.ReadAllMetricValuesForResource(monitoringSetting.ServiceId).Result;
+            var metrics = _metricRepository.ReadAllMetricValuesForResource(monitoringSetting.ResourceId).Result;
             foreach (var metric in metrics)
             {
                 MetricValue metricValue = new MetricValue

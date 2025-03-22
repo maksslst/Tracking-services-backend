@@ -2,6 +2,8 @@ using Application.DTOs.Mappings;
 using Domain.Entities;
 using Infrastructure.Repositories;
 using AutoMapper;
+using Infrastructure.Repositories.CompanyRepository;
+using Infrastructure.Repositories.UserRepository;
 
 namespace Application.Services;
 
@@ -18,7 +20,7 @@ public class CompanyService : ICompanyService
         _userRepository = userRepository;
     }
 
-    public async Task<Company?> Add(CompanyDto companyDto)
+    public async Task<int?> Add(CompanyDto companyDto)
     {
         Company mappedCompany = _mapper.Map<Company>(companyDto);
         if (mappedCompany == null)
@@ -26,8 +28,8 @@ public class CompanyService : ICompanyService
             return null;
         }
 
-        Company company = await _companyRepository.CreateCompany(mappedCompany);
-        return company;
+        int companyId = await _companyRepository.CreateCompany(mappedCompany);
+        return companyId;
     }
 
     public async Task<bool> Update(CompanyDto companyDto)
@@ -94,7 +96,12 @@ public class CompanyService : ICompanyService
     public async Task<IEnumerable<UserDto?>> GetCompanyUsers(int companyId)
     {
         IEnumerable<User?> users = await _companyRepository.ReadCompanyUsers(companyId);
-        IEnumerable<UserDto> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
+        if (users == null)
+        {
+            return null;
+        }
+        
+        IEnumerable<UserDto?> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
         return mappedUsers;
     }
 }

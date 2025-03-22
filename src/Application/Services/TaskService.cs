@@ -2,6 +2,10 @@ using Application.DTOs.Mappings;
 using Infrastructure.Repositories;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Repositories.CompanyRepository;
+using Infrastructure.Repositories.ResourceRepository;
+using Infrastructure.Repositories.TaskRepository;
+using Infrastructure.Repositories.UserRepository;
 
 namespace Application.Services;
 

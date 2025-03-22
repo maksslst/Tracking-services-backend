@@ -1,10 +1,10 @@
 using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.ResourceRepository;
 
 public interface IResourceRepository
 {
-    public Task<Resource> CreateResource(Resource resource);
+    public Task<int> CreateResource(Resource resource);
     public Task<bool> UpdateResource(Resource resource);
     public Task<bool> DeleteResource(int resourceId);
     public Task<bool> AddCompanyResource(Company company, Resource? resource = null);

@@ -1,23 +1,23 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 using Domain.Enums;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.ResourceRepository;
 
-public class ResourceRepository : IResourceRepository
+public class ResourceInMemoryRepository : IResourceRepository
 {
     private List<Resource> _resources;
 
-    public ResourceRepository()
+    public ResourceInMemoryRepository()
     {
         _resources = new List<Resource>();
         DataGeneration();
     }
 
-    public Task<Resource> CreateResource(Resource resource)
+    public Task<int> CreateResource(Resource resource)
     {
         _resources.Add(resource);
-        return Task.FromResult(resource);
+        return Task.FromResult(resource.Id);
     }
 
     public Task<bool> UpdateResource(Resource resource)

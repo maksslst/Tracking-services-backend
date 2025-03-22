@@ -2,6 +2,8 @@ using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.MetricValueRepository;
 
 namespace Application.Services;
 

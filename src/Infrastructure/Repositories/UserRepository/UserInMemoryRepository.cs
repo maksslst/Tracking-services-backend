@@ -1,22 +1,22 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.UserRepository;
 
-public class UserRepository : IUserRepository
+public class UserInMemoryRepository : IUserRepository
 {
     private List<User> _users;
 
-    public UserRepository()
+    public UserInMemoryRepository()
     {
         _users = new List<User>();
         DataGeneration();
     }
     
-    public Task<User> CreateUser(User user)
+    public Task<int> CreateUser(User user)
     {
         _users.Add(user);
-        return Task.FromResult(user);
+        return Task.FromResult(user.Id);
     }
 
     public Task<bool> UpdateUser(User user)

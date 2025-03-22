@@ -1,7 +1,7 @@
-using Infrastructure.Repositories;
 using Quartz;
 using Quartz.Impl;
 using Domain.Entities;
+using Infrastructure.Repositories.MonitoringSettingRepository;
 
 namespace Infrastructure.Services;
 

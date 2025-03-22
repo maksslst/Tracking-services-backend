@@ -1,12 +1,12 @@
 using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.MonitoringSettingRepository;
 
 public interface IMonitoringSettingRepository
 {
-    public Task<MonitoringSetting> CreateSetting(MonitoringSetting monitoringSetting);
+    public Task<int> CreateSetting(MonitoringSetting monitoringSetting);
     public Task<bool> UpdateSetting(MonitoringSetting monitoringSetting);
     public Task<bool> DeleteSetting(int monitoringSettingId);
-    public Task<MonitoringSetting?> ReadByServiceId(int serviceId);
+    public Task<MonitoringSetting?> ReadByResourceId(int resourceId);
     public Task<IEnumerable<MonitoringSetting?>> ReadAll();
 }

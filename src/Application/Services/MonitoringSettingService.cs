@@ -2,6 +2,7 @@ using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.MonitoringSettingRepository;
 
 namespace Application.Services;
 
@@ -46,7 +47,7 @@ public class MonitoringSettingService : IMonitoringSettingService
 
     public async Task<MonitoringSettingDto?> GetMonitoringSetting(int serviceId)
     {
-        MonitoringSetting? monitoringSetting = await _monitoringSettingRepository.ReadByServiceId(serviceId);
+        MonitoringSetting? monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
         MonitoringSettingDto mappedMonitoringSetting = _mapper.Map<MonitoringSettingDto>(monitoringSetting);
         return mappedMonitoringSetting;
     }
