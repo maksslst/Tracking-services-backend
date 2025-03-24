@@ -25,7 +25,7 @@ public class CompanyController : ControllerBase
             return BadRequest("Не удалось создать компанию");
         }
 
-        return CreatedAtAction(nameof(GetByCompanyId), new { id = company.Id }, company);
+        return CreatedAtAction(nameof(GetByCompanyId), new { companyId = company.Id }, company);
     }
 
     [HttpPost("AddUserToCompany/{userId}/{companyId}")]

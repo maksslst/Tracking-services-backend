@@ -26,7 +26,7 @@ public class UserController : ControllerBase
             return BadRequest("Не удалось создать пользователя");
         }
 
-        return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+        return CreatedAtAction(nameof(GetById), new { userId = user.Id }, user);
     }
     #endregion
 

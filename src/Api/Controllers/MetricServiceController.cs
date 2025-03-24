@@ -26,7 +26,7 @@ public class MetricServiceController : ControllerBase
             return BadRequest("Не удалось создать метрику");
         }
 
-        return CreatedAtAction(nameof(GetMetricServiceId), new { id = metric.Id }, metric);
+        return CreatedAtAction(nameof(GetMetricServiceId), new { serviceId = metric.Id }, metric);
     }
     #endregion
 

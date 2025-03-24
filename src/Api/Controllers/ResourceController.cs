@@ -25,7 +25,7 @@ public class ResourceController : ControllerBase
             return BadRequest("Не удалось добавить сервис");
         }
 
-        return CreatedAtAction(nameof(GetByResourceId), new { id = resource.Id }, resource);
+        return CreatedAtAction(nameof(GetByResourceId), new { resourceId = resource.Id }, resource);
     }
 
     [HttpPost("{companyId}")]

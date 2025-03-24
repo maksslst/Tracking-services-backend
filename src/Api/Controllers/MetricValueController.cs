@@ -26,7 +26,7 @@ public class MetricValueController : ControllerBase
             return BadRequest("Не удалось добавить значение");
         }
 
-        return CreatedAtAction(nameof(GetByMetricValueId), new { id = metricValue.Id }, metricValue);
+        return CreatedAtAction(nameof(GetByMetricValueId), new { metricValueId = metricValue.Id }, metricValue);
     }
     #endregion
 

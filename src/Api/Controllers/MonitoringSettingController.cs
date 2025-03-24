@@ -26,7 +26,7 @@ public class MonitoringSettingController : ControllerBase
             return BadRequest("Не удалось создать настройку");
         }
 
-        return CreatedAtAction(nameof(GetByServiceId), new { id = monitoringSetting.Id }, monitoringSetting);
+        return CreatedAtAction(nameof(GetByServiceId), new { serviceId = monitoringSetting.Id }, monitoringSetting);
     }
     #endregion
 
