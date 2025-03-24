@@ -33,7 +33,7 @@ public class TaskService : ITaskService
             return null;
         }
 
-        ServiceTask mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
+        var mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
         if (mappedTask != null)
         {
             await _taskRepository.CreateTask(mappedTask);
@@ -45,7 +45,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> Update(ServiceTaskDto serviceTaskDto)
     {
-        ServiceTask mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
+        var mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
         if (mappedTask == null)
         {
             return false;
@@ -73,33 +73,27 @@ public class TaskService : ITaskService
 
     public async Task<ServiceTaskDto?> GetTask(int taskId)
     {
-        ServiceTask? serviceTask = await _taskRepository.ReadTaskId(taskId);
-        ServiceTaskDto mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
+        var serviceTask = await _taskRepository.ReadTaskId(taskId);
+        var mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
         return mappedTask;
     }
 
     public async Task<IEnumerable<ServiceTaskDto?>> GetAllCompanyTasks(int companyId)
     {
-        Company? company = await _companyRepository.ReadByCompanyId(companyId);
+        var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
             return null;
         }
-
-        var companyServices = _resourceRepository.ReadCompanyResources(company).Result;
-        if (companyServices == null)
-        {
-            return null;
-        }
-
-        IEnumerable<ServiceTask?> serviceTasks = await _taskRepository.ReadAllTasksCompanyId(companyServices);
-        IEnumerable<ServiceTaskDto> mappedServiceTask = serviceTasks.Select(i => _mapper.Map<ServiceTaskDto>(i));
+        
+        var serviceTasks = await _taskRepository.ReadAllTasksCompanyId(companyId);
+        var mappedServiceTask = serviceTasks.Select(i => _mapper.Map<ServiceTaskDto>(i));
         return mappedServiceTask;
     }
 
     public async Task<bool> AssignTaskToUser(int userId, int taskId)
     {
-        User? user = await _userRepository.ReadById(userId);
+        var user = await _userRepository.ReadById(userId);
         if (user == null)
         {
             return false;
@@ -110,7 +104,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> DeleteTaskForUser(int userId, int taskId)
     {
-        User? user = await _userRepository.ReadById(userId);
+        var user = await _userRepository.ReadById(userId);
         if (user == null)
         {
             return false;
@@ -120,7 +114,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
-        User? newUser = _userRepository.ReadById(newUserId).Result;
+        var newUser = _userRepository.ReadById(newUserId).Result;
         if (newUser == null)
         {
             return false;
@@ -131,15 +125,15 @@ public class TaskService : ITaskService
 
     public async Task<ServiceTaskDto?> GetTaskForUser(int userId, int taskId)
     {
-        ServiceTask? serviceTask = await _taskRepository.ReadTaskUser(userId, taskId);
-        ServiceTaskDto mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
+        var serviceTask = await _taskRepository.ReadTaskUser(userId, taskId);
+        var mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
         return mappedTask;
     }
 
     public async Task<IEnumerable<ServiceTaskDto?>> GetAllUserTasks(int userId)
     {
-        IEnumerable<ServiceTask?> serviceTasksUser = await _taskRepository.ReadAllUserTasks(userId);
-        IEnumerable<ServiceTaskDto> mappedTasksUser = serviceTasksUser.Select(i => _mapper.Map<ServiceTaskDto>(i));
+        var serviceTasksUser = await _taskRepository.ReadAllUserTasks(userId);
+        var mappedTasksUser = serviceTasksUser.Select(i => _mapper.Map<ServiceTaskDto>(i));
         return mappedTasksUser;
     }
 }

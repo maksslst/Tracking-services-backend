@@ -102,7 +102,7 @@ public class ResourceController : ControllerBase
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetByResourceId(int resourceId)
     {
-        ResourceDto? service = await _resourceService.GetResource(resourceId);
+        var service = await _resourceService.GetResource(resourceId);
         if (service == null)
         {
             return BadRequest("Не удалось найти сервис");
@@ -114,7 +114,7 @@ public class ResourceController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllResources()
     {
-        IEnumerable<ResourceDto?> resources = await _resourceService.GetAllResources();
+        var resources = await _resourceService.GetAllResources();
         if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов");
@@ -126,7 +126,7 @@ public class ResourceController : ControllerBase
     [HttpGet("GetCompanyResources/{companyId}")]
     public async Task<IActionResult> GetCompanyResources(int companyId)
     {
-        IEnumerable<ResourceDto?> resources = await _resourceService.GetCompanyResources(companyId);
+        var resources = await _resourceService.GetCompanyResources(companyId);
         if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов компании");

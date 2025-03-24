@@ -22,7 +22,7 @@ public class ResourceService : IResourceService
 
     public async Task<int?> Add(ResourceDto resourceDto)
     {
-        Resource mappedResource = _mapper.Map<Resource>(resourceDto);
+        var mappedResource = _mapper.Map<Resource>(resourceDto);
         if (mappedResource != null)
         {
             int resourceId = await _resourceRepository.CreateResource(mappedResource);
@@ -34,13 +34,13 @@ public class ResourceService : IResourceService
 
     public async Task<bool> Update(ResourceDto resourceDto)
     {
-        Resource mappedResource = _mapper.Map<Resource>(resourceDto);
+        var mappedResource = _mapper.Map<Resource>(resourceDto);
         if (mappedResource == null)
         {
             return false;
         }
 
-        Company? company = await _companyRepository.ReadByCompanyId(resourceDto.CompanyId);
+        var company = await _companyRepository.ReadByCompanyId(resourceDto.CompanyId);
         if (company == null)
         {
             return false;
@@ -56,13 +56,13 @@ public class ResourceService : IResourceService
 
     public async Task<bool> AddCompanyResource(int companyId, ResourceDto? resourceDto)
     {
-        Company? company = await _companyRepository.ReadByCompanyId(companyId);
+        var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
             return false;
         }
 
-        Resource mappedResource = _mapper.Map<Resource>(resourceDto);
+        var mappedResource = _mapper.Map<Resource>(resourceDto);
         if (mappedResource == null)
         {
             return false;
@@ -79,7 +79,7 @@ public class ResourceService : IResourceService
 
     public async Task<bool> UpdateCompanyResource(int companyId, ResourceDto resourceDto, int resourceUpdateId)
     {
-        Resource? resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
+        var resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
         if (resourceToUpdate == null || await _companyRepository.ReadByCompanyId(companyId) == null ||
             resourceToUpdate.CompanyId != companyId)
         {
@@ -102,7 +102,7 @@ public class ResourceService : IResourceService
             return false;
         }
 
-        Resource? resource = await _resourceRepository.ReadByResourceId(resourceId);
+        var resource = await _resourceRepository.ReadByResourceId(resourceId);
         if (resource == null || resource.CompanyId != companyId)
         {
             return false;
@@ -113,15 +113,15 @@ public class ResourceService : IResourceService
 
     public async Task<ResourceDto?> GetResource(int resourceId)
     {
-        Resource? resource = await _resourceRepository.ReadByResourceId(resourceId);
-        ResourceDto mappedResource = _mapper.Map<ResourceDto>(resource);
+        var resource = await _resourceRepository.ReadByResourceId(resourceId);
+        var mappedResource = _mapper.Map<ResourceDto>(resource);
         return mappedResource;
     }
 
     public async Task<IEnumerable<ResourceDto?>> GetAllResources()
     {
-        IEnumerable<Resource?> resource = await _resourceRepository.ReadAllResources();
-        List<ResourceDto> mappedResource = resource.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
+        var resource = await _resourceRepository.ReadAllResources();
+        var mappedResource = resource.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
         return mappedResource;
     }
 
@@ -133,8 +133,8 @@ public class ResourceService : IResourceService
             return null;
         }
 
-        IEnumerable<Resource?> resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
-        IEnumerable<ResourceDto> mappedResourcesCompany = resourcesCompany.Select(i => _mapper.Map<ResourceDto>(i));
+        var resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
+        var mappedResourcesCompany = resourcesCompany.Select(i => _mapper.Map<ResourceDto>(i));
         return mappedResourcesCompany;
     }
 }

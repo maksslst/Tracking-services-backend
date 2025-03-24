@@ -21,7 +21,7 @@ public class CompanyService : ICompanyService
 
     public async Task<int?> Add(CompanyDto companyDto)
     {
-        Company mappedCompany = _mapper.Map<Company>(companyDto);
+        var mappedCompany = _mapper.Map<Company>(companyDto);
         if (mappedCompany == null)
         {
             return null;
@@ -33,13 +33,13 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> Update(CompanyDto companyDto)
     {
-        Company mappedCompany = _mapper.Map<Company>(companyDto);
+        var mappedCompany = _mapper.Map<Company>(companyDto);
         if (mappedCompany == null)
         {
             return false;
         }
 
-        List<UserDto> users = companyDto.Users;
+        var users = companyDto.Users;
         foreach (var user in users)
         {
             if (_userRepository.ReadById(user.Id).Result != null)
@@ -58,7 +58,7 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> AddUserToCompany(int userId, int companyId)
     {
-        User? user = _userRepository.ReadById(userId).Result;
+        var user = _userRepository.ReadById(userId).Result;
         if (user == null)
         {
             return false;
@@ -69,7 +69,7 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> DeleteUserFromCompany(int userId, int companyId)
     {
-        User? user = _userRepository.ReadById(userId).Result;
+        var user = _userRepository.ReadById(userId).Result;
         if (user == null)
         {
             return false;
@@ -81,26 +81,26 @@ public class CompanyService : ICompanyService
     public async Task<CompanyDto?> GetCompany(int companyId)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
-        CompanyDto mappedCompany = _mapper.Map<CompanyDto>(company);
+        var mappedCompany = _mapper.Map<CompanyDto>(company);
         return mappedCompany;
     }
 
     public async Task<IEnumerable<CompanyDto?>> GetAllCompanies()
     {
-        IEnumerable<Company?> companies = await _companyRepository.ReadAllCompanies();
-        IEnumerable<CompanyDto> mappedCompanies = companies.Select(i => _mapper.Map<CompanyDto>(i));
+        var companies = await _companyRepository.ReadAllCompanies();
+        var mappedCompanies = companies.Select(i => _mapper.Map<CompanyDto>(i));
         return mappedCompanies;
     }
 
     public async Task<IEnumerable<UserDto?>> GetCompanyUsers(int companyId)
     {
-        IEnumerable<User?> users = await _companyRepository.ReadCompanyUsers(companyId);
+        var users = await _companyRepository.ReadCompanyUsers(companyId);
         if (users == null)
         {
             return null;
         }
 
-        IEnumerable<UserDto?> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
+        var mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
         return mappedUsers;
     }
 }

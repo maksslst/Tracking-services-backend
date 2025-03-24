@@ -95,13 +95,14 @@ public class CompanyController : ControllerBase
         {
             return BadRequest("Не удалось найти компанию");
         }
+
         return Ok(company);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllCompanies()
     {
-        IEnumerable<CompanyDto?> companies = await _companyService.GetAllCompanies();
+        var companies = await _companyService.GetAllCompanies();
         if (companies == null)
         {
             return BadRequest("Не удалось получить список компаний");
@@ -113,11 +114,12 @@ public class CompanyController : ControllerBase
     [HttpGet("GetCompanyUsers/{companyId}")]
     public async Task<IActionResult> GetCompanyUsers(int companyId)
     {
-        IEnumerable<UserDto?> users = await _companyService.GetCompanyUsers(companyId);
+        var users = await _companyService.GetCompanyUsers(companyId);
         if (users == null)
         {
             return NotFound("Не удалось найти список пользователей");
         }
+
         return Ok(users);
     }
     #endregion

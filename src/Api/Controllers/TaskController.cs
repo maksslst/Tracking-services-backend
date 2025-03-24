@@ -20,13 +20,13 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] ServiceTaskDto serviceTaskDto)
     {
-        ServiceTask? serviceTask = await _taskService.Add(serviceTaskDto);
+        var serviceTask = await _taskService.Add(serviceTaskDto);
         if (serviceTask == null)
         {
             return BadRequest("Не удалось создать задачу");
         }
 
-        return Created(serviceTask.Id.ToString(), serviceTask);
+        return CreatedAtAction(nameof(GetTaskId), new { id =serviceTask.Id }, serviceTask);
     }
 
     [HttpPost("AssignTaskToUser/{userId}/{taskId}")]
@@ -103,7 +103,7 @@ public class TaskController : ControllerBase
     [HttpGet("{taskId}")]
     public async Task<IActionResult> GetTaskId(int taskId)
     {
-        ServiceTaskDto? serviceTask = await _taskService.GetTask(taskId);
+        var serviceTask = await _taskService.GetTask(taskId);
         if (serviceTask == null)
         {
             return BadRequest("Не удалось найти задачу");
@@ -115,7 +115,7 @@ public class TaskController : ControllerBase
     [HttpGet("GetAllCompanyTasks/{companyId}")]
     public async Task<IActionResult> GetAllCompanyTasks(int companyId)
     {
-        IEnumerable<ServiceTaskDto?> serviceTasks = await _taskService.GetAllCompanyTasks(companyId);
+        var serviceTasks = await _taskService.GetAllCompanyTasks(companyId);
         if (serviceTasks == null)
         {
             return BadRequest("Не удалось получить задачи компании");
@@ -127,7 +127,7 @@ public class TaskController : ControllerBase
     [HttpGet("GetTaskUser/{userId}/{taskId}")]
     public async Task<IActionResult> GetTaskUser(int userId, int taskId)
     {
-        ServiceTaskDto? serviceTask = await _taskService.GetTaskForUser(userId, taskId);
+        var serviceTask = await _taskService.GetTaskForUser(userId, taskId);
         if (serviceTask == null)
         {
             return BadRequest("Не удалось найти задачу");
@@ -139,7 +139,7 @@ public class TaskController : ControllerBase
     [HttpGet("GetAllUserTasks/{userId}")]
     public async Task<IActionResult> GetAllUserTasks(int userId)
     {
-        IEnumerable<ServiceTaskDto?> serviceTasks = await _taskService.GetAllUserTasks(userId);
+        var serviceTasks = await _taskService.GetAllUserTasks(userId);
         if (serviceTasks == null)
         {
             return BadRequest("Не удалось найти список задач пользователя");

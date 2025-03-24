@@ -20,13 +20,13 @@ public class MetricServiceController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddMetric([FromBody] MetricDto metricDto)
     {
-        Metric? metric = await _metricService.AddMetric(metricDto);
+        var metric = await _metricService.AddMetric(metricDto);
         if (metric == null)
         {
             return BadRequest("Не удалось создать метрику");
         }
 
-        return Created(metricDto.Id.ToString(), metricDto);
+        return CreatedAtAction(nameof(GetMetricServiceId), new { id = metric.Id }, metric);
     }
     #endregion
 
@@ -58,6 +58,7 @@ public class MetricServiceController : ControllerBase
         {
             return BadRequest("Не удалось удалить метрику");
         }
+
         return NoContent();
     }
     #endregion
@@ -66,7 +67,7 @@ public class MetricServiceController : ControllerBase
     [HttpGet("{serviceId}")]
     public async Task<IActionResult> GetMetricServiceId(int serviceId)
     {
-        MetricDto? metric = await _metricService.GetMetricByServiceId(serviceId);
+        var metric = await _metricService.GetMetricByServiceId(serviceId);
         if (metric == null)
         {
             return BadRequest("Не удалось получить метрику");
@@ -78,7 +79,7 @@ public class MetricServiceController : ControllerBase
     [HttpGet("GetAllMetricServiceId/{serviceId}")]
     public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
     {
-        IEnumerable<MetricDto?> metrics = await _metricService.GetAllMetricsByServiceId(serviceId);
+        var metrics = await _metricService.GetAllMetricsByServiceId(serviceId);
         if (metrics == null)
         {
             return BadRequest("Не удалось получить метрики сервиса");
@@ -90,11 +91,12 @@ public class MetricServiceController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        IEnumerable<MetricDto?> metrics = await _metricService.GetAll();
+        var metrics = await _metricService.GetAll();
         if (metrics == null)
         {
             return BadRequest("Не удалось получить метрики");
         }
+
         return Ok(metrics);
     }
     #endregion

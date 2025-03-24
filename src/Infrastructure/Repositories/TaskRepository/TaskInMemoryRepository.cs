@@ -62,12 +62,12 @@ public class TaskInMemoryRepository : ITaskRepository
         return Task.FromResult(task);
     }
 
-    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(IEnumerable<Resource> companyServices)
+    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
     {
         List<ServiceTask> companyTasks = new List<ServiceTask>();
         foreach (var task in _tasks)
         {
-            if (companyServices.Any(i => i.Id == task.ResourceId))
+            if (task.Resource.CompanyId == companyId)
             {
                 companyTasks.Add(task);
             }

@@ -26,7 +26,7 @@ public class MetricService : IMetricService
             return null;
         }
 
-        Metric mappedMetric = _mapper.Map<Metric>(metricDto);
+        var mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric != null)
         {
             await _metricRepository.CreateMetric(mappedMetric);
@@ -38,7 +38,7 @@ public class MetricService : IMetricService
 
     public async Task<bool> UpdateMetric(MetricDto metricDto)
     {
-        Metric mappedMetric = _mapper.Map<Metric>(metricDto);
+        var mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric == null)
         {
             return false;
@@ -59,22 +59,22 @@ public class MetricService : IMetricService
 
     public async Task<MetricDto?> GetMetricByServiceId(int serviceId)
     {
-        Metric? metric = await _metricRepository.ReadMetricByResourceId(serviceId);
-        MetricDto mappedMetric = _mapper.Map<MetricDto>(metric);
+        var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
+        var mappedMetric = _mapper.Map<MetricDto>(metric);
         return mappedMetric;
     }
 
     public async Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId)
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
-        IEnumerable<MetricDto> mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
+        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
         return mappedMetrics;
     }
 
     public async Task<IEnumerable<MetricDto?>> GetAll()
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAll();
-        IEnumerable<MetricDto> mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
+        var metrics = await _metricRepository.ReadAll();
+        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
         return mappedMetrics;
     }
 }

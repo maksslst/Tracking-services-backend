@@ -15,24 +15,19 @@ public class TaskPostgresRepository : ITaskRepository
 
     public async Task<int> CreateTask(ServiceTask serviceTask)
     {
-        await _connection.OpenAsync();
-
         var taskId = await _connection.QuerySingleAsync<int>(
-            @"INSERT INTO ""serviceTasks""(resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status)
+            @"INSERT INTO ""service_tasks""(resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status)
                 VALUES(@ResourceId, @Description, @AssignedUserId, @CreatedById, @StartTime, @CompletionTime, @Status)
                 RETURNING id",
                 serviceTask);
 
-        await _connection.CloseAsync();
         return taskId;
     }
 
     public async Task<bool> UpdateTask(ServiceTask serviceTask, User assignedUserToUpdate)
     {
-        await _connection.OpenAsync();
-
         var taskToUpdate = await _connection.ExecuteAsync(
-            @"UPDATE ""serviceTasks"" 
+            @"UPDATE ""service_tasks"" 
                 SET resource_id = @ResourceId,
                     description = @Description,
                     assigned_user_id = @AssignedUserId,
@@ -42,78 +37,62 @@ public class TaskPostgresRepository : ITaskRepository
                     status = @Status
                 WHERE Id = @Id", serviceTask);
 
-        await _connection.CloseAsync();
         return taskToUpdate > 0;
     }
 
     public async Task<bool> DeleteTask(int serviceTaskId)
     {
-        await _connection.OpenAsync();
-
         var taskToDelete = await _connection.ExecuteAsync(
-            @"DELETE FROM ""serviceTasks"" 
+            @"DELETE FROM ""service_tasks"" 
                 WHERE id = @Id", serviceTaskId);
 
-        await _connection.CloseAsync();
         return taskToDelete > 0;
     }
 
     public async Task<ServiceTask?> ReadTaskId(int taskId)
     {
-        await _connection.OpenAsync();
-
-        ServiceTask serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
+        var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
             @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById , start_time, completion_time, status
-                FROM ""serviceTasks""
+                FROM ""service_tasks""
                 WHERE id=@Id", new { Id = taskId });
 
-        await _connection.CloseAsync();
         return serviceTask;
     }
 
-    public async Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(IEnumerable<Resource> companyResources)
+    public async Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
     {
         var companyTasks = await _connection.QueryAsync<ServiceTask>(
-            @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById, start_time, completion_time, status
-                FROM ""serviceTasks""
-                WHERE resource_id = any(@resources)", new { resources = companyResources.Select(i => i.Id).ToList() });
+            @"SELECT s.id, s.resource_id as ResourceId, s.description, s.assigned_user_id as AssignedUserId, s.created_by_id as CreatedById, s.start_time, s.completion_time, s.status
+                FROM ""service_tasks"" s join ""resources"" r on s.resource_id = r.id and r.company_id = @CompanyId", 
+            new { CompanyId = companyId});
 
-        await _connection.CloseAsync();
         return companyTasks;
     }
 
     public async Task<bool> AssignTaskToUser(User user, int taskId)
     {
-        await _connection.OpenAsync();
-
         var taskToUpdate = await _connection.ExecuteAsync(
-            @"UPDATE ""serviceTasks""
+            @"UPDATE ""service_tasks""
                 SET assigned_user_id = @AssignedUserId
                 WHERE id = @Id", new { AssignedUserId = user.Id, Id = taskId });
 
-        await _connection.CloseAsync();
         return taskToUpdate > 0;
     }
 
     public async Task<bool> DeleteTaskToUser(User user, int taskId)
     {
-        await _connection.OpenAsync();
-
         var taskToDelete = await _connection.ExecuteAsync(
-            @"UPDATE ""serviceTasks""
+            @"UPDATE ""service_tasks""
                 SET assigned_user_id = null
                 WHERE id = @Id", new { Id = taskId });
 
-        await _connection.CloseAsync();
         return taskToDelete > 0;
     }
 
     public async Task<bool> ReassignTaskToUser(int oldUserId, User newUserId, int taskId)
     {
-        await _connection.OpenAsync();
-
         var taskToUpdate = await _connection.ExecuteAsync(
-            @"UPDATE ""serviceTasks""
+            @"UPDATE ""service_tasks""
                 SET assigned_user_id = @AssignedUserId
                 WHERE id = @Id AND assigned_user_id = @OldUserId",
             new
@@ -124,15 +103,14 @@ public class TaskPostgresRepository : ITaskRepository
 
             });
 
-        await _connection.CloseAsync();
         return taskToUpdate > 0;
     }
 
     public async Task<ServiceTask?> ReadTaskUser(int userId, int taskId)
     {
-        ServiceTask serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
+        var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
             @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById, start_time, completion_time, status
-                FROM ""serviceTasks""
+                FROM ""service_tasks""
                 WHERE id = @Id and assigned_user_id = @AssignedUserId",
             new
             {
@@ -140,20 +118,16 @@ public class TaskPostgresRepository : ITaskRepository
                 AssignedUserId = userId
             });
 
-        await _connection.CloseAsync();
         return serviceTask;
     }
 
     public async Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)
     {
-        await _connection.OpenAsync();
-
         var tasks = await _connection.QueryAsync<ServiceTask>(
             @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
-                FROM serviceTasks
+                FROM service_tasks
                 WHERE assigned_user_id =@AssignedUserId", new { AssAssignedUserId = userId });
 
-        await _connection.CloseAsync();
         return tasks;
     }
 }

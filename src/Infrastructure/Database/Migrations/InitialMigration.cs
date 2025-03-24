@@ -18,8 +18,8 @@ public class InitialMigration : Migration
         Create.Table("users")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
             .WithColumn("username").AsString(100).NotNullable().Unique()
-            .WithColumn("firstName").AsString(100).NotNullable()
-            .WithColumn("lastName").AsString(100).NotNullable()
+            .WithColumn("first_name").AsString(100).NotNullable()
+            .WithColumn("last_name").AsString(100).NotNullable()
             .WithColumn("patronymic").AsString(100).Nullable()
             .WithColumn("email").AsString(100).Nullable().Unique()
             .WithColumn("company_id").AsInt32().NotNullable()
@@ -51,7 +51,7 @@ public class InitialMigration : Migration
         #endregion
 
         #region MetricValues
-        Create.Table("metricValues")
+        Create.Table("metric_values")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
             .WithColumn("metric_id").AsInt32().NotNullable()
             .ForeignKey("metrics", "id")
@@ -60,17 +60,17 @@ public class InitialMigration : Migration
         #endregion
 
         #region MonitoringSettings
-        Create.Table("monitoringSettings")
+        Create.Table("monitoring_settings")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
             .WithColumn("resource_id").AsInt32().NotNullable()
             .ForeignKey("resources", "id")
             .OnDeleteOrUpdate(Rule.Cascade)
-            .WithColumn("checkinterval").AsString(50).NotNullable()
+            .WithColumn("check_interval").AsString(50).NotNullable()
             .WithColumn("mode").AsBoolean().NotNullable();
         #endregion
 
         #region ServiceTasks
-        Create.Table("serviceTasks")
+        Create.Table("service_tasks")
             .WithColumn("id").AsInt32().PrimaryKey().Identity()
             .WithColumn("resource_id").AsInt32().NotNullable()
             .ForeignKey("resources", "id")
@@ -98,8 +98,8 @@ public class InitialMigration : Migration
             .Row(new
             {
                 username = "Patrick1",
-                firstName = "Patrick",
-                lastName = "Bednar",
+                first_name = "Patrick",
+                last_name = "Bednar",
                 patronymic = "Grimes",
                 email = "Patrick_Bednar@gmail.com",
                 company_id = 1
@@ -107,8 +107,8 @@ public class InitialMigration : Migration
             .Row(new
             {
                 username = "Patrick2",
-                firstName = "Patrick",
-                lastName = "Bednar",
+                first_name = "Patrick",
+                last_name = "Bednar",
                 patronymic = "Marks",
                 email = "Patrick_Bednar1@gmail.com",
                 company_id = 2
@@ -116,8 +116,8 @@ public class InitialMigration : Migration
             .Row(new
             {
                 username = "Patrick3",
-                firstName = "Patrick",
-                lastName = "Jones",
+                first_name = "Patrick",
+                last_name = "Jones",
                 patronymic = "Marks",
                 email = "Patrick_Bednar3@gmail.com",
                 company_id = 1
@@ -163,7 +163,7 @@ public class InitialMigration : Migration
         #endregion
 
         #region TestDataMetricValues
-        Insert.IntoTable("metricValues")
+        Insert.IntoTable("metric_values")
             .Row(new { metric_id = 1, value = 0.73 })
             .Row(new { metric_id = 1, value = 0.19 })
             .Row(new { metric_id = 2, value = 0.5 })
@@ -171,23 +171,23 @@ public class InitialMigration : Migration
         #endregion
 
         #region TestDateMonitoringSettings
-        Insert.IntoTable("monitoringSettings")
+        Insert.IntoTable("monitoring_settings")
             .Row(new
             {
                 resource_id = 1,
-                checkinterval = "0 0/5 * * * ?",
+                check_interval = "0 0/5 * * * ?",
                 mode = true
             })
             .Row(new
             {
                 resource_id = 2,
-                checkinterval = "*/2 * * * *",
+                check_interval = "*/2 * * * *",
                 mode = true
             });
         #endregion
 
         #region TestDataServiceTasks
-        Insert.IntoTable("serviceTasks")
+        Insert.IntoTable("service_tasks")
             .Row(new
             {
                 resource_id = 1,

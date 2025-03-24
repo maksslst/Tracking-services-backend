@@ -20,13 +20,13 @@ public class MonitoringSettingController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MonitoringSettingDto monitoringSettingDto)
     {
-        MonitoringSetting? monitoringSetting = await _monitoringSettingService.Add(monitoringSettingDto);
+        var monitoringSetting = await _monitoringSettingService.Add(monitoringSettingDto);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось создать настройку");
         }
 
-        return Created(monitoringSetting.Id.ToString(), monitoringSettingDto);
+        return CreatedAtAction(nameof(GetByServiceId), new { id = monitoringSetting.Id }, monitoringSetting);
     }
     #endregion
 
@@ -67,7 +67,7 @@ public class MonitoringSettingController : ControllerBase
     [HttpGet("{serviceId}")]
     public async Task<IActionResult> GetByServiceId(int serviceId)
     {
-        MonitoringSettingDto? monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
+        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось найти настройку");
