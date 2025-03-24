@@ -124,7 +124,7 @@ public class CompanyPostgresRepository : ICompanyRepository
         }
 
         var users = await _connection.QueryAsync<User>(
-            @"SELECT id, username, ""firstName"", ""lastName"", patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
                 FROM users
                 WHERE company_id = @CompanyId", new { CompanyId = companyId });
 

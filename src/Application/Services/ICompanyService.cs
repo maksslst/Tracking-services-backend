@@ -1,10 +1,11 @@
 using Application.DTOs.Mappings;
+using Domain.Entities;
 
 namespace Application.Services;
 
 public interface ICompanyService
 {
-    public Task<int?> Add(CompanyDto companyDto);
+    public Task<Company?> Add(CompanyDto companyDto);
     public Task<bool> Update(CompanyDto companyDto);
     public Task<bool> Delete(int companyId);
     public Task<bool> AddUserToCompany(int userId, int companyId);

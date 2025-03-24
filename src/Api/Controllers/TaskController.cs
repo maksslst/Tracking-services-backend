@@ -26,7 +26,7 @@ public class TaskController : ControllerBase
             return BadRequest("Не удалось создать задачу");
         }
 
-        return CreatedAtAction(nameof(GetTaskId), new { id =serviceTask.Id }, serviceTask);
+        return CreatedAtAction(nameof(GetTaskId), new { id = serviceTask.Id }, serviceTask);
     }
 
     [HttpPost("AssignTaskToUser/{userId}/{taskId}")]

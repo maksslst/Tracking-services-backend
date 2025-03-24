@@ -19,7 +19,7 @@ public class CompanyService : ICompanyService
         _userRepository = userRepository;
     }
 
-    public async Task<int?> Add(CompanyDto companyDto)
+    public async Task<Company?> Add(CompanyDto companyDto)
     {
         var mappedCompany = _mapper.Map<Company>(companyDto);
         if (mappedCompany == null)
@@ -27,8 +27,8 @@ public class CompanyService : ICompanyService
             return null;
         }
 
-        int companyId = await _companyRepository.CreateCompany(mappedCompany);
-        return companyId;
+        await _companyRepository.CreateCompany(mappedCompany);
+        return mappedCompany;
     }
 
     public async Task<bool> Update(CompanyDto companyDto)

@@ -26,12 +26,12 @@ public class MetricValueController : ControllerBase
             return BadRequest("Не удалось добавить значение");
         }
 
-        return Created(metricValue.Id.ToString(), metricValue);
+        return CreatedAtAction(nameof(GetByMetricValueId), new { id = metricValue.Id }, metricValue);
     }
     #endregion
 
     #region HttpGet
-    [HttpGet("{resourceId}")]
+    [HttpGet("GetAllMetricValuesByResourceId/{resourceId}")]
     public async Task<IActionResult> GetAllMetricValuesByResourceId(int resourceId)
     {
         var metricValue = await _metricValueService.GetAllMetricValuesForResource(resourceId);
@@ -40,6 +40,18 @@ public class MetricValueController : ControllerBase
             return BadRequest("Не удалось получить собранные заначения метрики");
         }
 
+        return Ok(metricValue);
+    }
+
+    [HttpGet("{metricValueId}")]
+    public async Task<IActionResult> GetByMetricValueId(int metricValueId)
+    {
+        var metricValue = await _metricValueService.GetMetricValue(metricValueId);
+        if (metricValue == null)
+        {
+            return NotFound("Не удалось найти такое значение");
+        }
+        
         return Ok(metricValue);
     }
     #endregion

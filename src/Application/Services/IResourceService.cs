@@ -1,10 +1,11 @@
 using Application.DTOs.Mappings;
+using Domain.Entities;
 
 namespace Application.Services;
 
 public interface IResourceService
 {
-    public Task<int?> Add(ResourceDto resourceDto);
+    public Task<Resource?> Add(ResourceDto resourceDto);
     public Task<bool> Update(ResourceDto resourceDto);
     public Task<bool> Delete(int resourceId);
     public Task<bool> AddCompanyResource(int companyId, ResourceDto? resourceDto = null);

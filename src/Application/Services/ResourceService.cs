@@ -20,13 +20,13 @@ public class ResourceService : IResourceService
         _companyRepository = companyRepository;
     }
 
-    public async Task<int?> Add(ResourceDto resourceDto)
+    public async Task<Resource?> Add(ResourceDto resourceDto)
     {
         var mappedResource = _mapper.Map<Resource>(resourceDto);
         if (mappedResource != null)
         {
-            int resourceId = await _resourceRepository.CreateResource(mappedResource);
-            return resourceId;
+            await _resourceRepository.CreateResource(mappedResource);
+            return mappedResource;
         }
 
         return null;

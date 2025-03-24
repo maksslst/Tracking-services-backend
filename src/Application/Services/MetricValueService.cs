@@ -51,4 +51,11 @@ public class MetricValueService : IMetricValueService
         var mappedMetricValues = metricValue.Select(i => _mapper.Map<MetricValueDto>(i));
         return mappedMetricValues;
     }
+
+    public async Task<MetricValueDto?> GetMetricValue(int metricValueId)
+    {
+        var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
+        var mappedMetricValue = _mapper.Map<MetricValueDto>(metricValue);
+        return mappedMetricValue;
+    }
 }

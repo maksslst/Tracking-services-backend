@@ -16,7 +16,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<int> CreateUser(User user)
     {
         var userId = await _connection.QuerySingleAsync<int>(
-            @"INSERT INTO users (username, ""first_name"", ""last_name"", patronymic, email, company_id)
+            @"INSERT INTO users (username, first_name, last_name, patronymic, email, company_id)
                 VALUES(@Username, @FirstName, @LastName, @Patronymic, @Email, @CompanyId)
                 RETURNING Id",
             new
@@ -59,7 +59,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<User?> ReadById(int? id)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
-            @"SELECT id, username, ""first_name"", ""last_name"", patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
                 FROM users
                 WHERE id = @Id", new { Id = id });
 
@@ -69,7 +69,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<IEnumerable<User?>> ReadAll()
     {
         var users = await _connection.QueryAsync<User>(
-            @"SELECT id, username, ""first_name"", ""last_name"", patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
                 FROM users");
 
         return users;

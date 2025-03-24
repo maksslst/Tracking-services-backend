@@ -19,13 +19,13 @@ public class ResourceController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] ResourceDto resourceDto)
     {
-        int? resourceId = await _resourceService.Add(resourceDto);
-        if (resourceId == null)
+        var resource = await _resourceService.Add(resourceDto);
+        if (resource == null)
         {
             return BadRequest("Не удалось добавить сервис");
         }
 
-        return Created(resourceId.ToString(), resourceId);
+        return CreatedAtAction(nameof(GetByResourceId), new { id = resource.Id }, resource);
     }
 
     [HttpPost("{companyId}")]

@@ -19,13 +19,13 @@ public class CompanyController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CompanyDto companyDto)
     {
-        int? companyId = await _companyService.Add(companyDto);
-        if (companyId == null)
+        var company = await _companyService.Add(companyDto);
+        if (company == null)
         {
             return BadRequest("Не удалось создать компанию");
         }
 
-        return Created(companyId.ToString(), companyId.Value);
+        return CreatedAtAction(nameof(GetByCompanyId), new { id = company.Id }, company);
     }
 
     [HttpPost("AddUserToCompany/{userId}/{companyId}")]
