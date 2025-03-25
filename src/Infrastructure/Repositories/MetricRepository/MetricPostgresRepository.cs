@@ -48,7 +48,7 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<Metric?> ReadMetricByResourceId(int resourceId)
     {
         var metric = await _connection.QueryFirstOrDefaultAsync<Metric>(
-            @"SELECT id, name, resource_id as ResourceId, unit
+            @"SELECT id, name, resource_id, unit
                 FROM metrics
                 WHERE resource_id=@resource", new { resource = resourceId });
 
@@ -58,7 +58,7 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<Metric?> ReadMetricId(int metricId)
     {
         var metric = await _connection.QueryFirstOrDefaultAsync<Metric>(
-            @"SELECT id, name, resource_id as ResourceId, unit
+            @"SELECT id, name, resource_id, unit
                 FROM metrics
                 WHERE id = @Id", new { Id = metricId });
 
@@ -68,7 +68,7 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int resourceId)
     {
         var metrics = await _connection.QueryAsync<Metric>(
-            @"SELECT id, name, resource_id as ResourceId, unit
+            @"SELECT id, name, resource_id, unit
                 FROM metrics
                 WHERE resource_id=@ResourceId", new { ResourceId = resourceId });
 
@@ -78,7 +78,7 @@ public class MetricPostgresRepository : IMetricRepository
     public async Task<IEnumerable<Metric?>> ReadAll()
     {
         var metrics = await _connection.QueryAsync<Metric>(
-            @"SELECT id, name, resource_id as ResourceId, unit
+            @"SELECT id, name, resource_id, unit
                 FROM metrics");
 
         return metrics;

@@ -27,7 +27,7 @@ public class MetricValuePostgresRepository : IMetricValueRepository
     public async Task<MetricValue?> ReadMetricValueId(int metricValueId)
     {
         var metricValue = await _connection.QueryFirstOrDefaultAsync<MetricValue>(
-            @"SELECT id, metric_id as MetricId, value
+            @"SELECT id, metric_id, value
                 FROM metric_values
                 WHERE id = @Id", new { Id = metricValueId });
 
@@ -37,7 +37,7 @@ public class MetricValuePostgresRepository : IMetricValueRepository
     public async Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId(IEnumerable<int> metricsId)
     {
         var metricValues = await _connection.QueryAsync<MetricValue>(
-            @"SELECT id, metric_id as MetricId, value
+            @"SELECT id, metric_id, value
                 FROM metric_values
                 WHERE metric_id = any(@metrics)", new { metrics = metricsId.ToList() });
 

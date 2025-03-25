@@ -86,7 +86,7 @@ public class ResourcePostgresRepository : IResourceRepository
     public async Task<Resource?> ReadByResourceId(int resourceId)
     {
         var resource = await _connection.QueryFirstOrDefaultAsync<Resource>(
-            @"SELECT id, company_id as CompanyId, name, type, source, status
+            @"SELECT id, company_id, name, type, source, status
                 FROM resources
                 WHERE id = @Id", new { Id = resourceId });
 
@@ -96,7 +96,7 @@ public class ResourcePostgresRepository : IResourceRepository
     public async Task<IEnumerable<Resource?>> ReadAllResources()
     {
         var resources = await _connection.QueryAsync<Resource>(
-            @"SELECT id, company_id as CompanyId, name, type, source, status
+            @"SELECT id, company_id, name, type, source, status
                 FROM resources");
 
         return resources;

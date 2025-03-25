@@ -59,7 +59,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<User?> ReadById(int? id)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
-            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name, last_name as LastName, patronymic, email, company_id
                 FROM users
                 WHERE id = @Id", new { Id = id });
 
@@ -69,7 +69,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<IEnumerable<User?>> ReadAll()
     {
         var users = await _connection.QueryAsync<User>(
-            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id
                 FROM users");
 
         return users;

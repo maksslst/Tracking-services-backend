@@ -95,7 +95,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<Company?> ReadByCompanyId(int? companyId)
     {
         var company = await _connection.QueryFirstOrDefaultAsync<Company>(
-            @"SELECT id, company_name as CompanyName
+            @"SELECT id, company_name
                 FROM companies
                 WHERE id = @Id", new { Id = companyId });
 
@@ -105,7 +105,7 @@ public class CompanyPostgresRepository : ICompanyRepository
     public async Task<IEnumerable<Company?>> ReadAllCompanies()
     {
         var companies = await _connection.QueryAsync<Company>(
-            @"SELECT id, company_name as CompanyName
+            @"SELECT id, company_name
                 FROM companies");
 
         return companies;
@@ -124,7 +124,7 @@ public class CompanyPostgresRepository : ICompanyRepository
         }
 
         var users = await _connection.QueryAsync<User>(
-            @"SELECT id, username, first_name as FirstName, last_name as LastName, patronymic, email, company_id as CompanyId
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id
                 FROM users
                 WHERE company_id = @CompanyId", new { CompanyId = companyId });
 

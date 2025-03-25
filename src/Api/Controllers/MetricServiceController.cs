@@ -26,7 +26,7 @@ public class MetricServiceController : ControllerBase
             return BadRequest("Не удалось создать метрику");
         }
 
-        return CreatedAtAction(nameof(GetMetricServiceId), new { serviceId = metric.Id }, metric);
+        return CreatedAtAction(nameof(GetMetricByResourceId), new { resourceId = metric.ResourceId }, metric);
     }
     #endregion
 
@@ -48,7 +48,7 @@ public class MetricServiceController : ControllerBase
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
     {
-        if (await _metricService.GetMetricByServiceId(metricId) == null)
+        if (await _metricService.GetMetricByResourceId(metricId) == null)
         {
             return NotFound("Метрика не найдена");
         }
@@ -64,10 +64,10 @@ public class MetricServiceController : ControllerBase
     #endregion
 
     #region HttpGet
-    [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetMetricServiceId(int serviceId)
+    [HttpGet("{resourceId}")]
+    public async Task<IActionResult> GetMetricByResourceId(int resourceId)
     {
-        var metric = await _metricService.GetMetricByServiceId(serviceId);
+        var metric = await _metricService.GetMetricByResourceId(resourceId);
         if (metric == null)
         {
             return BadRequest("Не удалось получить метрику");

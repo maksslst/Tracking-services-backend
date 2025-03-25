@@ -34,6 +34,7 @@ public class MonitoringSettingJob : IJob
                     MetricId = metric.Id,
                     // Value = 
                 };
+                
                 await _metricValueRepository.CreateMetricValue(metricValue);
             }
         }

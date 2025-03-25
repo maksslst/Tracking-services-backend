@@ -26,7 +26,7 @@ public class MonitoringSettingController : ControllerBase
             return BadRequest("Не удалось создать настройку");
         }
 
-        return CreatedAtAction(nameof(GetByServiceId), new { serviceId = monitoringSetting.Id }, monitoringSetting);
+        return CreatedAtAction(nameof(GetMonitoringSettingByResourceId), new { resourceId = monitoringSetting.ResourceId }, monitoringSetting);
     }
     #endregion
 
@@ -64,10 +64,10 @@ public class MonitoringSettingController : ControllerBase
     #endregion
 
     #region HttpGet
-    [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetByServiceId(int serviceId)
+    [HttpGet("{resourceId}")]
+    public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {
-        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
+        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resourceId);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось найти настройку");

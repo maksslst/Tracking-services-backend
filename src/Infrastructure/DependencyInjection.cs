@@ -51,6 +51,8 @@ public static class DependencyInjection
 
         services.AddScoped<Database.MigrationRunner>();
 
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
         return services;
     }
 }

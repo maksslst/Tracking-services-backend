@@ -52,7 +52,7 @@ public class TaskPostgresRepository : ITaskRepository
     public async Task<ServiceTask?> ReadTaskId(int taskId)
     {
         var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
-            @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById , start_time, completion_time, status
+            @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
                 FROM service_tasks
                 WHERE id=@Id", new { Id = taskId });
 
@@ -62,8 +62,8 @@ public class TaskPostgresRepository : ITaskRepository
     public async Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
     {
         var companyTasks = await _connection.QueryAsync<ServiceTask>(
-            @"SELECT s.id, s.resource_id as ResourceId, s.description, s.assigned_user_id as AssignedUserId, s.created_by_id as CreatedById, s.start_time, s.completion_time, s.status
-                FROM service_tasks s join ""resources"" r on s.resource_id = r.id and r.company_id = @CompanyId", 
+            @"SELECT s.id, s.resource_id, s.description, s.assigned_user_id, s.created_by_id, s.start_time, s.completion_time, s.status
+                FROM service_tasks s join resources r on s.resource_id = r.id and r.company_id = @CompanyId", 
             new { CompanyId = companyId});
 
         return companyTasks;
@@ -109,7 +109,7 @@ public class TaskPostgresRepository : ITaskRepository
     public async Task<ServiceTask?> ReadTaskUser(int userId, int taskId)
     {
         var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
-            @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById, start_time, completion_time, status
+            @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
                 FROM service_tasks
                 WHERE id = @Id and assigned_user_id = @AssignedUserId",
             new
@@ -124,9 +124,9 @@ public class TaskPostgresRepository : ITaskRepository
     public async Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)
     {
         var tasks = await _connection.QueryAsync<ServiceTask>(
-            @"SELECT id, resource_id as ResourceId, description, assigned_user_id as AssignedUserId, created_by_id as CreatedById, start_time, completion_time, status
+            @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
                 FROM service_tasks
-                WHERE assigned_user_id =@AssignedUserId", new { AssAssignedUserId = userId });
+                WHERE assigned_user_id =@AssignedUserId", new { AssignedUserId = userId });
 
         return tasks;
     }

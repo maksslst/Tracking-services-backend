@@ -57,7 +57,7 @@ public class MetricService : IMetricService
         return await _metricRepository.DeleteMetric(metricId);
     }
 
-    public async Task<MetricDto?> GetMetricByServiceId(int serviceId)
+    public async Task<MetricDto?> GetMetricByResourceId(int serviceId)
     {
         var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
         var mappedMetric = _mapper.Map<MetricDto>(metric);
