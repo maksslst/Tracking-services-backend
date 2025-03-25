@@ -1,22 +1,22 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.MetricRepository;
 
-public class MetricRepository : IMetricRepository
+public class MetricInMemoryRepository : IMetricRepository
 {
     private List<Metric> _metrics;
 
-    public MetricRepository()
+    public MetricInMemoryRepository()
     {
         _metrics = new List<Metric>();
         DataGeneration();
     }
     
-    public Task<Metric> CreateMetric(Metric metric)
+    public Task<int> CreateMetric(Metric metric)
     {
         _metrics.Add(metric);
-        return Task.FromResult(metric);
+        return Task.FromResult(metric.Id);
     }
 
     public Task<bool> UpdateMetric(Metric metric)
@@ -27,7 +27,7 @@ public class MetricRepository : IMetricRepository
             return Task.FromResult(false);
         }
         
-        metricToUpdate.ServiceId = metric.ServiceId;
+        metricToUpdate.ResourceId = metric.ResourceId;
         metricToUpdate.Resource = metric.Resource;
         metricToUpdate.Name = metric.Name;
         metricToUpdate.Unit = metric.Unit;
@@ -57,9 +57,9 @@ public class MetricRepository : IMetricRepository
         return Task.FromResult(metric);
     }
 
-    public Task<Metric?> ReadMetricByServiceId(int serviceId)
+    public Task<Metric?> ReadMetricByResourceId(int resourceId)
     {
-        var metric = _metrics.Find(i => i.ServiceId == serviceId);
+        var metric = _metrics.Find(i => i.ResourceId == resourceId);
         if (metric == null)
         {
             return Task.FromResult<Metric?>(null);
@@ -68,9 +68,9 @@ public class MetricRepository : IMetricRepository
         return Task.FromResult(metric);
     }
 
-    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int serviceId)
+    public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int resourceId)
     {
-        var metric = _metrics.FindAll(i => i.ServiceId == serviceId);
+        var metric = _metrics.FindAll(i => i.ResourceId == resourceId);
         return Task.FromResult<IEnumerable<Metric?>>(metric);
     }
 
@@ -89,7 +89,7 @@ public class MetricRepository : IMetricRepository
             {
                 Id = i +1,
                 Name = "Проверка доступности ping",
-                ServiceId = random.Next(1,3),
+                ResourceId = random.Next(1,3),
                 Created = DateTime.Now,
                 Unit = "мс"
             };

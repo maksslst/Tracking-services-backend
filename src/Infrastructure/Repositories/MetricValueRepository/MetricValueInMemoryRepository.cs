@@ -1,22 +1,22 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.MetricValueRepository;
 
-public class MetricValueRepository : IMetricValueRepository
+public class MetricValueInMemoryRepository : IMetricValueRepository
 {
     private List<MetricValue> _metricValues;
 
-    public MetricValueRepository()
+    public MetricValueInMemoryRepository()
     {
         _metricValues = new List<MetricValue>();
         DataGeneration();
     }
 
-    public Task<MetricValue> CreateMetricValue(MetricValue metricValue)
+    public Task<int> CreateMetricValue(MetricValue metricValue)
     {
         _metricValues.Add(metricValue);
-        return Task.FromResult(metricValue);
+        return Task.FromResult(metricValue.Id);
     }
 
     public Task<MetricValue?> ReadMetricValueId(int metricValueId)

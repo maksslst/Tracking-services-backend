@@ -1,22 +1,22 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.MonitoringSettingRepository;
 
-public class MonitoringSettingRepository : IMonitoringSettingRepository
+public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
 {
     private List<MonitoringSetting> _monitoringSettings;
 
-    public MonitoringSettingRepository()
+    public MonitoringSettingInMemoryRepository()
     {
         _monitoringSettings = new List<MonitoringSetting>();
         DataGeneration();
     }
 
-    public Task<MonitoringSetting> CreateSetting(MonitoringSetting monitoringSetting)
+    public Task<int> CreateSetting(MonitoringSetting monitoringSetting)
     {
         _monitoringSettings.Add(monitoringSetting);
-        return Task.FromResult(monitoringSetting);
+        return Task.FromResult(monitoringSetting.Id);
     }
 
     public Task<bool> UpdateSetting(MonitoringSetting monitoringSetting)
@@ -44,9 +44,9 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
         return Task.FromResult(true);
     }
 
-    public Task<MonitoringSetting?> ReadByServiceId(int serviceId)
+    public Task<MonitoringSetting?> ReadByResourceId(int resourceId)
     {
-        return Task.FromResult(_monitoringSettings.Find(i => i.ServiceId == serviceId));
+        return Task.FromResult(_monitoringSettings.Find(i => i.ResourceId == resourceId));
     }
 
     public Task<IEnumerable<MonitoringSetting?>> ReadAll()
@@ -63,7 +63,7 @@ public class MonitoringSettingRepository : IMonitoringSettingRepository
             MonitoringSetting monitoringSetting = new MonitoringSetting()
             {
                 Id = i + 1,
-                ServiceId = i + 1,
+                ResourceId = i + 1,
                 CheckInterval = "0 0/5 * * * ?",
                 Mode = i % 2 == 0 ? true : false
             };

@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.UserRepository;
 
 namespace Application.Services;
 
@@ -18,24 +18,24 @@ public class UserService : IUserService
 
     public async Task<User?> Add(UserDto userDto)
     {
-        User mappedUser = _mapper.Map<User>(userDto);
+        var mappedUser = _mapper.Map<User>(userDto);
         if (mappedUser != null)
         {
             await _userRepository.CreateUser(mappedUser);
             return mappedUser;
         }
-        
+
         return null;
     }
 
     public async Task<bool> Update(UserDto userDto)
     {
-        User mappedUser = _mapper.Map<User>(userDto);
+        var mappedUser = _mapper.Map<User>(userDto);
         if (mappedUser == null)
         {
             return false;
         }
-        
+
         return await _userRepository.UpdateUser(mappedUser);
     }
 
@@ -53,8 +53,8 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserDto?>> GetAll()
     {
-        IEnumerable<User?> users = await _userRepository.ReadAll();
-        IEnumerable<UserDto> mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
+        var users = await _userRepository.ReadAll();
+        var mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
         return mappedUsers;
     }
 }

@@ -1,7 +1,8 @@
 using Application.DTOs.Mappings;
-using Domain.Entities;
-using Infrastructure.Repositories;
 using AutoMapper;
+using Domain.Entities;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.ResourceRepository;
 
 namespace Application.Services;
 
@@ -24,8 +25,8 @@ public class MetricService : IMetricService
         {
             return null;
         }
-        
-        Metric mappedMetric = _mapper.Map<Metric>(metricDto);
+
+        var mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric != null)
         {
             await _metricRepository.CreateMetric(mappedMetric);
@@ -37,7 +38,7 @@ public class MetricService : IMetricService
 
     public async Task<bool> UpdateMetric(MetricDto metricDto)
     {
-        Metric mappedMetric = _mapper.Map<Metric>(metricDto);
+        var mappedMetric = _mapper.Map<Metric>(metricDto);
         if (mappedMetric == null)
         {
             return false;
@@ -45,9 +46,9 @@ public class MetricService : IMetricService
 
         if (_resourceRepository.ReadByResourceId(metricDto.ResourceId).Result == null)
         {
-            return false;    
+            return false;
         }
-        
+
         return await _metricRepository.UpdateMetric(mappedMetric);
     }
 
@@ -56,24 +57,24 @@ public class MetricService : IMetricService
         return await _metricRepository.DeleteMetric(metricId);
     }
 
-    public async Task<MetricDto?> GetMetricByServiceId(int serviceId)
+    public async Task<MetricDto?> GetMetricByResourceId(int serviceId)
     {
-        Metric? metric = await _metricRepository.ReadMetricByServiceId(serviceId);
-        MetricDto mappedMetric = _mapper.Map<MetricDto>(metric);
+        var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
+        var mappedMetric = _mapper.Map<MetricDto>(metric);
         return mappedMetric;
     }
 
     public async Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId)
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
-        IEnumerable<MetricDto> mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
+        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
         return mappedMetrics;
     }
 
     public async Task<IEnumerable<MetricDto?>> GetAll()
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAll();
-        IEnumerable<MetricDto> mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
+        var metrics = await _metricRepository.ReadAll();
+        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
         return mappedMetrics;
     }
 }

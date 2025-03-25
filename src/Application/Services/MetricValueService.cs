@@ -1,7 +1,8 @@
 using Application.DTOs.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Repositories;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.MetricValueRepository;
 
 namespace Application.Services;
 
@@ -25,8 +26,8 @@ public class MetricValueService : IMetricValueService
         {
             return null;
         }
-        
-        MetricValue mappedMetricValue = _mapper.Map<MetricValue>(metricValueDto);
+
+        var mappedMetricValue = _mapper.Map<MetricValue>(metricValueDto);
         if (mappedMetricValue != null)
         {
             await _metricValueRepository.CreateMetricValue(mappedMetricValue);
@@ -38,16 +39,23 @@ public class MetricValueService : IMetricValueService
 
     public async Task<IEnumerable<MetricValueDto?>> GetAllMetricValuesForResource(int resourceId)
     {
-        IEnumerable<Metric?> metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
         if (metrics == null)
         {
             return null;
         }
 
-        IEnumerable<int> metricsId = metrics.Select(i => i.Id);
+        var metricsId = metrics.Select(i => i.Id);
         var metricValue = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
 
-        IEnumerable<MetricValueDto> mappedMetricValues = metricValue.Select(i => _mapper.Map<MetricValueDto>(i));
+        var mappedMetricValues = metricValue.Select(i => _mapper.Map<MetricValueDto>(i));
         return mappedMetricValues;
+    }
+
+    public async Task<MetricValueDto?> GetMetricValue(int metricValueId)
+    {
+        var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
+        var mappedMetricValue = _mapper.Map<MetricValueDto>(metricValue);
+        return mappedMetricValue;
     }
 }

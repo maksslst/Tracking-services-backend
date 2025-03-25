@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using Application.Services;
 using Application.DTOs.Mappings;
-using Domain.Entities;
+using Application.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -20,13 +19,13 @@ public class ResourceController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] ResourceDto resourceDto)
     {
-        Resource? resource = await _resourceService.Add(resourceDto);
+        var resource = await _resourceService.Add(resourceDto);
         if (resource == null)
         {
             return BadRequest("Не удалось добавить сервис");
         }
-        
-        return Created(resourceDto.Id.ToString(), resource);
+
+        return CreatedAtAction(nameof(GetByResourceId), new { resourceId = resource.Id }, resource);
     }
 
     [HttpPost("{companyId}")]
@@ -54,7 +53,7 @@ public class ResourceController : ControllerBase
 
         return Ok();
     }
-    
+
     [HttpPut("{companyId}/{resourceUpdateId}")]
     public async Task<IActionResult> UpdateCompanyResource([FromBody] ResourceDto resourceDto, int companyId, int resourceUpdateId)
     {
@@ -67,7 +66,7 @@ public class ResourceController : ControllerBase
         return Ok();
     }
     #endregion
-    
+
     #region HttpDelete
     [HttpDelete("{resourceId}")]
     public async Task<IActionResult> Delete(int resourceId)
@@ -76,7 +75,7 @@ public class ResourceController : ControllerBase
         {
             return NotFound("Сервис не найден");
         }
-        
+
         var result = await _resourceService.Delete(resourceId);
         if (!result)
         {
@@ -85,7 +84,7 @@ public class ResourceController : ControllerBase
 
         return NoContent();
     }
-    
+
     [HttpDelete("{resourceId}/{companyId}")]
     public async Task<IActionResult> DeleteCompanyResource(int resourceId, int companyId)
     {
@@ -103,7 +102,7 @@ public class ResourceController : ControllerBase
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetByResourceId(int resourceId)
     {
-        ResourceDto? service = await _resourceService.GetResource(resourceId);
+        var service = await _resourceService.GetResource(resourceId);
         if (service == null)
         {
             return BadRequest("Не удалось найти сервис");
@@ -115,7 +114,7 @@ public class ResourceController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllResources()
     {
-        IEnumerable<ResourceDto?> resources = await _resourceService.GetAllResources();
+        var resources = await _resourceService.GetAllResources();
         if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов");
@@ -127,7 +126,7 @@ public class ResourceController : ControllerBase
     [HttpGet("GetCompanyResources/{companyId}")]
     public async Task<IActionResult> GetCompanyResources(int companyId)
     {
-        IEnumerable<ResourceDto?> resources = await _resourceService.GetCompanyResources(companyId);
+        var resources = await _resourceService.GetCompanyResources(companyId);
         if (resources == null)
         {
             return BadRequest("Не удалось получить список сервисов компании");

@@ -1,6 +1,8 @@
-using Quartz;
-using Infrastructure.Repositories;
 using Domain.Entities;
+using Infrastructure.Repositories.MetricRepository;
+using Infrastructure.Repositories.MetricValueRepository;
+using Infrastructure.Repositories.MonitoringSettingRepository;
+using Quartz;
 
 namespace Infrastructure.Services;
 
@@ -20,10 +22,10 @@ public class MonitoringSettingJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
+        var monitoringSettings = await _monitoringSettingRepository.ReadAll();
         foreach (var monitoringSetting in monitoringSettings)
         {
-            var metrics = _metricRepository.ReadAllMetricValuesForResource(monitoringSetting.ServiceId).Result;
+            var metrics = await _metricRepository.ReadAllMetricValuesForResource(monitoringSetting.ResourceId);
             foreach (var metric in metrics)
             {
                 MetricValue metricValue = new MetricValue
@@ -32,7 +34,8 @@ public class MonitoringSettingJob : IJob
                     MetricId = metric.Id,
                     // Value = 
                 };
-                _metricValueRepository.CreateMetricValue(metricValue);
+                
+                await _metricValueRepository.CreateMetricValue(metricValue);
             }
         }
     }

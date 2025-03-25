@@ -1,7 +1,7 @@
-using Application.Services;
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
+using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -20,13 +20,13 @@ public class MonitoringSettingController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] MonitoringSettingDto monitoringSettingDto)
     {
-        MonitoringSetting? monitoringSetting =  await _monitoringSettingService.Add(monitoringSettingDto);
+        var monitoringSetting = await _monitoringSettingService.Add(monitoringSettingDto);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось создать настройку");
         }
-        
-        return Created(monitoringSetting.Id.ToString(), monitoringSettingDto);
+
+        return CreatedAtAction(nameof(GetMonitoringSettingByResourceId), new { resourceId = monitoringSetting.ResourceId }, monitoringSetting);
     }
     #endregion
 
@@ -52,7 +52,7 @@ public class MonitoringSettingController : ControllerBase
         {
             return NotFound("Настройка не найдена");
         }
-        
+
         var result = await _monitoringSettingService.Delete(monitoringSettingId);
         if (!result)
         {
@@ -64,10 +64,10 @@ public class MonitoringSettingController : ControllerBase
     #endregion
 
     #region HttpGet
-    [HttpGet("{serviceId}")]
-    public async Task<IActionResult> GetByServiceId(int serviceId)
+    [HttpGet("{resourceId}")]
+    public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {
-        MonitoringSettingDto? monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(serviceId);
+        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resourceId);
         if (monitoringSetting == null)
         {
             return BadRequest("Не удалось найти настройку");

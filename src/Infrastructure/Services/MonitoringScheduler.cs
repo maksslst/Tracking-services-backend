@@ -1,7 +1,7 @@
-using Infrastructure.Repositories;
+using Domain.Entities;
+using Infrastructure.Repositories.MonitoringSettingRepository;
 using Quartz;
 using Quartz.Impl;
-using Domain.Entities;
 
 namespace Infrastructure.Services;
 
@@ -13,7 +13,7 @@ public class MonitoringScheduler
     {
         _monitoringSettingRepository = monitoringSettingRepository;
     }
-    
+
     public async Task StartMonitoring()
     {
         IEnumerable<MonitoringSetting> monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
@@ -27,7 +27,7 @@ public class MonitoringScheduler
     {
         IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
         await scheduler.Start();
-        
+
         IJobDetail job = JobBuilder.Create<MonitoringSettingJob>()
             .WithIdentity($"myJob_{monitoringSetting.Id}", "monitoringGroup")
             .Build();

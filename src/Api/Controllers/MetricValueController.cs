@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -20,25 +20,37 @@ public class MetricValueController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddMetricValue([FromBody] MetricValueDto metricValueDto)
     {
-        MetricValue? metricValue = await _metricValueService.AddMetricValue(metricValueDto);
+        var metricValue = await _metricValueService.AddMetricValue(metricValueDto);
         if (metricValue == null)
         {
             return BadRequest("Не удалось добавить значение");
         }
-        
-        return Created(metricValue.Id.ToString(), metricValue);
+
+        return CreatedAtAction(nameof(GetByMetricValueId), new { metricValueId = metricValue.Id }, metricValue);
     }
     #endregion
 
     #region HttpGet
-    [HttpGet("{resourceId}")]
+    [HttpGet("GetAllMetricValuesByResourceId/{resourceId}")]
     public async Task<IActionResult> GetAllMetricValuesByResourceId(int resourceId)
     {
-        IEnumerable<MetricValueDto?> metricValue = await _metricValueService.GetAllMetricValuesForResource(resourceId);
+        var metricValue = await _metricValueService.GetAllMetricValuesForResource(resourceId);
         if (metricValue == null)
         {
             return BadRequest("Не удалось получить собранные заначения метрики");
-        } 
+        }
+
+        return Ok(metricValue);
+    }
+
+    [HttpGet("{metricValueId}")]
+    public async Task<IActionResult> GetByMetricValueId(int metricValueId)
+    {
+        var metricValue = await _metricValueService.GetMetricValue(metricValueId);
+        if (metricValue == null)
+        {
+            return NotFound("Не удалось найти такое значение");
+        }
         
         return Ok(metricValue);
     }

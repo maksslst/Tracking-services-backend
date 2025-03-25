@@ -1,23 +1,23 @@
-using Domain.Entities;
 using Bogus;
+using Domain.Entities;
 using TaskStatus = Domain.Enums.TaskStatus;
 
-namespace Infrastructure.Repositories;
+namespace Infrastructure.Repositories.TaskRepository;
 
-public class TaskRepository : ITaskRepository
+public class TaskInMemoryRepository : ITaskRepository
 {
     private List<ServiceTask> _tasks;
 
-    public TaskRepository()
+    public TaskInMemoryRepository()
     {
         _tasks = new List<ServiceTask>();
         DataGeneration();
     }
 
-    public Task<ServiceTask> CreateTask(ServiceTask serviceTask)
+    public Task<int> CreateTask(ServiceTask serviceTask)
     {
         _tasks.Add(serviceTask);
-        return Task.FromResult(serviceTask);
+        return Task.FromResult(serviceTask.Id);
     }
 
     public Task<bool> UpdateTask(ServiceTask serviceTask,User assignedUserToUpdate)
@@ -28,7 +28,7 @@ public class TaskRepository : ITaskRepository
             return Task.FromResult(false);
         }
 
-        task.ServiceId = serviceTask.ServiceId;
+        task.ResourceId = serviceTask.ResourceId;
         task.Resource = serviceTask.Resource;
         task.Description = serviceTask.Description;
         task.AssignedUserId = assignedUserToUpdate.Id;
@@ -62,12 +62,12 @@ public class TaskRepository : ITaskRepository
         return Task.FromResult(task);
     }
 
-    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(IEnumerable<Resource> companyServices)
+    public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
     {
         List<ServiceTask> companyTasks = new List<ServiceTask>();
         foreach (var task in _tasks)
         {
-            if (companyServices.Any(i => i.Id == task.ServiceId))
+            if (task.Resource.CompanyId == companyId)
             {
                 companyTasks.Add(task);
             }
@@ -157,7 +157,7 @@ public class TaskRepository : ITaskRepository
             ServiceTask serviceTask = new ServiceTask()
             {
                 Id = i + 1,
-                ServiceId = random.Next(1, 5),
+                ResourceId = random.Next(1, 5),
                 Description = faker.Random.Word(),
                 CreatedById = random.Next(1, 5),
                 StartTime = DateTime.Today,

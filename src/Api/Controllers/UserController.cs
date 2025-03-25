@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
@@ -20,13 +20,13 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] UserDto userDto)
     {
-        User? user = await _userService.Add(userDto);
+        var user = await _userService.Add(userDto);
         if (user == null)
         {
             return BadRequest("Не удалось создать пользователя");
         }
 
-        return Created(userDto.Id.ToString(), user);
+        return CreatedAtAction(nameof(GetById), new { userId = user.Id }, user);
     }
     #endregion
 
@@ -39,7 +39,7 @@ public class UserController : ControllerBase
         {
             return NotFound("Не удалось обновить пользователя");
         }
-        
+
         return Ok(result);
     }
     #endregion
@@ -52,7 +52,7 @@ public class UserController : ControllerBase
         {
             return NotFound("Пользователь не найден");
         }
-        
+
         var result = await _userService.Delete(userId);
         if (!result)
         {
@@ -67,7 +67,7 @@ public class UserController : ControllerBase
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetById(int userId)
     {
-        UserDto? user = await _userService.GetById(userId);
+        var user = await _userService.GetById(userId);
         if (user == null)
         {
             return NotFound("Такой польователь не найден");
@@ -79,8 +79,8 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        IEnumerable<UserDto?> users = await _userService.GetAll();
-        if (users ==null)
+        var users = await _userService.GetAll();
+        if (users == null)
         {
             return NotFound("Список пользователей не найден");
         }
