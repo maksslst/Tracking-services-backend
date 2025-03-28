@@ -1,6 +1,9 @@
+using System.Reflection;
 using Application.Mappings;
 using Microsoft.Extensions.DependencyInjection;
 using Application.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace Application;
 
@@ -17,6 +20,10 @@ public static class DependencyInjection
         services.AddTransient<IMetricService, MetricService>();
         services.AddTransient<IMetricValueService, MetricValueService>();
 
+        services.AddFluentValidationAutoValidation();
+        services.AddFluentValidationClientsideAdapters();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        
         return services;
     }
 }

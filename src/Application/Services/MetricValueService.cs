@@ -1,8 +1,12 @@
 using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.MetricValueRepository;
+using Application.Requests;
+using Application.Responses;
+using Infrastructure.Repositories.ResourceRepository;
 
 namespace Application.Services;
 
@@ -11,51 +15,77 @@ public class MetricValueService : IMetricValueService
     private readonly IMetricValueRepository _metricValueRepository;
     private readonly IMapper _mapper;
     private readonly IMetricRepository _metricRepository;
+    private readonly IResourceRepository _resourceRepository;
 
     public MetricValueService(IMetricValueRepository metricValueRepository, IMapper mapper,
-        IMetricRepository metricRepository)
+        IMetricRepository metricRepository, IResourceRepository resourceRepository)
     {
         _metricValueRepository = metricValueRepository;
         _mapper = mapper;
         _metricRepository = metricRepository;
+        _resourceRepository = resourceRepository;
     }
 
-    public async Task<MetricValue?> AddMetricValue(MetricValueDto metricValueDto)
+    public async Task<MetricValue?> AddMetricValue(CreateMetricValueRequest request)
     {
-        if (await _metricRepository.ReadMetricId(metricValueDto.MetricId) == null)
+        if (await _metricRepository.ReadMetricId(request.MetricId) == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Metric not found");
         }
 
-        var mappedMetricValue = _mapper.Map<MetricValue>(metricValueDto);
-        if (mappedMetricValue != null)
+        var metricValue = new MetricValue()
         {
-            await _metricValueRepository.CreateMetricValue(mappedMetricValue);
-            return mappedMetricValue;
-        }
+            MetricId = request.MetricId,
+            Value = request.Value
+        };
 
-        return null;
+        await _metricValueRepository.CreateMetricValue(metricValue);
+        return metricValue;
     }
 
-    public async Task<IEnumerable<MetricValueDto?>> GetAllMetricValuesForResource(int resourceId)
+    public async Task<IEnumerable<MetricValueResponse?>> GetAllMetricValuesForResource(int resourceId)
     {
+        if (await _resourceRepository.ReadByResourceId(resourceId) == null)
+        {
+            throw new NotFoundApplicationException("Resource not found");
+        }
+
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
-        if (metrics == null)
+        if (metrics == null || metrics.Count() == 0)
         {
-            return null;
+            throw new NotFoundApplicationException("Metrics not found");
         }
 
         var metricsId = metrics.Select(i => i.Id);
-        var metricValue = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
+        var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
 
-        var mappedMetricValues = metricValue.Select(i => _mapper.Map<MetricValueDto>(i));
-        return mappedMetricValues;
+        var metricValuesResponse = new List<MetricValueResponse>();
+        foreach (var metricvalue in metricValues)
+        {
+            metricValuesResponse.Add(new MetricValueResponse()
+            {
+                MetricId = metricvalue.MetricId,
+                Value = metricvalue.Value
+            });
+        }
+
+        return metricValuesResponse;
     }
 
-    public async Task<MetricValueDto?> GetMetricValue(int metricValueId)
+    public async Task<MetricValueResponse?> GetMetricValue(int metricValueId)
     {
         var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
-        var mappedMetricValue = _mapper.Map<MetricValueDto>(metricValue);
-        return mappedMetricValue;
+        if (metricValue == null)
+        {
+            throw new NotFoundApplicationException("MetricValue not found");
+        }
+        
+        var metricValuesResponse = new MetricValueResponse()
+        {
+            MetricId = metricValue.MetricId,
+            Value = metricValue.Value
+        };
+
+        return metricValuesResponse;
     }
 }

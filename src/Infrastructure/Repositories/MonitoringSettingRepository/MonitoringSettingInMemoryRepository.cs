@@ -54,6 +54,11 @@ public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
         return Task.FromResult<IEnumerable<MonitoringSetting?>>(_monitoringSettings);
     }
 
+    public Task<MonitoringSetting?> ReadById(int monitoringSettingId)
+    {
+        return Task.FromResult(_monitoringSettings.Find(i => i.Id == monitoringSettingId));
+    }
+
     private void DataGeneration()
     {
         var faker = new Faker();

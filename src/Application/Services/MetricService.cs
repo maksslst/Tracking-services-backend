@@ -1,8 +1,11 @@
 using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.ResourceRepository;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
@@ -19,62 +22,119 @@ public class MetricService : IMetricService
         _resourceRepository = resourceRepository;
     }
 
-    public async Task<Metric?> AddMetric(MetricDto metricDto)
+    public async Task<Metric?> AddMetric(CreateMetricRequest request)
     {
-        if (await _resourceRepository.ReadByResourceId(metricDto.ResourceId) == null)
+        if (await _resourceRepository.ReadByResourceId(request.ResourceId) == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        var mappedMetric = _mapper.Map<Metric>(metricDto);
-        if (mappedMetric != null)
+        var metric = new Metric()
         {
-            await _metricRepository.CreateMetric(mappedMetric);
-            return mappedMetric;
-        }
+            ResourceId = request.ResourceId,
+            Name = request.Name,
+            Unit = request.Unit
+        };
 
-        return null;
+        await _metricRepository.CreateMetric(metric);
+        return metric;
     }
 
-    public async Task<bool> UpdateMetric(MetricDto metricDto)
+    public async Task<bool> UpdateMetric(UpdateMetricRequest request)
     {
-        var mappedMetric = _mapper.Map<Metric>(metricDto);
-        if (mappedMetric == null)
+        if (await _metricRepository.ReadMetricId(request.MetricId) == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Metric not found");
         }
 
-        if (_resourceRepository.ReadByResourceId(metricDto.ResourceId).Result == null)
+        if (_resourceRepository.ReadByResourceId(request.ResourceId).Result == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        return await _metricRepository.UpdateMetric(mappedMetric);
+        var metric = new Metric()
+        {
+            Id = request.MetricId,
+            Name = request.Name,
+            Unit = request.Unit,
+            ResourceId = request.ResourceId
+        };
+
+        return await _metricRepository.UpdateMetric(metric);
     }
 
     public async Task<bool> DeleteMetric(int metricId)
     {
+        if (await _metricRepository.ReadMetricId(metricId) == null)
+        {
+            throw new NotFoundApplicationException("Metric not found");
+        }
+
         return await _metricRepository.DeleteMetric(metricId);
     }
 
-    public async Task<MetricDto?> GetMetricByResourceId(int serviceId)
+    public async Task<MetricResponse?> GetMetricByResourceId(int serviceId)
     {
         var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
-        var mappedMetric = _mapper.Map<MetricDto>(metric);
-        return mappedMetric;
+        if (metric == null)
+        {
+            throw new NotFoundApplicationException("Metric not found");
+        }
+
+        var metricResponse = new MetricResponse()
+        {
+            ResourceId = metric.ResourceId,
+            Name = metric.Name,
+            Unit = metric.Unit,
+            Created = metric.Created
+        };
+
+        return metricResponse;
     }
 
-    public async Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId)
+    public async Task<IEnumerable<MetricResponse?>> GetAllMetricsByServiceId(int serviceId)
     {
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
-        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
-        return mappedMetrics;
+        if (metrics == null || metrics.Count() == 0)
+        {
+            throw new NotFoundApplicationException("Metrics not found");
+        }
+
+        var metricsResponse = new List<MetricResponse>();
+        foreach (var metric in metrics)
+        {
+            metricsResponse.Add(new MetricResponse()
+            {
+                ResourceId = metric.ResourceId,
+                Name = metric.Name,
+                Unit = metric.Unit,
+                Created = metric.Created,
+            });
+        }
+
+        return metricsResponse;
     }
 
-    public async Task<IEnumerable<MetricDto?>> GetAll()
+    public async Task<IEnumerable<MetricResponse?>> GetAll()
     {
         var metrics = await _metricRepository.ReadAll();
-        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
-        return mappedMetrics;
+        if (metrics == null || metrics.Count() == 0)
+        {
+            throw new NotFoundApplicationException("Metrics not found");
+        }
+
+        var metricsResponse = new List<MetricResponse>();
+        foreach (var metric in metrics)
+        {
+            metricsResponse.Add(new MetricResponse()
+            {
+                ResourceId = metric.ResourceId,
+                Name = metric.Name,
+                Unit = metric.Unit,
+                Created = metric.Created,
+            });
+        }
+
+        return metricsResponse;
     }
 }

@@ -19,7 +19,16 @@ public class TaskPostgresRepository : ITaskRepository
             @"INSERT INTO service_tasks (resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status)
                 VALUES(@ResourceId, @Description, @AssignedUserId, @CreatedById, @StartTime, @CompletionTime, @Status)
                 RETURNING id",
-                serviceTask);
+            new
+            {
+                serviceTask.ResourceId,
+                serviceTask.Description,
+                serviceTask.AssignedUserId,
+                serviceTask.CreatedById,
+                StartTime = DateTime.Now,
+                serviceTask.CompletionTime,
+                serviceTask.Status
+            });
 
         return taskId;
     }
@@ -63,8 +72,8 @@ public class TaskPostgresRepository : ITaskRepository
     {
         var companyTasks = await _connection.QueryAsync<ServiceTask>(
             @"SELECT s.id, s.resource_id, s.description, s.assigned_user_id, s.created_by_id, s.start_time, s.completion_time, s.status
-                FROM service_tasks s join resources r on s.resource_id = r.id and r.company_id = @CompanyId", 
-            new { CompanyId = companyId});
+                FROM service_tasks s join resources r on s.resource_id = r.id and r.company_id = @CompanyId",
+            new { CompanyId = companyId });
 
         return companyTasks;
     }
@@ -100,7 +109,6 @@ public class TaskPostgresRepository : ITaskRepository
                 Id = taskId,
                 AssignedUserId = newUserId,
                 OldUserId = oldUserId
-
             });
 
         return taskToUpdate > 0;

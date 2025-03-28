@@ -1,6 +1,9 @@
+using Api.ExceptionHandlers;
 using Application.DTOs.Mappings;
+using Application.Exceptions;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -16,10 +19,11 @@ public class CompanyController : ControllerBase
     }
 
     #region HttpPost
+
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] CompanyDto companyDto)
+    public async Task<IActionResult> Add([FromBody] CreateCompanyRequest request)
     {
-        var company = await _companyService.Add(companyDto);
+        var company = await _companyService.Add(request);
         if (company == null)
         {
             return BadRequest("Не удалось создать компанию");
@@ -39,13 +43,15 @@ public class CompanyController : ControllerBase
 
         return Ok();
     }
+
     #endregion
 
     #region HttpPut
+
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] CompanyDto companyDto)
+    public async Task<IActionResult> Update([FromBody] UpdateCompanyRequest request)
     {
-        var result = await _companyService.Update(companyDto);
+        var result = await _companyService.Update(request);
         if (!result)
         {
             return BadRequest("Не удалось обновить компанию");
@@ -53,9 +59,11 @@ public class CompanyController : ControllerBase
 
         return Ok();
     }
+
     #endregion
 
     #region HttpDelete
+
     [HttpDelete("{companyId}")]
     public async Task<IActionResult> Delete(int companyId)
     {
@@ -84,9 +92,11 @@ public class CompanyController : ControllerBase
 
         return NoContent();
     }
+
     #endregion
 
     #region HttpGet
+
     [HttpGet("{companyId}")]
     public async Task<IActionResult> GetByCompanyId(int companyId)
     {
@@ -122,5 +132,6 @@ public class CompanyController : ControllerBase
 
         return Ok(users);
     }
+
     #endregion
 }

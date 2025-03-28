@@ -63,4 +63,14 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
 
         return settings;
     }
+
+    public async Task<MonitoringSetting?> ReadById(int monitoringSettingId)
+    {
+        var monitoringSetting = await _connection.QueryFirstOrDefaultAsync<MonitoringSetting>(
+            @"SELECT id, resource_id, check_interval, mode
+                FROM monitoring_settings
+                WHERE id =@Id", new { Id = monitoringSettingId });
+        
+        return monitoringSetting;
+    }
 }

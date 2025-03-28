@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -18,9 +18,9 @@ public class UserController : ControllerBase
 
     #region HttPost
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] UserDto userDto)
+    public async Task<IActionResult> Add([FromBody] CreateUserRequest request)
     {
-        var user = await _userService.Add(userDto);
+        var user = await _userService.Add(request);
         if (user == null)
         {
             return BadRequest("Не удалось создать пользователя");
@@ -32,9 +32,9 @@ public class UserController : ControllerBase
 
     #region HttPut
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UserDto userDto)
+    public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
     {
-        var result = await _userService.Update(userDto);
+        var result = await _userService.Update(request);
         if (!result)
         {
             return NotFound("Не удалось обновить пользователя");

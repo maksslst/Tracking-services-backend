@@ -9,4 +9,5 @@ public interface IMonitoringSettingRepository
     public Task<bool> DeleteSetting(int monitoringSettingId);
     public Task<MonitoringSetting?> ReadByResourceId(int resourceId);
     public Task<IEnumerable<MonitoringSetting?>> ReadAll();
+    public Task<MonitoringSetting?> ReadById(int monitoringSettingId);
 }

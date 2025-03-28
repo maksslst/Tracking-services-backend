@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -18,9 +18,9 @@ public class MetricValueController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> AddMetricValue([FromBody] MetricValueDto metricValueDto)
+    public async Task<IActionResult> AddMetricValue([FromBody] CreateMetricValueRequest request)
     {
-        var metricValue = await _metricValueService.AddMetricValue(metricValueDto);
+        var metricValue = await _metricValueService.AddMetricValue(request);
         if (metricValue == null)
         {
             return BadRequest("Не удалось добавить значение");

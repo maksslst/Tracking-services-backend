@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -18,9 +18,9 @@ public class TaskController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] ServiceTaskDto serviceTaskDto)
+    public async Task<IActionResult> Add([FromBody] CreateTaskRequest request)
     {
-        var serviceTask = await _taskService.Add(serviceTaskDto);
+        var serviceTask = await _taskService.Add(request);
         if (serviceTask == null)
         {
             return BadRequest("Не удалось создать задачу");
@@ -44,9 +44,9 @@ public class TaskController : ControllerBase
 
     #region HttpPut
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] ServiceTaskDto serviceTaskDto)
+    public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
     {
-        var result = await _taskService.Update(serviceTaskDto);
+        var result = await _taskService.Update(request);
         if (!result)
         {
             return BadRequest("Не удалось обновить задачу");

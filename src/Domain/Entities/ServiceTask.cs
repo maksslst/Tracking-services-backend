@@ -13,7 +13,7 @@ public class ServiceTask
     public int CreatedById { get; set; }
     public User CreatedBy { get; set; }
     public DateTime StartTime { get; set; }
-    public DateTime CompletionTime { get; set; }
+    public DateTime? CompletionTime { get; set; }
     public TaskStatus Status { get; set; }
 
 }

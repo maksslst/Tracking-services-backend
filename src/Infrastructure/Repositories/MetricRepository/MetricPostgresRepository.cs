@@ -19,7 +19,7 @@ public class MetricPostgresRepository : IMetricRepository
             @"INSERT INTO metrics (name, resource_id, created, unit) 
                 VALUES (@name, @resourceId, @created, @unit)
                 RETURNING id",
-            new { metric.ResourceId, metric.Name, DateTime.Now, metric.Unit });
+            new { metric.ResourceId, metric.Name, created = DateTime.Now, metric.Unit });
 
         return metricId;
     }

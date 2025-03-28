@@ -1,9 +1,12 @@
 using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Enums;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.ResourceRepository;
+using Application.Requests;
+using Application.Responses;
+using Domain.Enums;
 
 namespace Application.Services;
 
@@ -20,76 +23,104 @@ public class ResourceService : IResourceService
         _companyRepository = companyRepository;
     }
 
-    public async Task<Resource?> Add(ResourceDto resourceDto)
+    public async Task<Resource?> Add(CreateResourceRequest request)
     {
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource != null)
+        if (request.CompanyId != null && await _companyRepository.ReadByCompanyId(request.CompanyId) == null)
         {
-            await _resourceRepository.CreateResource(mappedResource);
-            return mappedResource;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        return null;
+        var resource = new Resource()
+        {
+            Name = request.Name,
+            Status = request.Status,
+            CompanyId = request.CompanyId,
+            Type = request.Type,
+            Source = request.Source
+        };
+
+        await _resourceRepository.CreateResource(resource);
+        return resource;
     }
 
-    public async Task<bool> Update(ResourceDto resourceDto)
+    public async Task<bool> Update(UpdateResourceRequest request)
     {
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource == null)
+        if (await _resourceRepository.ReadByResourceId(request.ResourceId) == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        var company = await _companyRepository.ReadByCompanyId(resourceDto.CompanyId);
-        if (company == null)
+        if (request.CompanyId != null && await _companyRepository.ReadByCompanyId(request.CompanyId) == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        return await _resourceRepository.UpdateResource(mappedResource);
+        var resource = new Resource()
+        {
+            Id = request.ResourceId,
+            CompanyId = request.CompanyId,
+            Name = request.Name,
+            Status = request.Status,
+            Type = request.Type,
+            Source = request.Source
+        };
+
+        return await _resourceRepository.UpdateResource(resource);
     }
 
     public async Task<bool> Delete(int resourceId)
     {
+        if (await _resourceRepository.ReadByResourceId(resourceId) == null)
+        {
+            throw new NotFoundApplicationException("Resource not found");
+        }
+
         return await _resourceRepository.DeleteResource(resourceId);
     }
 
-    public async Task<bool> AddCompanyResource(int companyId, ResourceDto? resourceDto)
+    public async Task<bool> AddCompanyResource(int companyId, CreateResourceRequest? request)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource == null)
+        var resource = new Resource() //TODO: проверь Id
         {
-            return false;
-        }
+            Name = request.Name,
+            Status = request.Status,
+            CompanyId = request.CompanyId,
+            Type = request.Type,
+            Source = request.Source
+        };
 
-        if (mappedResource.Id == 0)
+        if (await _resourceRepository.ReadByResourceId(resource.Id) == null)
         {
-            int resourceId = await _resourceRepository.CreateResource(mappedResource);
-            mappedResource = await _resourceRepository.ReadByResourceId(resourceId);
+            int resourceId = await _resourceRepository.CreateResource(resource);
+            resource = await _resourceRepository.ReadByResourceId(resourceId);
         }
 
-        return await _resourceRepository.AddCompanyResource(company, mappedResource);
+        return await _resourceRepository.AddCompanyResource(company, resource);
     }
 
-    public async Task<bool> UpdateCompanyResource(int companyId, ResourceDto resourceDto, int resourceUpdateId)
+    public async Task<bool> UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId)
     {
         var resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
-        if (resourceToUpdate == null || await _companyRepository.ReadByCompanyId(companyId) == null ||
-            resourceToUpdate.CompanyId != companyId)
+        if (resourceToUpdate == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        resourceToUpdate.Name = resourceDto.Name;
-        resourceToUpdate.Type = resourceDto.Type;
-        resourceToUpdate.Status = (ResourceStatus)resourceDto.Status;
-        resourceToUpdate.Source = resourceDto.Source;
+        if (await _companyRepository.ReadByCompanyId(companyId) == null || resourceToUpdate.CompanyId != companyId)
+        {
+            throw new NotFoundApplicationException("Company not found");
+        }
+
+        resourceToUpdate.Name = request.Name;
+        resourceToUpdate.Type = request.Type;
+        resourceToUpdate.Status = request.Status;
+        resourceToUpdate.Source = request.Source;
 
         return await _resourceRepository.UpdateResource(resourceToUpdate);
     }
@@ -99,42 +130,89 @@ public class ResourceService : IResourceService
         var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Company not found");
         }
 
         var resource = await _resourceRepository.ReadByResourceId(resourceId);
         if (resource == null || resource.CompanyId != companyId)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
         return await _resourceRepository.DeleteCompanyResource(resourceId, company);
     }
 
-    public async Task<ResourceDto?> GetResource(int resourceId)
+    public async Task<ResourceResponse?> GetResource(int resourceId)
     {
         var resource = await _resourceRepository.ReadByResourceId(resourceId);
-        var mappedResource = _mapper.Map<ResourceDto>(resource);
-        return mappedResource;
+        if (resource == null)
+        {
+            throw new NotFoundApplicationException("Resource not found");
+        }
+
+        var resourceResponse = new ResourceResponse()
+        {
+            CompanyId = resource.CompanyId,
+            Name = resource.Name,
+            Type = resource.Type,
+            Status = resource.Status,
+            Source = resource.Source,
+        };
+        return resourceResponse;
     }
 
-    public async Task<IEnumerable<ResourceDto?>> GetAllResources()
+    public async Task<IEnumerable<ResourceResponse?>> GetAllResources()
     {
-        var resource = await _resourceRepository.ReadAllResources();
-        var mappedResource = resource.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
-        return mappedResource;
+        var resources = await _resourceRepository.ReadAllResources();
+        if (resources.Count() == 0 || resources == null)
+        {
+            throw new NotFoundApplicationException("resources not found");
+        }
+
+        var resourcesResponse = new List<ResourceResponse>();
+
+        foreach (var resource in resources)
+        {
+            resourcesResponse.Add(new ResourceResponse()
+            {
+                CompanyId = resource.CompanyId,
+                Name = resource.Name,
+                Type = resource.Type,
+                Status = resource.Status,
+                Source = resource.Source,
+            });
+        }
+
+        return resourcesResponse;
     }
 
-    public async Task<IEnumerable<ResourceDto?>> GetCompanyResources(int companyId)
+    public async Task<IEnumerable<ResourceResponse?>> GetCompanyResources(int companyId)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Company not found");
         }
 
         var resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
-        var mappedResourcesCompany = resourcesCompany.Select(i => _mapper.Map<ResourceDto>(i));
-        return mappedResourcesCompany;
+        if (resourcesCompany.Count() == 0 || resourcesCompany == null)
+        {
+            throw new NotFoundApplicationException("Resources not found");
+        }
+
+        var resourcesResponse = new List<ResourceResponse>();
+        foreach (var resource in resourcesCompany)
+        {
+            resourcesResponse.Add(new ResourceResponse()
+            {
+                CompanyId = resource.CompanyId,
+                Name = resource.Name,
+                Type = resource.Type,
+                Status = resource.Status,
+                Source = resource.Source,
+            });
+        }
+
+        return resourcesResponse;
     }
 }

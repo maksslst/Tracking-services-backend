@@ -1,14 +1,16 @@
 using Application.DTOs.Mappings;
 using Domain.Entities;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
 public interface IMetricService
 {
-    public Task<Metric?> AddMetric(MetricDto metricDto);
-    public Task<bool> UpdateMetric(MetricDto metricDto);
+    public Task<Metric?> AddMetric(CreateMetricRequest request);
+    public Task<bool> UpdateMetric(UpdateMetricRequest request);
     public Task<bool> DeleteMetric(int metricId);
-    public Task<MetricDto?> GetMetricByResourceId(int serviceId);
-    public Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId);
-    public Task<IEnumerable<MetricDto?>> GetAll();
+    public Task<MetricResponse?> GetMetricByResourceId(int serviceId);
+    public Task<IEnumerable<MetricResponse?>> GetAllMetricsByServiceId(int serviceId);
+    public Task<IEnumerable<MetricResponse?>> GetAll();
 }

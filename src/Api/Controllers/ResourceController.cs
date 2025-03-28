@@ -1,6 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -17,9 +18,9 @@ public class ResourceController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] ResourceDto resourceDto)
+    public async Task<IActionResult> Add([FromBody] CreateResourceRequest request)
     {
-        var resource = await _resourceService.Add(resourceDto);
+        var resource = await _resourceService.Add(request);
         if (resource == null)
         {
             return BadRequest("Не удалось добавить сервис");
@@ -29,9 +30,9 @@ public class ResourceController : ControllerBase
     }
 
     [HttpPost("{companyId}")]
-    public async Task<IActionResult> AddCompanyResource([FromBody] ResourceDto? resourceDto, int companyId)
+    public async Task<IActionResult> AddCompanyResource([FromBody] CreateResourceRequest? request, int companyId)
     {
-        var result = await _resourceService.AddCompanyResource(companyId, resourceDto);
+        var result = await _resourceService.AddCompanyResource(companyId, request);
         if (!result)
         {
             return BadRequest("Не удалось добавить сервис компании");
@@ -43,9 +44,9 @@ public class ResourceController : ControllerBase
 
     #region HttpPut
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] ResourceDto resourceDto)
+    public async Task<IActionResult> Update([FromBody] UpdateResourceRequest request)
     {
-        var result = await _resourceService.Update(resourceDto);
+        var result = await _resourceService.Update(request);
         if (!result)
         {
             return BadRequest("Не удалось обновить сервис");
@@ -55,9 +56,9 @@ public class ResourceController : ControllerBase
     }
 
     [HttpPut("{companyId}/{resourceUpdateId}")]
-    public async Task<IActionResult> UpdateCompanyResource([FromBody] ResourceDto resourceDto, int companyId, int resourceUpdateId)
+    public async Task<IActionResult> UpdateCompanyResource([FromBody] UpdateResourceRequest request, int companyId, int resourceUpdateId)
     {
-        var result = await _resourceService.UpdateCompanyResource(companyId, resourceDto, resourceUpdateId);
+        var result = await _resourceService.UpdateCompanyResource(companyId, request, resourceUpdateId);
         if (!result)
         {
             return BadRequest("Не удалось изменить сервис");

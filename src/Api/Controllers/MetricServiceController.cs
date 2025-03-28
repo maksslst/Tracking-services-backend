@@ -2,6 +2,7 @@ using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -18,9 +19,9 @@ public class MetricServiceController : ControllerBase
 
     #region HttpPost
     [HttpPost]
-    public async Task<IActionResult> AddMetric([FromBody] MetricDto metricDto)
+    public async Task<IActionResult> AddMetric([FromBody] CreateMetricRequest request)
     {
-        var metric = await _metricService.AddMetric(metricDto);
+        var metric = await _metricService.AddMetric(request);
         if (metric == null)
         {
             return BadRequest("Не удалось создать метрику");
@@ -32,9 +33,9 @@ public class MetricServiceController : ControllerBase
 
     #region HttpPut
     [HttpPut]
-    public async Task<IActionResult> UpdateMetric([FromBody] MetricDto metricDto)
+    public async Task<IActionResult> UpdateMetric([FromBody] UpdateMetricRequest request)
     {
-        var result = await _metricService.UpdateMetric(metricDto);
+        var result = await _metricService.UpdateMetric(request);
         if (!result)
         {
             return BadRequest("Не удалось обновить метрику");
