@@ -58,17 +58,7 @@ public class MetricValueService : IMetricValueService
 
         var metricsId = metrics.Select(i => i.Id);
         var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
-
-        var metricValuesResponse = new List<MetricValueResponse>();
-        foreach (var metricvalue in metricValues)
-        {
-            metricValuesResponse.Add(new MetricValueResponse()
-            {
-                MetricId = metricvalue.MetricId,
-                Value = metricvalue.Value
-            });
-        }
-
+        var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
         return metricValuesResponse;
     }
 
@@ -79,13 +69,7 @@ public class MetricValueService : IMetricValueService
         {
             throw new NotFoundApplicationException("MetricValue not found");
         }
-        
-        var metricValuesResponse = new MetricValueResponse()
-        {
-            MetricId = metricValue.MetricId,
-            Value = metricValue.Value
-        };
 
-        return metricValuesResponse;
+        return _mapper.Map<MetricValueResponse>(metricValue);
     }
 }

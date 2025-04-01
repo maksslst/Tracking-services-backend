@@ -24,18 +24,19 @@ public class CompanyService : ICompanyService
 
     public async Task<Company?> Add(CreateCompanyRequest request)
     {
-        var campany = new Company()
+        var company = new Company()
         {
             CompanyName = request.CompanyName
         };
 
-        await _companyRepository.CreateCompany(campany);
-        return campany;
+        await _companyRepository.CreateCompany(company);
+        return company;
     }
 
     public async Task<bool> Update(UpdateCompanyRequest request)
     {
-        if (await _companyRepository.ReadByCompanyId(request.CompanyId) == null)
+        var companyToUpdate = await _companyRepository.ReadByCompanyId(request.CompanyId);
+        if (companyToUpdate == null)
         {
             throw new NotFoundApplicationException("Company not found");
         }
@@ -45,10 +46,9 @@ public class CompanyService : ICompanyService
             Id = request.CompanyId,
             CompanyName = request.CompanyName
         };
-
-        var users = company.Users;
+        var users = companyToUpdate.Users;
         company.Users = users;
-        var resources = company.Resources;
+        var resources = companyToUpdate.Resources;
         company.Resources = resources;
 
         return await _companyRepository.UpdateCompany(company);
@@ -104,11 +104,7 @@ public class CompanyService : ICompanyService
             throw new NotFoundApplicationException("Company not found");
         }
 
-        var companyResponse = new CompanyResponse()
-        {
-            CompanyName = company.CompanyName
-        };
-        return companyResponse;
+        return _mapper.Map<CompanyResponse>(company);
     }
 
     public async Task<IEnumerable<CompanyResponse?>> GetAllCompanies()
@@ -119,15 +115,7 @@ public class CompanyService : ICompanyService
             throw new NotFoundApplicationException("Companies not found");
         }
 
-        var companiesResponse = new List<CompanyResponse>();
-        foreach (var company in companies)
-        {
-            companiesResponse.Add(new CompanyResponse()
-            {
-                CompanyName = company.CompanyName
-            });
-        }
-
+        var companiesResponse = companies.Select(i => _mapper.Map<CompanyResponse>(i));
         return companiesResponse;
     }
 
@@ -144,20 +132,7 @@ public class CompanyService : ICompanyService
             throw new NotFoundApplicationException("Users not found");
         }
 
-        var usersResponse = new List<UserResponse>();
-        foreach (var user in users)
-        {
-            usersResponse.Add(new UserResponse()
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Patronymic = user.Patronymic,
-                Username = user.Username,
-                CompanyId = user.CompanyId
-            });
-        }
-
+        var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
         return usersResponse;
     }
 }

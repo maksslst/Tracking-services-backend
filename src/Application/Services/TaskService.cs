@@ -114,18 +114,7 @@ public class TaskService : ITaskService
             throw new NotFoundApplicationException("Task not found");
         }
 
-        var taskResponse = new TaskResponse()
-        {
-            AssignedUserId = serviceTask.AssignedUserId,
-            Description = serviceTask.Description,
-            StartTime = serviceTask.StartTime,
-            CompletionTime = serviceTask.CompletionTime,
-            Status = serviceTask.Status,
-            CreatedById = serviceTask.CreatedById,
-            ResourceId = serviceTask.ResourceId
-        };
-
-        return taskResponse;
+        return _mapper.Map<TaskResponse>(serviceTask);
     }
 
     public async Task<IEnumerable<TaskResponse?>> GetAllCompanyTasks(int companyId)
@@ -142,21 +131,7 @@ public class TaskService : ITaskService
             throw new NotFoundApplicationException("Tasks not found");
         }
 
-        var tasksResponse = new List<TaskResponse>();
-        foreach (var task in serviceTasks)
-        {
-            tasksResponse.Add(new TaskResponse()
-            {
-                AssignedUserId = task.AssignedUserId,
-                Description = task.Description,
-                StartTime = task.StartTime,
-                CompletionTime = task.CompletionTime,
-                Status = task.Status,
-                CreatedById = task.CreatedById,
-                ResourceId = task.ResourceId
-            });
-        }
-
+        var tasksResponse = serviceTasks.Select(i => _mapper.Map<TaskResponse>(i));
         return tasksResponse;
     }
 
@@ -199,7 +174,7 @@ public class TaskService : ITaskService
         {
             throw new NotFoundApplicationException("User not found");
         }
-        
+
         if (await _taskRepository.ReadTaskId(taskId) == null)
         {
             throw new NotFoundApplicationException("Task not found");
@@ -214,25 +189,14 @@ public class TaskService : ITaskService
         {
             throw new NotFoundApplicationException("User not found");
         }
-        
+
         var serviceTask = await _taskRepository.ReadTaskUser(userId, taskId);
         if (serviceTask == null)
         {
-            throw new NotFoundApplicationException("Task not found");    
+            throw new NotFoundApplicationException("Task not found");
         }
-        
-        var taskResponse = new TaskResponse()
-        {
-            AssignedUserId = serviceTask.AssignedUserId,
-            Description = serviceTask.Description,
-            StartTime = serviceTask.StartTime,
-            CompletionTime = serviceTask.CompletionTime,
-            Status = serviceTask.Status,
-            CreatedById = serviceTask.CreatedById,
-            ResourceId = serviceTask.ResourceId
-        };
 
-        return taskResponse;
+        return _mapper.Map<TaskResponse>(serviceTask);
     }
 
     public async Task<IEnumerable<TaskResponse?>> GetAllUserTasks(int userId)
@@ -241,28 +205,14 @@ public class TaskService : ITaskService
         {
             throw new NotFoundApplicationException("User not found");
         }
-        
+
         var serviceTasksUser = await _taskRepository.ReadAllUserTasks(userId);
         if (serviceTasksUser.Count() == 0 || serviceTasksUser == null)
         {
             throw new NotFoundApplicationException("Tasks not found");
         }
-        
-        var tasksResponse = new List<TaskResponse>();
-        foreach (var task in serviceTasksUser)
-        {
-            tasksResponse.Add(new TaskResponse()
-            {
-                AssignedUserId = task.AssignedUserId,
-                Description = task.Description,
-                StartTime = task.StartTime,
-                CompletionTime = task.CompletionTime,
-                Status = task.Status,
-                CreatedById = task.CreatedById,
-                ResourceId = task.ResourceId
-            });
-        }
 
+        var tasksResponse = serviceTasksUser.Select(i => _mapper.Map<TaskResponse>(i));
         return tasksResponse;
     }
 }

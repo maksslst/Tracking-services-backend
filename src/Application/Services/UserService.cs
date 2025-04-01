@@ -87,17 +87,7 @@ public class UserService : IUserService
             throw new NotFoundApplicationException("User not found");
         }
 
-        var userResponse = new UserResponse()
-        {
-            Username = user.Username,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Patronymic = user.Patronymic,
-            CompanyId = user.CompanyId
-        };
-
-        return userResponse;
+        return _mapper.Map<UserResponse>(user);
     }
 
     public async Task<IEnumerable<UserResponse?>> GetAll()
@@ -107,21 +97,8 @@ public class UserService : IUserService
         {
             throw new NotFoundApplicationException("Users not found");
         }
-        
-        var usersResponse = new List<UserResponse>();
-        foreach (var user in users)
-        {
-            usersResponse.Add(new UserResponse()
-            {
-                Username = user.Username,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Patronymic = user.Patronymic,
-                CompanyId = user.CompanyId
-            });
-        }
 
+        var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
         return usersResponse;
     }
 }

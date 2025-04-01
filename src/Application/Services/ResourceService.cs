@@ -86,7 +86,7 @@ public class ResourceService : IResourceService
             throw new NotFoundApplicationException("Company not found");
         }
 
-        var resource = new Resource() //TODO: проверь Id
+        var resource = new Resource()
         {
             Name = request.Name,
             Status = request.Status,
@@ -150,15 +150,7 @@ public class ResourceService : IResourceService
             throw new NotFoundApplicationException("Resource not found");
         }
 
-        var resourceResponse = new ResourceResponse()
-        {
-            CompanyId = resource.CompanyId,
-            Name = resource.Name,
-            Type = resource.Type,
-            Status = resource.Status,
-            Source = resource.Source,
-        };
-        return resourceResponse;
+        return _mapper.Map<ResourceResponse>(resource);
     }
 
     public async Task<IEnumerable<ResourceResponse?>> GetAllResources()
@@ -169,20 +161,7 @@ public class ResourceService : IResourceService
             throw new NotFoundApplicationException("resources not found");
         }
 
-        var resourcesResponse = new List<ResourceResponse>();
-
-        foreach (var resource in resources)
-        {
-            resourcesResponse.Add(new ResourceResponse()
-            {
-                CompanyId = resource.CompanyId,
-                Name = resource.Name,
-                Type = resource.Type,
-                Status = resource.Status,
-                Source = resource.Source,
-            });
-        }
-
+        var resourcesResponse = resources.Select(i => _mapper.Map<ResourceResponse>(i));
         return resourcesResponse;
     }
 
@@ -200,19 +179,7 @@ public class ResourceService : IResourceService
             throw new NotFoundApplicationException("Resources not found");
         }
 
-        var resourcesResponse = new List<ResourceResponse>();
-        foreach (var resource in resourcesCompany)
-        {
-            resourcesResponse.Add(new ResourceResponse()
-            {
-                CompanyId = resource.CompanyId,
-                Name = resource.Name,
-                Type = resource.Type,
-                Status = resource.Status,
-                Source = resource.Source,
-            });
-        }
-
+        var resourcesResponse = resourcesCompany.Select(i => _mapper.Map<ResourceResponse>(i));
         return resourcesResponse;
     }
 }

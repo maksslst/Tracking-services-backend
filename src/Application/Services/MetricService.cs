@@ -81,15 +81,7 @@ public class MetricService : IMetricService
             throw new NotFoundApplicationException("Metric not found");
         }
 
-        var metricResponse = new MetricResponse()
-        {
-            ResourceId = metric.ResourceId,
-            Name = metric.Name,
-            Unit = metric.Unit,
-            Created = metric.Created
-        };
-
-        return metricResponse;
+        return _mapper.Map<MetricResponse>(metric);
     }
 
     public async Task<IEnumerable<MetricResponse?>> GetAllMetricsByServiceId(int serviceId)
@@ -100,18 +92,7 @@ public class MetricService : IMetricService
             throw new NotFoundApplicationException("Metrics not found");
         }
 
-        var metricsResponse = new List<MetricResponse>();
-        foreach (var metric in metrics)
-        {
-            metricsResponse.Add(new MetricResponse()
-            {
-                ResourceId = metric.ResourceId,
-                Name = metric.Name,
-                Unit = metric.Unit,
-                Created = metric.Created,
-            });
-        }
-
+        var metricsResponse = metrics.Select(i => _mapper.Map<MetricResponse>(i));
         return metricsResponse;
     }
 
@@ -123,18 +104,7 @@ public class MetricService : IMetricService
             throw new NotFoundApplicationException("Metrics not found");
         }
 
-        var metricsResponse = new List<MetricResponse>();
-        foreach (var metric in metrics)
-        {
-            metricsResponse.Add(new MetricResponse()
-            {
-                ResourceId = metric.ResourceId,
-                Name = metric.Name,
-                Unit = metric.Unit,
-                Created = metric.Created,
-            });
-        }
-
+        var metricsResponse = metrics.Select(i => _mapper.Map<MetricResponse>(i));
         return metricsResponse;
     }
 }

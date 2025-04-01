@@ -63,9 +63,9 @@ public class MonitoringSettingService : IMonitoringSettingService
     {
         if (await _monitoringSettingRepository.ReadById(monitoringSettingId) == null)
         {
-            throw new NotFoundApplicationException("MonitoringSetting not found");    
+            throw new NotFoundApplicationException("MonitoringSetting not found");
         }
-        
+
         return await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
     }
 
@@ -74,15 +74,9 @@ public class MonitoringSettingService : IMonitoringSettingService
         var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
         if (monitoringSetting == null)
         {
-            throw new NotFoundApplicationException("MonitoringSetting not found");    
+            throw new NotFoundApplicationException("MonitoringSetting not found");
         }
-        
-        var monitoringSettingResponse = new MonitoringSettingResponse()
-        {
-            CheckInterval = monitoringSetting.CheckInterval,
-            ResourceId = monitoringSetting.ResourceId,
-        };
 
-        return monitoringSettingResponse;
+        return _mapper.Map<MonitoringSettingResponse>(monitoringSetting);
     }
 }
