@@ -94,7 +94,7 @@ public class TaskService : ITaskService
             taskToUpdate.AssignedUserId = request.AssignedUserId;
             taskToUpdate.CreatedById = request.CreatedById;
             taskToUpdate.Status = request.Status;
-            taskToUpdate.CompletionTime = request.CompletionTime;
+            taskToUpdate.CompletionTime = DateTime.Now;
            
             return await _taskRepository.UpdateTask(taskToUpdate, assignedUserToUpdate);
         }

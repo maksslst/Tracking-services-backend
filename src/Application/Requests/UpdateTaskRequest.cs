@@ -10,7 +10,6 @@ public class UpdateTaskRequest
     public string Description { get; set; } = null!;
     public int AssignedUserId { get; set; }
     public int CreatedById { get; set; }
-    public DateTime? CompletionTime { get; set; }
     public TaskStatus Status { get; set; }
 }
 
@@ -31,7 +30,6 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
         RuleFor(x => x.CreatedById).NotNull()
             .GreaterThan(0).WithMessage("CreatedById must be positive")
             .LessThan(int.MaxValue).WithMessage("CreatedById is too long");
-        RuleFor(x => x.CompletionTime).NotNull();
         RuleFor(x => x.Status).NotNull();
     }
 }
