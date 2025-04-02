@@ -9,5 +9,5 @@ public class User
     public string? Patronymic { get; set; }
     public string Email { get; set; }
     public int CompanyId { get; set; }
-    public Company Company { get; set; }
+    public Company? Company { get; set; }
 }

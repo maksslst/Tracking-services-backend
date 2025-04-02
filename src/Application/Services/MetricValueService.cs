@@ -28,68 +28,37 @@ public class MetricValueService : IMetricValueService
 
     public async Task<int> AddMetricValue(CreateMetricValueRequest request)
     {
-        try
-        {
-            if (await _metricRepository.ReadMetricId(request.MetricId) == null)
-            {
-                throw new NotFoundApplicationException("Metric not found");
-            }
-
-            var metricValue = new MetricValue()
-            {
-                MetricId = request.MetricId,
-                Value = request.Value
-            };
-
-            return await _metricValueRepository.CreateMetricValue(metricValue);
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't add value");
-        }
+        var metricValue = _mapper.Map<MetricValue>(request);
+        return await _metricValueRepository.CreateMetricValue(metricValue);
     }
 
     public async Task<IEnumerable<MetricValueResponse>> GetAllMetricValuesForResource(int resourceId)
     {
-        try
+        if (await _resourceRepository.ReadByResourceId(resourceId) == null)
         {
-            if (await _resourceRepository.ReadByResourceId(resourceId) == null)
-            {
-                throw new NotFoundApplicationException("Resource not found");
-            }
-
-            var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
-            if (metrics == null || metrics.Count() == 0)
-            {
-                return new List<MetricValueResponse>();
-            }
-
-            var metricsId = metrics.Select(i => i.Id);
-            var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
-            var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
-            return metricValuesResponse;
+            throw new NotFoundApplicationException("Resource not found");
         }
-        catch (NpgsqlException)
+
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
+        if (metrics == null || metrics.Count() == 0)
         {
-            throw new DatabaseException("Couldn't get values for resource");
+            return new List<MetricValueResponse>();
         }
+
+        var metricsId = metrics.Select(i => i.Id);
+        var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
+        var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
+        return metricValuesResponse;
     }
 
     public async Task<MetricValueResponse> GetMetricValue(int metricValueId)
     {
-        try
+        var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
+        if (metricValue == null)
         {
-            var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
-            if (metricValue == null)
-            {
-                throw new NotFoundApplicationException("MetricValue not found");
-            }
+            throw new NotFoundApplicationException("MetricValue not found");
+        }
 
-            return _mapper.Map<MetricValueResponse>(metricValue);
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't get value");
-        }
+        return _mapper.Map<MetricValueResponse>(metricValue);
     }
 }

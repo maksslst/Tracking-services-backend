@@ -25,82 +25,43 @@ public class MonitoringSettingService : IMonitoringSettingService
 
     public async Task<int> Add(CreateMonitoringSettingRequest request)
     {
-        try
-        {
-            if (await _resourceRepository.ReadByResourceId(request.ResourceId) == null)
-            {
-                throw new NotFoundApplicationException("Resource not found");
-            }
-
-            var monitoringSetting = new MonitoringSetting()
-            {
-                ResourceId = request.ResourceId,
-                CheckInterval = request.CheckInterval,
-                Mode = request.Mode
-            };
-
-            return await _monitoringSettingRepository.CreateSetting(monitoringSetting);
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't add setting");
-        }
+        var monitoringSetting = _mapper.Map<MonitoringSetting>(request);
+        return await _monitoringSettingRepository.CreateSetting(monitoringSetting);
     }
 
     public async Task<bool> Update(UpdateMonitoringSettingRequest request)
     {
-        try
+        var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(request.ResourceId);
+        if (monitoringSetting == null)
         {
-            var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(request.ResourceId);
-            if (monitoringSetting == null)
-            {
-                throw new NotFoundApplicationException("MonitoringSetting not found");
-            }
+            throw new NotFoundApplicationException("MonitoringSetting not found");
+        }
 
-            monitoringSetting.CheckInterval = request.CheckInterval;
-            monitoringSetting.Mode = request.Mode;
-            monitoringSetting.ResourceId = request.ResourceId;
-            return await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't update setting");
-        }
+        monitoringSetting.CheckInterval = request.CheckInterval;
+        monitoringSetting.Mode = request.Mode;
+        monitoringSetting.ResourceId = request.ResourceId;
+        return await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
     }
 
     public async Task<bool> Delete(int monitoringSettingId)
     {
-        try
+        bool isDeleted = await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
+        if (!isDeleted)
         {
-            bool isDeleted = await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
-            if (!isDeleted)
-            {
-                throw new NotFoundApplicationException("MonitoringSetting not found");
-            }
+            throw new NotFoundApplicationException("MonitoringSetting not found");
+        }
 
-            return true;
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't delete setting");
-        }
+        return true;
     }
 
     public async Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId)
     {
-        try
+        var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
+        if (monitoringSetting == null)
         {
-            var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
-            if (monitoringSetting == null)
-            {
-                throw new NotFoundApplicationException("MonitoringSetting not found");
-            }
+            throw new NotFoundApplicationException("MonitoringSetting not found");
+        }
 
-            return _mapper.Map<MonitoringSettingResponse>(monitoringSetting);
-        }
-        catch (NpgsqlException)
-        {
-            throw new DatabaseException("Couldn't find the setting");
-        }
+        return _mapper.Map<MonitoringSettingResponse>(monitoringSetting);
     }
 }

@@ -8,11 +8,6 @@ public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsS
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        if (exception is DatabaseException dbException)
-        {
-            return false;
-        }
-        
         if (exception is not BaseApplicationException ex)
         {
             return false;

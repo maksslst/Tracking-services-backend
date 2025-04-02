@@ -63,7 +63,7 @@ public class TaskPostgresRepository : ITaskRepository
         var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
             @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
                 FROM service_tasks
-                WHERE id=@Id", new { Id = taskId });
+                WHERE id = @Id", new { Id = taskId });
 
         return serviceTask;
     }
