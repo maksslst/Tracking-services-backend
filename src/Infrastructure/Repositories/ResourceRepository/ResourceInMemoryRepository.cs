@@ -48,12 +48,12 @@ public class ResourceInMemoryRepository : IResourceRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> AddCompanyResource(Company company, Resource? resource = null)
+    public Task<bool> AddCompanyResource(Resource resource)
     {
-        bool isCorrect = DataVerification(company, resource);
+        bool isCorrect = DataVerification(resource);
         if (isCorrect)
         {
-            company.Resources.Add(resource);
+            resource.Company.Resources.Add(resource);
         }
 
         return Task.FromResult(isCorrect);
@@ -106,7 +106,7 @@ public class ResourceInMemoryRepository : IResourceRepository
         }
     }
 
-    private bool DataVerification(Company company, Resource? resource)
+    private bool DataVerification(Resource resource)
     {
         if (resource == null)
         {
@@ -115,11 +115,6 @@ public class ResourceInMemoryRepository : IResourceRepository
 
         Resource? addedResource = _resources.Find(i => i.Id == resource.Id);
         if (addedResource == null)
-        {
-            return false;
-        }
-
-        if (company.Resources.Any(i => i.Id == addedResource.Id))
         {
             return false;
         }

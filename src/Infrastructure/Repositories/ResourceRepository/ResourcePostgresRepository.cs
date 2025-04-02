@@ -47,9 +47,9 @@ public class ResourcePostgresRepository : IResourceRepository
         return resourceToDelete > 0;
     }
 
-    public async Task<bool> AddCompanyResource(Company company, Resource? resource = null)
+    public async Task<bool> AddCompanyResource(Resource resource)
     {
-        bool isCorrect = await DataVerification(company, resource);
+        bool isCorrect = await DataVerification(resource);
         if (isCorrect)
         {
             var addedResource = await _connection.ExecuteAsync(
@@ -59,7 +59,7 @@ public class ResourcePostgresRepository : IResourceRepository
                 new
                 {
                     Id = resource.Id,
-                    CompanyId = company.Id
+                    CompanyId = resource.CompanyId
                 });
 
             return addedResource > 0;
@@ -112,7 +112,7 @@ public class ResourcePostgresRepository : IResourceRepository
         return companyResources;
     }
 
-    private async Task<bool> DataVerification(Company company, Resource? resource)
+    private async Task<bool> DataVerification(Resource? resource)
     {
         if (resource == null)
         {
@@ -125,12 +125,6 @@ public class ResourcePostgresRepository : IResourceRepository
                 WHERE id = @Id", new { Id = resource.Id });
 
         if (addedResource == null)
-        {
-            return false;
-        }
-
-        var companyResources = await ReadCompanyResources(company);
-        if (companyResources.Any(i => i.Id == addedResource.Id))
         {
             return false;
         }

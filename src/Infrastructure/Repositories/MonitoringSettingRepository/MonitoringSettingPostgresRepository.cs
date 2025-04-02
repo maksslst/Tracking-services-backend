@@ -31,7 +31,7 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
                 SET resource_id = @ResourceId, 
                     check_interval = @CheckInterval, 
                     mode = @Mode
-                WHERE id=@Id", monitoringSetting);
+                WHERE id = @Id", monitoringSetting);
 
         return settingToUpdate > 0;
     }
@@ -69,7 +69,7 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
         var monitoringSetting = await _connection.QueryFirstOrDefaultAsync<MonitoringSetting>(
             @"SELECT id, resource_id, check_interval, mode
                 FROM monitoring_settings
-                WHERE id =@Id", new { Id = monitoringSettingId });
+                WHERE id = @Id", new { Id = monitoringSettingId });
         
         return monitoringSetting;
     }

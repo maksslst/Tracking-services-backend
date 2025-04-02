@@ -4,16 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.ExceptionHandlers;
 
-public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsService) : IExceptionHandler
+public class DbExceptionHandler(IProblemDetailsService _problemDetailsService) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        if (exception is DatabaseException dbException)
-        {
-            return false;
-        }
-        
-        if (exception is not BaseApplicationException ex)
+        if (exception is not DatabaseException ex)
         {
             return false;
         }

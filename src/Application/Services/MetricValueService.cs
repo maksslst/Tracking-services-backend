@@ -1,4 +1,3 @@
-using Application.DTOs.Mappings;
 using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
@@ -7,6 +6,7 @@ using Infrastructure.Repositories.MetricValueRepository;
 using Application.Requests;
 using Application.Responses;
 using Infrastructure.Repositories.ResourceRepository;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -26,50 +26,70 @@ public class MetricValueService : IMetricValueService
         _resourceRepository = resourceRepository;
     }
 
-    public async Task<MetricValue?> AddMetricValue(CreateMetricValueRequest request)
+    public async Task<int> AddMetricValue(CreateMetricValueRequest request)
     {
-        if (await _metricRepository.ReadMetricId(request.MetricId) == null)
+        try
         {
-            throw new NotFoundApplicationException("Metric not found");
+            if (await _metricRepository.ReadMetricId(request.MetricId) == null)
+            {
+                throw new NotFoundApplicationException("Metric not found");
+            }
+
+            var metricValue = new MetricValue()
+            {
+                MetricId = request.MetricId,
+                Value = request.Value
+            };
+
+            return await _metricValueRepository.CreateMetricValue(metricValue);
         }
-
-        var metricValue = new MetricValue()
+        catch (NpgsqlException)
         {
-            MetricId = request.MetricId,
-            Value = request.Value
-        };
-
-        await _metricValueRepository.CreateMetricValue(metricValue);
-        return metricValue;
+            throw new DatabaseException("Couldn't add value");
+        }
     }
 
-    public async Task<IEnumerable<MetricValueResponse?>> GetAllMetricValuesForResource(int resourceId)
+    public async Task<IEnumerable<MetricValueResponse>> GetAllMetricValuesForResource(int resourceId)
     {
-        if (await _resourceRepository.ReadByResourceId(resourceId) == null)
+        try
         {
-            throw new NotFoundApplicationException("Resource not found");
-        }
+            if (await _resourceRepository.ReadByResourceId(resourceId) == null)
+            {
+                throw new NotFoundApplicationException("Resource not found");
+            }
 
-        var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
-        if (metrics == null || metrics.Count() == 0)
+            var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
+            if (metrics == null || metrics.Count() == 0)
+            {
+                return new List<MetricValueResponse>();
+            }
+
+            var metricsId = metrics.Select(i => i.Id);
+            var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
+            var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
+            return metricValuesResponse;
+        }
+        catch (NpgsqlException)
         {
-            throw new NotFoundApplicationException("Metrics not found");
+            throw new DatabaseException("Couldn't get values for resource");
         }
-
-        var metricsId = metrics.Select(i => i.Id);
-        var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
-        var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
-        return metricValuesResponse;
     }
 
-    public async Task<MetricValueResponse?> GetMetricValue(int metricValueId)
+    public async Task<MetricValueResponse> GetMetricValue(int metricValueId)
     {
-        var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
-        if (metricValue == null)
+        try
         {
-            throw new NotFoundApplicationException("MetricValue not found");
-        }
+            var metricValue = await _metricValueRepository.ReadMetricValueId(metricValueId);
+            if (metricValue == null)
+            {
+                throw new NotFoundApplicationException("MetricValue not found");
+            }
 
-        return _mapper.Map<MetricValueResponse>(metricValue);
+            return _mapper.Map<MetricValueResponse>(metricValue);
+        }
+        catch (NpgsqlException)
+        {
+            throw new DatabaseException("Couldn't get value");
+        }
     }
 }
