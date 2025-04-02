@@ -30,7 +30,7 @@ public class CompanyService : ICompanyService
 
     public async Task<bool> Update(UpdateCompanyRequest request)
     {
-        var companyToUpdate = await _companyRepository.ReadByCompanyId(request.CompanyId);
+        var companyToUpdate = await _companyRepository.ReadByCompanyId(request.Id);
         if (companyToUpdate == null)
         {
             throw new NotFoundApplicationException("Company not found");

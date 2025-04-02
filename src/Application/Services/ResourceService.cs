@@ -30,18 +30,13 @@ public class ResourceService : IResourceService
 
     public async Task<bool> Update(UpdateResourceRequest request)
     {
-        var resource = await _resourceRepository.ReadByResourceId(request.ResourceId);
+        var resource = await _resourceRepository.ReadByResourceId(request.Id);
         if (resource == null)
         {
             throw new NotFoundApplicationException("Resource not found");
         }
 
-        resource.Name = request.Name;
-        resource.Status = request.Status;
-        resource.Type = request.Type;
-        resource.Source = request.Source;
-        resource.CompanyId = request.CompanyId;
-
+        resource = _mapper.Map<Resource>(request);
         return await _resourceRepository.UpdateResource(resource);
     }
 
@@ -72,11 +67,7 @@ public class ResourceService : IResourceService
             throw new NotFoundApplicationException("Resource not found");
         }
 
-        resourceToUpdate.Name = request.Name;
-        resourceToUpdate.Type = request.Type;
-        resourceToUpdate.Status = request.Status;
-        resourceToUpdate.Source = request.Source;
-
+        resourceToUpdate = _mapper.Map<Resource>(request);
         return await _resourceRepository.UpdateResource(resourceToUpdate);
     }
 

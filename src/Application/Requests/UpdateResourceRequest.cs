@@ -5,7 +5,7 @@ namespace Application.Requests;
 
 public class UpdateResourceRequest
 {
-    public int ResourceId { get; set; }
+    public int Id { get; set; }
     public int CompanyId { get; set; }
     public string Name { get; set; } = null!;
     public string Type { get; set; } = null!;
@@ -17,7 +17,7 @@ public class UpdateResourceRequestValidator : AbstractValidator<UpdateResourceRe
 {
     public UpdateResourceRequestValidator()
     {
-        RuleFor(x => x.ResourceId).NotNull()
+        RuleFor(x => x.Id).NotNull()
             .GreaterThan(0).WithMessage("ResourceId must be positive");
         RuleFor(x => x.Name).NotEmpty()
             .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");

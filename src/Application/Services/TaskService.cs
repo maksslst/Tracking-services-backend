@@ -37,7 +37,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> Update(UpdateTaskRequest request)
     {
-        var taskToUpdate = await _taskRepository.ReadTaskId(request.TaskId);
+        var taskToUpdate = await _taskRepository.ReadTaskId(request.Id);
         if (taskToUpdate == null)
         {
             throw new NotFoundApplicationException("Task not found");

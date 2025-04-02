@@ -19,11 +19,14 @@ public class MappingProfile : Profile
         CreateMap<UpdateTaskRequest, ServiceTask>();
         CreateMap<MonitoringSetting, MonitoringSettingResponse>().ReverseMap();
         CreateMap<CreateMonitoringSettingRequest, MonitoringSetting>();
+        CreateMap<UpdateMonitoringSettingRequest, MonitoringSetting>();
         CreateMap<Metric, MetricResponse>().ReverseMap();
         CreateMap<CreateMetricRequest, Metric>();
+        CreateMap<UpdateMetricRequest, Metric>();
         CreateMap<MetricValue, MetricValueResponse>().ReverseMap();
         CreateMap<CreateMetricValueRequest, MetricValue>();
         CreateMap<Resource, ResourceResponse>().ReverseMap();
         CreateMap<CreateResourceRequest, Resource>();
+        CreateMap<UpdateResourceRequest, Resource>();
     }
 }

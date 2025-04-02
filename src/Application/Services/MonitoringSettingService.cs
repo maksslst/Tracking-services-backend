@@ -37,9 +37,7 @@ public class MonitoringSettingService : IMonitoringSettingService
             throw new NotFoundApplicationException("MonitoringSetting not found");
         }
 
-        monitoringSetting.CheckInterval = request.CheckInterval;
-        monitoringSetting.Mode = request.Mode;
-        monitoringSetting.ResourceId = request.ResourceId;
+        monitoringSetting = _mapper.Map<MonitoringSetting>(request);
         return await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
     }
 

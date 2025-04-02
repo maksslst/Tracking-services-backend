@@ -5,7 +5,7 @@ namespace Application.Requests;
 
 public class UpdateTaskRequest
 {
-    public int TaskId { get; set; }
+    public int Id { get; set; }
     public int ResourceId { get; set; }
     public string Description { get; set; } = null!;
     public int AssignedUserId { get; set; }
@@ -16,7 +16,7 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
 {
     public UpdateTaskRequestValidator()
     {
-        RuleFor(x => x.TaskId).NotNull()
+        RuleFor(x => x.Id).NotNull()
             .GreaterThan(0).WithMessage("Id must be positive");
         RuleFor(x => x.ResourceId).NotNull()
             .GreaterThan(0).WithMessage("ResourceId must be positive")

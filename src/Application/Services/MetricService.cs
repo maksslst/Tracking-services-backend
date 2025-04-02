@@ -34,16 +34,13 @@ public class MetricService : IMetricService
 
     public async Task<bool> UpdateMetric(UpdateMetricRequest request)
     {
-        var metric = await _metricRepository.ReadMetricId(request.MetricId);
+        var metric = await _metricRepository.ReadMetricId(request.Id);
         if (metric == null)
         {
             throw new NotFoundApplicationException("Metric not found");
         }
 
-        metric.Name = request.Name;
-        metric.Unit = request.Unit;
-        metric.ResourceId = request.ResourceId;
-
+        metric = _mapper.Map<Metric>(request);
         return await _metricRepository.UpdateMetric(metric);
     }
 

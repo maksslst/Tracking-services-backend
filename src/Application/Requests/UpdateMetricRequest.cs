@@ -4,7 +4,7 @@ namespace Application.Requests;
 
 public class UpdateMetricRequest
 {
-    public int MetricId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = null!;
     public int ResourceId { get; set; }
     public string Unit { get; set; } = null!;
@@ -14,7 +14,7 @@ public class UpdateMetricRequestValidator : AbstractValidator<UpdateMetricReques
 {
     public UpdateMetricRequestValidator()
     {
-        RuleFor(x => x.MetricId).NotNull()
+        RuleFor(x => x.Id).NotNull()
             .GreaterThan(0).WithMessage("RequestId must be positive");
         RuleFor(x => x.Name).NotEmpty()
             .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
