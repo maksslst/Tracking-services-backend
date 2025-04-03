@@ -44,16 +44,6 @@ public class CompanyPostgresRepository : ICompanyRepository
 
     public async Task<bool> AddUserToCompany(User user, int companyId)
     {
-        var company = await _connection.QueryFirstOrDefaultAsync<Company>(
-            @"SELECT id 
-                FROM companies 
-                WHERE id = @Companyid", new { CompanyId = companyId });
-
-        if (company == null)
-        {
-            return false;
-        }
-
         var addedUser = await _connection.ExecuteAsync(
             @"UPDATE users
                 SET company_id = @CompanyId
@@ -69,16 +59,6 @@ public class CompanyPostgresRepository : ICompanyRepository
 
     public async Task<bool> RemoveUserFromCompany(User user, int companyId)
     {
-        var company = await _connection.QueryFirstOrDefaultAsync<Company>(
-            @"SELECT id 
-                FROM companies 
-                WHERE id = @company", new { company = companyId });
-
-        if (company == null)
-        {
-            return false;
-        }
-
         var deletedUser = await _connection.ExecuteAsync(
             @"UPDATE users
                 SET company_id = null
@@ -113,17 +93,7 @@ public class CompanyPostgresRepository : ICompanyRepository
 
     public async Task<IEnumerable<User?>> ReadCompanyUsers(int companyId)
     {
-        var company = await _connection.QueryFirstOrDefaultAsync<Company>(
-            @"SELECT id
-                FROM companies 
-                WHERE id = @Id", new { Id = companyId });
-
-        if (company == null)
-        {
-            return null;
-        }
-
-        var users = await _connection.QueryAsync<User>(
+       var users = await _connection.QueryAsync<User>(
             @"SELECT id, username, first_name, last_name, patronymic, email, company_id
                 FROM users
                 WHERE company_id = @CompanyId", new { CompanyId = companyId });

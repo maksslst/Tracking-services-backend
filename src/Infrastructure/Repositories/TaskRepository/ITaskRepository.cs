@@ -9,9 +9,9 @@ public interface ITaskRepository
     public Task<bool> DeleteTask(int serviceTaskId);
     public Task<ServiceTask?> ReadTaskId(int taskId);
     public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId);
-    public Task<bool> AssignTaskToUser(User user, int taskId);
-    public Task<bool> DeleteTaskToUser(User user, int taskId);
-    public Task<bool> ReassignTaskToUser(int oldUserId, User newUserId, int taskId);
+    public Task<bool> AssignTaskToUser(int userId, int taskId);
+    public Task<bool> DeleteTaskToUser(int userId, int taskId);
+    public Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId);
     public Task<ServiceTask?> ReadTaskUser(int userId, int taskId);
     public Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId);
 }

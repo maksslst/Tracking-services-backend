@@ -49,23 +49,17 @@ public class ResourcePostgresRepository : IResourceRepository
 
     public async Task<bool> AddCompanyResource(Resource resource)
     {
-        bool isCorrect = await DataVerification(resource);
-        if (isCorrect)
-        {
-            var addedResource = await _connection.ExecuteAsync(
-                @"UPDATE resources
+        var addedResource = await _connection.ExecuteAsync(
+            @"UPDATE resources
                     SET company_id = @CompanyId
                     WHERE id = @Id",
-                new
-                {
-                    Id = resource.Id,
-                    CompanyId = resource.CompanyId
-                });
+            new
+            {
+                Id = resource.Id,
+                CompanyId = resource.CompanyId
+            });
 
-            return addedResource > 0;
-        }
-
-        return isCorrect;
+        return addedResource > 0;
     }
 
     public async Task<bool> DeleteCompanyResource(int resourceId, Company company)
@@ -110,25 +104,5 @@ public class ResourcePostgresRepository : IResourceRepository
                 WHERE company_id = @CompanyId", new { CompanyId = company.Id });
 
         return companyResources;
-    }
-
-    private async Task<bool> DataVerification(Resource? resource)
-    {
-        if (resource == null)
-        {
-            return false;
-        }
-
-        var addedResource = await _connection.QueryFirstOrDefaultAsync<Resource>(
-            @"SELECT id, company_id, name, type, source, status
-                FROM resources
-                WHERE id = @Id", new { Id = resource.Id });
-
-        if (addedResource == null)
-        {
-            return false;
-        }
-
-        return true;
     }
 }

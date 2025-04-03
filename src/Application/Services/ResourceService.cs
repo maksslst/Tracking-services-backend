@@ -54,6 +54,7 @@ public class ResourceService : IResourceService
     public async Task<bool> AddCompanyResource(int companyId, CreateResourceRequest request)
     {
         var resource = _mapper.Map<Resource>(request);
+        resource.CompanyId = companyId;
         int resourceId = await _resourceRepository.CreateResource(resource);
         resource.Id = resourceId;
         return await _resourceRepository.AddCompanyResource(resource);

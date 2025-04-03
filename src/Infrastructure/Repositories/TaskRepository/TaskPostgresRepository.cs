@@ -78,27 +78,27 @@ public class TaskPostgresRepository : ITaskRepository
         return companyTasks;
     }
 
-    public async Task<bool> AssignTaskToUser(User user, int taskId)
+    public async Task<bool> AssignTaskToUser(int userId, int taskId)
     {
         var taskToUpdate = await _connection.ExecuteAsync(
             @"UPDATE service_tasks
                 SET assigned_user_id = @AssignedUserId
-                WHERE id = @Id", new { AssignedUserId = user.Id, Id = taskId });
+                WHERE id = @Id", new { AssignedUserId = userId, Id = taskId });
 
         return taskToUpdate > 0;
     }
 
-    public async Task<bool> DeleteTaskToUser(User user, int taskId)
+    public async Task<bool> DeleteTaskToUser(int userId, int taskId)
     {
         var taskToDelete = await _connection.ExecuteAsync(
             @"UPDATE service_tasks
                 SET assigned_user_id = null
-                WHERE id = @Id", new { Id = taskId });
+                WHERE id = @Id and assigned_user_id = @UserId", new { Id = taskId, UserId = userId });
 
         return taskToDelete > 0;
     }
 
-    public async Task<bool> ReassignTaskToUser(int oldUserId, User newUserId, int taskId)
+    public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
         var taskToUpdate = await _connection.ExecuteAsync(
             @"UPDATE service_tasks

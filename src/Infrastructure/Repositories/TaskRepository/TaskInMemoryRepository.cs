@@ -76,7 +76,7 @@ public class TaskInMemoryRepository : ITaskRepository
         return Task.FromResult<IEnumerable<ServiceTask?>>(companyTasks);
     }
 
-    public Task<bool> AssignTaskToUser(User user, int taskId)
+    public Task<bool> AssignTaskToUser(int user, int taskId)
     {
         
         var task = _tasks.Find(i => i.Id == taskId);
@@ -90,12 +90,11 @@ public class TaskInMemoryRepository : ITaskRepository
             return Task.FromResult(false);
         }
         
-        task.AssignedUserId = user.Id;
-        task.AssignedUser = user;
+        task.AssignedUserId = user;
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteTaskToUser(User user, int taskId)
+    public Task<bool> DeleteTaskToUser(int userId, int taskId)
     {
         var task = _tasks.Find(i => i.Id == taskId);
         if (task == null)
@@ -103,17 +102,16 @@ public class TaskInMemoryRepository : ITaskRepository
             return Task.FromResult(false);
         }
 
-        if (task.AssignedUserId != user.Id)
+        if (task.AssignedUserId != userId)
         {
             return Task.FromResult(false);
         }
 
         task.AssignedUserId = null;
-        task.AssignedUser = null;
         return Task.FromResult(true);
     }
 
-    public Task<bool> ReassignTaskToUser(int oldUserId, User newUser, int taskId)
+    public Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
         var task = _tasks.Find(i => i.Id == taskId && i.AssignedUserId == oldUserId);
         if (task == null)
@@ -126,8 +124,7 @@ public class TaskInMemoryRepository : ITaskRepository
             return Task.FromResult(false);
         }
 
-        task.AssignedUserId = newUser.Id;
-        task.AssignedUser = newUser;
+        task.AssignedUserId = newUserId;
         return Task.FromResult(true);
     }
 

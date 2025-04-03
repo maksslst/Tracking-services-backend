@@ -94,8 +94,7 @@ public class TaskService : ITaskService
             throw new NotFoundApplicationException("Task not found");
         }
 
-        var user = await _userRepository.ReadById(userId);
-        return await _taskRepository.AssignTaskToUser(user, taskId);
+        return await _taskRepository.AssignTaskToUser(userId, taskId);
     }
 
     public async Task<bool> DeleteTaskForUser(int userId, int taskId)
@@ -105,8 +104,7 @@ public class TaskService : ITaskService
             throw new NotFoundApplicationException("Task not found");
         }
 
-        var user = await _userRepository.ReadById(userId);
-        return await _taskRepository.DeleteTaskToUser(user, taskId);
+        return await _taskRepository.DeleteTaskToUser(userId, taskId);
     }
 
     public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
@@ -116,8 +114,7 @@ public class TaskService : ITaskService
             throw new NotFoundApplicationException("Task not found");
         }
 
-        var newUser = _userRepository.ReadById(newUserId).Result;
-        return await _taskRepository.ReassignTaskToUser(oldUserId, newUser, taskId);
+        return await _taskRepository.ReassignTaskToUser(oldUserId, newUserId, taskId);
     }
 
     public async Task<TaskResponse> GetTaskForUser(int userId, int taskId)

@@ -56,7 +56,7 @@ public class UserPostgresRepository : IUserRepository
         return userToDelete > 0;
     }
 
-    public async Task<User?> ReadById(int? id)
+    public async Task<User?> ReadById(int id)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
             @"SELECT id, username, first_name, last_name as LastName, patronymic, email, company_id
