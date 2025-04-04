@@ -62,7 +62,7 @@ public class ResourcePostgresRepository : IResourceRepository
         return addedResource > 0;
     }
 
-    public async Task<bool> DeleteCompanyResource(int resourceId, Company company)
+    public async Task<bool> DeleteCompanyResource(int resourceId, int companyId)
     {
         var deletedResource = await _connection.ExecuteAsync(
             @"UPDATE resources
@@ -71,7 +71,7 @@ public class ResourcePostgresRepository : IResourceRepository
             new
             {
                 Id = resourceId,
-                CompanyId = company.Id
+                CompanyId = companyId
             });
 
         return deletedResource > 0;
@@ -96,12 +96,12 @@ public class ResourcePostgresRepository : IResourceRepository
         return resources;
     }
 
-    public async Task<IEnumerable<Resource?>> ReadCompanyResources(Company company)
+    public async Task<IEnumerable<Resource?>> ReadCompanyResources(int companyId)
     {
         var companyResources = await _connection.QueryAsync<Resource>(
             @"SELECT id, company_id as CompanyId, name, type, source, status
                 FROM resources
-                WHERE company_id = @CompanyId", new { CompanyId = company.Id });
+                WHERE company_id = @CompanyId", new { CompanyId = companyId });
 
         return companyResources;
     }

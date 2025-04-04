@@ -18,9 +18,10 @@ public class UpdateMonitoringSettingRequestValidator : AbstractValidator<UpdateM
             .GreaterThan(0).WithMessage("Id must be positive");
         RuleFor(x => x.ResourceId).NotNull()
             .GreaterThan(0).WithMessage("ResourceId must be positive")
-            .LessThanOrEqualTo(100).WithMessage("ResourceId is too long");
+            .LessThan(int.MaxValue).WithMessage("ResourceId is too long");
         RuleFor(x => x.CheckInterval).NotEmpty()
-            .MaximumLength(50).WithMessage("{PropertyName} maximum length is 50 characters");
+            .MaximumLength(ValidationConstants.CheckIntervalMaxLength)
+            .WithMessage("{PropertyName} maximum length is 50 characters");
         RuleFor(x => x.Mode).NotNull();
     }
 }

@@ -32,8 +32,8 @@ public class UserController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
     {
-        var result = await _userService.Update(request);
-        return Ok(result);
+        await _userService.Update(request);
+        return Ok();
     }
 
     #endregion

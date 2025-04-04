@@ -28,7 +28,7 @@ public class ResourceService : IResourceService
         return await _resourceRepository.CreateResource(resource);
     }
 
-    public async Task<bool> Update(UpdateResourceRequest request)
+    public async Task Update(UpdateResourceRequest request)
     {
         var resource = await _resourceRepository.ReadByResourceId(request.Id);
         if (resource == null)
@@ -37,30 +37,38 @@ public class ResourceService : IResourceService
         }
 
         resource = _mapper.Map<Resource>(request);
-        return await _resourceRepository.UpdateResource(resource);
+        bool isUpdated = await _resourceRepository.UpdateResource(resource);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Failed to update the resource");
+        }
     }
 
-    public async Task<bool> Delete(int resourceId)
+    public async Task Delete(int resourceId)
     {
         bool isDeleted = await _resourceRepository.DeleteResource(resourceId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Resource not found");
+            throw new EntityDeleteException("Couldn't delete the resource");
         }
-
-        return true;
     }
 
-    public async Task<bool> AddCompanyResource(int companyId, CreateResourceRequest request)
+    public async Task AddCompanyResource(int companyId, CreateResourceRequest request)
     {
         var resource = _mapper.Map<Resource>(request);
         resource.CompanyId = companyId;
+
         int resourceId = await _resourceRepository.CreateResource(resource);
         resource.Id = resourceId;
-        return await _resourceRepository.AddCompanyResource(resource);
+
+        bool isAdded = await _resourceRepository.AddCompanyResource(resource);
+        if (!isAdded)
+        {
+            throw new EntityCreateException("Couldn't add company resource");
+        }
     }
 
-    public async Task<bool> UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId)
+    public async Task UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId)
     {
         var resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
         if (resourceToUpdate == null)
@@ -69,19 +77,20 @@ public class ResourceService : IResourceService
         }
 
         resourceToUpdate = _mapper.Map<Resource>(request);
-        return await _resourceRepository.UpdateResource(resourceToUpdate);
+        bool isUpdated = await _resourceRepository.UpdateResource(resourceToUpdate);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Failed to update the resource");
+        }
     }
 
-    public async Task<bool> DeleteCompanyResource(int resourceId, int companyId)
+    public async Task DeleteCompanyResource(int resourceId, int companyId)
     {
-        var resource = await _resourceRepository.ReadByResourceId(resourceId);
-        if (resource == null || resource.CompanyId != companyId)
+        bool isDeleted = await _resourceRepository.DeleteCompanyResource(resourceId, companyId);
+        if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Resource not found");
+            throw new EntityDeleteException("Couldn't delete a resource from the company");
         }
-
-        var company = await _companyRepository.ReadByCompanyId(companyId);
-        return await _resourceRepository.DeleteCompanyResource(resourceId, company);
     }
 
     public async Task<ResourceResponse> GetResource(int resourceId)
@@ -98,11 +107,6 @@ public class ResourceService : IResourceService
     public async Task<IEnumerable<ResourceResponse>> GetAllResources()
     {
         var resources = await _resourceRepository.ReadAllResources();
-        if (resources.Count() == 0 || resources == null)
-        {
-            throw new NotFoundApplicationException("resources not found");
-        }
-
         var resourcesResponse = resources.Select(i => _mapper.Map<ResourceResponse>(i));
         return resourcesResponse;
     }
@@ -110,12 +114,12 @@ public class ResourceService : IResourceService
     public async Task<IEnumerable<ResourceResponse>> GetCompanyResources(int companyId)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
-        var resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
-        if (resourcesCompany.Count() == 0 || resourcesCompany == null)
+        if (company == null)
         {
-            throw new NotFoundApplicationException("Resources not found");
+            throw new NotFoundApplicationException("Company not found");
         }
 
+        var resourcesCompany = await _resourceRepository.ReadCompanyResources(companyId);
         var resourcesResponse = resourcesCompany.Select(i => _mapper.Map<ResourceResponse>(i));
         return resourcesResponse;
     }

@@ -40,11 +40,6 @@ public class MetricValueService : IMetricValueService
         }
 
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
-        if (metrics == null || metrics.Count() == 0)
-        {
-            return new List<MetricValueResponse>();
-        }
-
         var metricsId = metrics.Select(i => i.Id);
         var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
         var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));

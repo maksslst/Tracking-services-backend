@@ -29,7 +29,7 @@ public class MonitoringSettingService : IMonitoringSettingService
         return await _monitoringSettingRepository.CreateSetting(monitoringSetting);
     }
 
-    public async Task<bool> Update(UpdateMonitoringSettingRequest request)
+    public async Task Update(UpdateMonitoringSettingRequest request)
     {
         var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(request.ResourceId);
         if (monitoringSetting == null)
@@ -38,18 +38,20 @@ public class MonitoringSettingService : IMonitoringSettingService
         }
 
         monitoringSetting = _mapper.Map<MonitoringSetting>(request);
-        return await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
+        bool isUpdated = await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Couldn't update the setting");
+        }
     }
 
-    public async Task<bool> Delete(int monitoringSettingId)
+    public async Task Delete(int monitoringSettingId)
     {
         bool isDeleted = await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("MonitoringSetting not found");
+            throw new EntityDeleteException("Couldn't delete the setting");
         }
-
-        return true;
     }
 
     public async Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId)

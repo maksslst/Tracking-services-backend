@@ -12,6 +12,7 @@ public class CreateCompanyRequestValidator : AbstractValidator<CreateCompanyRequ
     public CreateCompanyRequestValidator()
     {
         RuleFor(x => x.CompanyName).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.CompanyNameLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
     }
 }

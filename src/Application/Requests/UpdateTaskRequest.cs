@@ -22,7 +22,8 @@ public class UpdateTaskRequestValidator : AbstractValidator<UpdateTaskRequest>
             .GreaterThan(0).WithMessage("ResourceId must be positive")
             .LessThan(int.MaxValue).WithMessage("ResourceId is too long");
         RuleFor(x => x.Description).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.TaskDescriptionLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
         RuleFor(x => x.AssignedUserId).NotNull()
             .GreaterThan(0).WithMessage("AssignedUserId must be positive")
             .LessThan(int.MaxValue).WithMessage("AssignedUserId is too long");

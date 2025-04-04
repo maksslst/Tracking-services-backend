@@ -59,15 +59,15 @@ public class ResourceInMemoryRepository : IResourceRepository
         return Task.FromResult(isCorrect);
     }
     
-    public Task<bool> DeleteCompanyResource(int resourceId, Company company)
+    public Task<bool> DeleteCompanyResource(int resourceId, int companyId)
     {
-        var resourceToDelete = company.Resources.Find(i => i.Id == resourceId);
+        /*var resourceToDelete = company.Resources.Find(i => i.Id == resourceId);
         if (resourceToDelete == null)
         {
             return Task.FromResult(false);
         }
 
-        company.Resources.Remove(resourceToDelete);
+        company.Resources.Remove(resourceToDelete);*/
         return Task.FromResult(true);
     }
 
@@ -82,9 +82,9 @@ public class ResourceInMemoryRepository : IResourceRepository
         return Task.FromResult<IEnumerable<Resource?>>(_resources);
     }
 
-    public Task<IEnumerable<Resource?>> ReadCompanyResources(Company company)
+    public Task<IEnumerable<Resource?>> ReadCompanyResources(int companyId)
     {
-        var resource = company.Resources;
+        var resource = _resources.FindAll(i => i.CompanyId == companyId);
         return Task.FromResult<IEnumerable<Resource?>>(resource);
     }
 

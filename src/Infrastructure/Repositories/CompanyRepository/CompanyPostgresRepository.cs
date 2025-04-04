@@ -42,7 +42,7 @@ public class CompanyPostgresRepository : ICompanyRepository
         return companyToDelete > 0;
     }
 
-    public async Task<bool> AddUserToCompany(User user, int companyId)
+    public async Task<bool> AddUserToCompany(int userId, int companyId)
     {
         var addedUser = await _connection.ExecuteAsync(
             @"UPDATE users
@@ -51,13 +51,13 @@ public class CompanyPostgresRepository : ICompanyRepository
             new
             {
                 CompanyId = companyId,
-                Id = user.Id
+                Id = userId
             });
 
         return addedUser > 0;
     }
 
-    public async Task<bool> RemoveUserFromCompany(User user, int companyId)
+    public async Task<bool> RemoveUserFromCompany(int userId, int companyId)
     {
         var deletedUser = await _connection.ExecuteAsync(
             @"UPDATE users
@@ -65,7 +65,7 @@ public class CompanyPostgresRepository : ICompanyRepository
                 WHERE id = @Id and company_id = @CompanyId",
             new
             {
-                Id = user.Id,
+                Id = userId,
                 CompanyId = companyId
             });
 

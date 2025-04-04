@@ -28,7 +28,7 @@ public class UserService : IUserService
         return await _userRepository.CreateUser(user);
     }
 
-    public async Task<bool> Update(UpdateUserRequest request)
+    public async Task Update(UpdateUserRequest request)
     {
         var user = await _userRepository.ReadById(request.Id);
         if (user == null)
@@ -37,18 +37,20 @@ public class UserService : IUserService
         }
 
         user = _mapper.Map<User>(request);
-        return await _userRepository.UpdateUser(user);
+        bool isUpdated = await _userRepository.UpdateUser(user);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Couldn't update the user");
+        }
     }
 
-    public async Task<bool> Delete(int userId)
+    public async Task Delete(int userId)
     {
         bool isDeleted = await _userRepository.DeleteUser(userId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("User not found");
+            throw new EntityDeleteException("Couldn't delete user");
         }
-
-        return true;
     }
 
     public async Task<UserResponse> GetById(int id)
@@ -65,11 +67,6 @@ public class UserService : IUserService
     public async Task<IEnumerable<UserResponse>> GetAll()
     {
         var users = await _userRepository.ReadAll();
-        if (users == null || users.Count() == 0)
-        {
-            throw new NotFoundApplicationException("Users not found");
-        }
-
         var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
         return usersResponse;
     }

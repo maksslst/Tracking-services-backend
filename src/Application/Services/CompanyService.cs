@@ -28,7 +28,7 @@ public class CompanyService : ICompanyService
         return await _companyRepository.CreateCompany(company);
     }
 
-    public async Task<bool> Update(UpdateCompanyRequest request)
+    public async Task Update(UpdateCompanyRequest request)
     {
         var companyToUpdate = await _companyRepository.ReadByCompanyId(request.Id);
         if (companyToUpdate == null)
@@ -37,50 +37,38 @@ public class CompanyService : ICompanyService
         }
 
         companyToUpdate.CompanyName = request.CompanyName;
-        return await _companyRepository.UpdateCompany(companyToUpdate);
+        bool isUpdated = await _companyRepository.UpdateCompany(companyToUpdate);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Couldn't update company");
+        }
     }
 
-    public async Task<bool> Delete(int companyId)
+    public async Task Delete(int companyId)
     {
         bool isDeleted = await _companyRepository.DeleteCompany(companyId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Company not found");
+            throw new EntityDeleteException("Couldn't delete company");
         }
-
-        return true;
     }
 
-    public async Task<bool> AddUserToCompany(int userId, int companyId)
+    public async Task AddUserToCompany(int userId, int companyId)
     {
-        if (await _companyRepository.ReadByCompanyId(companyId) == null)
+        bool isAdded = await _companyRepository.AddUserToCompany(userId, companyId);
+        if (!isAdded)
         {
-            throw new NotFoundApplicationException("Company not found");
+            throw new EntityCreateException("Couldn't add user to company");
         }
-
-        var user = await _userRepository.ReadById(userId);
-        if (user == null)
-        {
-            throw new NotFoundApplicationException("User not found");
-        }
-
-        return await _companyRepository.AddUserToCompany(user, companyId);
     }
 
-    public async Task<bool> DeleteUserFromCompany(int userId, int companyId)
+    public async Task DeleteUserFromCompany(int userId, int companyId)
     {
-        if (await _companyRepository.ReadByCompanyId(companyId) == null)
+        bool isDeleted = await _companyRepository.RemoveUserFromCompany(userId, companyId);
+        if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Company not found");
+            throw new EntityDeleteException("Couldn't delete user from company");
         }
-
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
-        {
-            throw new NotFoundApplicationException("User not found");
-        }
-
-        return await _companyRepository.RemoveUserFromCompany(user, companyId);
     }
 
     public async Task<CompanyResponse> GetCompany(int companyId)
@@ -97,11 +85,6 @@ public class CompanyService : ICompanyService
     public async Task<IEnumerable<CompanyResponse>> GetAllCompanies()
     {
         var companies = await _companyRepository.ReadAllCompanies();
-        if (companies == null || companies.Count() == 0)
-        {
-            return new CompanyResponse[] { };
-        }
-
         var companiesResponse = companies.Select(i => _mapper.Map<CompanyResponse>(i));
         return companiesResponse;
     }
@@ -114,11 +97,6 @@ public class CompanyService : ICompanyService
         }
 
         var users = await _companyRepository.ReadCompanyUsers(companyId);
-        if (users == null || users.Count() == 0)
-        {
-            return new UserResponse[] { };
-        }
-
         var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
         return usersResponse;
     }

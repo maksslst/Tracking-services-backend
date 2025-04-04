@@ -35,7 +35,7 @@ public class TaskService : ITaskService
         return await _taskRepository.CreateTask(task);
     }
 
-    public async Task<bool> Update(UpdateTaskRequest request)
+    public async Task Update(UpdateTaskRequest request)
     {
         var taskToUpdate = await _taskRepository.ReadTaskId(request.Id);
         if (taskToUpdate == null)
@@ -50,18 +50,20 @@ public class TaskService : ITaskService
         }
 
         taskToUpdate = _mapper.Map<ServiceTask>(request);
-        return await _taskRepository.UpdateTask(taskToUpdate, assignedUserToUpdate);
+        bool isUpdated = await _taskRepository.UpdateTask(taskToUpdate, assignedUserToUpdate);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Failed to update task");
+        }
     }
 
-    public async Task<bool> Delete(int serviceTaskId)
+    public async Task Delete(int serviceTaskId)
     {
         bool isDeleted = await _taskRepository.DeleteTask(serviceTaskId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Task not found");
+            throw new EntityDeleteException("Couldn't delete task");
         }
-
-        return true;
     }
 
     public async Task<TaskResponse> GetTask(int taskId)
@@ -87,34 +89,46 @@ public class TaskService : ITaskService
         return tasksResponse;
     }
 
-    public async Task<bool> AssignTaskToUser(int userId, int taskId)
+    public async Task AssignTaskToUser(int userId, int taskId)
     {
         if (await _taskRepository.ReadTaskId(taskId) == null)
         {
             throw new NotFoundApplicationException("Task not found");
         }
 
-        return await _taskRepository.AssignTaskToUser(userId, taskId);
+        bool isAssigned = await _taskRepository.AssignTaskToUser(userId, taskId);
+        if (!isAssigned)
+        {
+            throw new EntityUpdateException("Failed to assign task to user");
+        }
     }
 
-    public async Task<bool> DeleteTaskForUser(int userId, int taskId)
+    public async Task DeleteTaskForUser(int userId, int taskId)
     {
         if (await _taskRepository.ReadTaskId(taskId) == null)
         {
             throw new NotFoundApplicationException("Task not found");
         }
 
-        return await _taskRepository.DeleteTaskToUser(userId, taskId);
+        bool isDeleted = await _taskRepository.DeleteTaskToUser(userId, taskId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete the user's task");
+        }
     }
 
-    public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
+    public async Task ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
         if (await _taskRepository.ReadTaskId(taskId) == null)
         {
             throw new NotFoundApplicationException("Task not found");
         }
 
-        return await _taskRepository.ReassignTaskToUser(oldUserId, newUserId, taskId);
+        bool isReassigned = await _taskRepository.ReassignTaskToUser(oldUserId, newUserId, taskId);
+        if (!isReassigned)
+        {
+            throw new EntityUpdateException("Failed to reassign task to user");
+        }
     }
 
     public async Task<TaskResponse> GetTaskForUser(int userId, int taskId)
@@ -131,11 +145,6 @@ public class TaskService : ITaskService
     public async Task<IEnumerable<TaskResponse>> GetAllUserTasks(int userId)
     {
         var serviceTasksUser = await _taskRepository.ReadAllUserTasks(userId);
-        if (serviceTasksUser.Count() == 0 || serviceTasksUser == null)
-        {
-            throw new NotFoundApplicationException("Tasks not found");
-        }
-
         var tasksResponse = serviceTasksUser.Select(i => _mapper.Map<TaskResponse>(i));
         return tasksResponse;
     }

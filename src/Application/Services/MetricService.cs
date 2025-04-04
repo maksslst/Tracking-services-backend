@@ -32,7 +32,7 @@ public class MetricService : IMetricService
         return await _metricRepository.CreateMetric(metric);
     }
 
-    public async Task<bool> UpdateMetric(UpdateMetricRequest request)
+    public async Task UpdateMetric(UpdateMetricRequest request)
     {
         var metric = await _metricRepository.ReadMetricId(request.Id);
         if (metric == null)
@@ -41,18 +41,20 @@ public class MetricService : IMetricService
         }
 
         metric = _mapper.Map<Metric>(request);
-        return await _metricRepository.UpdateMetric(metric);
+        bool isUpdated = await _metricRepository.UpdateMetric(metric);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Couldn't update the metric");
+        }
     }
 
-    public async Task<bool> DeleteMetric(int metricId)
+    public async Task DeleteMetric(int metricId)
     {
         bool isDeleted = await _metricRepository.DeleteMetric(metricId);
         if (!isDeleted)
         {
-            throw new NotFoundApplicationException("Metric not found");
+            throw new EntityDeleteException("Couldn't delete the metric");
         }
-
-        return true;
     }
 
     public async Task<MetricResponse> GetMetricByResourceId(int serviceId)
@@ -69,11 +71,6 @@ public class MetricService : IMetricService
     public async Task<IEnumerable<MetricResponse>> GetAllMetricsByServiceId(int serviceId)
     {
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
-        if (metrics == null || metrics.Count() == 0)
-        {
-            throw new NotFoundApplicationException("Metrics not found");
-        }
-
         var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));
         return metricsResponses;
     }
@@ -81,11 +78,6 @@ public class MetricService : IMetricService
     public async Task<IEnumerable<MetricResponse>> GetAll()
     {
         var metrics = await _metricRepository.ReadAll();
-        if (metrics == null || metrics.Count() == 0)
-        {
-            throw new NotFoundApplicationException("Metrics not found");
-        }
-
         var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));
         return metricsResponses;
     }

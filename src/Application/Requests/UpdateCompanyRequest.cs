@@ -15,6 +15,7 @@ public class UpdateCompanyRequestValidator : AbstractValidator<UpdateCompanyRequ
         RuleFor(x => x.Id).NotNull()
             .GreaterThan(0).WithMessage("CompanyId must be positive");
         RuleFor(x => x.CompanyName).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.CompanyNameLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
     }
 }

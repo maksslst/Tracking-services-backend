@@ -17,11 +17,14 @@ public class CreateResourceRequestValidator : AbstractValidator<CreateResourceRe
     public CreateResourceRequestValidator()
     {
         RuleFor(x => x.Name).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.ResourceNameLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
         RuleFor(x => x.Type).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.ResourceTypeLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
         RuleFor(x => x.Source).NotEmpty()
-            .MaximumLength(100).WithMessage("{PropertyName} maximum length is 100 characters");
+            .MaximumLength(ValidationConstants.ResourceSourceLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
         RuleFor(x => x.CompanyId)
             .GreaterThan(0).WithMessage("CompanyId must be positive")
             .LessThan(int.MaxValue).WithMessage("CompanyId is too long");
