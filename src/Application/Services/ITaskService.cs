@@ -13,7 +13,7 @@ public interface ITaskService
     public Task<IEnumerable<TaskResponse>> GetAllCompanyTasks(int companyId);
     public Task AssignTaskToUser(int userId, int taskId);
     public Task DeleteTaskForUser(int userId, int taskId);
-    public Task ReassignTaskToUser(int oldUserId, int newUserId, int taskId);
+    public Task ReassignTaskToUser(int newUserId, int taskId);
     public Task<TaskResponse> GetTaskForUser(int userId, int taskId);
     public Task<IEnumerable<TaskResponse>> GetAllUserTasks(int userId);
 }

@@ -91,7 +91,7 @@ public class TaskService : ITaskService
 
     public async Task AssignTaskToUser(int userId, int taskId)
     {
-        bool isAssigned = await _taskRepository.AssignTaskToUser(userId, taskId);
+        bool isAssigned = await _taskRepository.SetTaskAssignment(userId, taskId, true);
         if (!isAssigned)
         {
             throw new EntityUpdateException("Failed to assign task to user");
@@ -100,19 +100,25 @@ public class TaskService : ITaskService
 
     public async Task DeleteTaskForUser(int userId, int taskId)
     {
-        bool isDeleted = await _taskRepository.DeleteTaskToUser(userId, taskId);
+        bool isDeleted = await _taskRepository.SetTaskAssignment(userId, taskId, false);
         if (!isDeleted)
         {
             throw new EntityDeleteException("Couldn't delete the user's task");
         }
     }
 
-    public async Task ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
+    public async Task ReassignTaskToUser(int newUserId, int taskId)
     {
-        bool isReassigned = await _taskRepository.ReassignTaskToUser(oldUserId, newUserId, taskId);
-        if (!isReassigned)
+        bool isDeleted = await _taskRepository.SetTaskAssignment(newUserId, taskId, false);
+        if (!isDeleted)
         {
-            throw new EntityUpdateException("Failed to reassign task to user");
+            throw new EntityDeleteException("Couldn't delete the user's task");
+        }
+        
+        bool isAssigned = await _taskRepository.SetTaskAssignment(newUserId, taskId, true);
+        if (!isAssigned)
+        {
+            throw new EntityUpdateException("Failed to assign task to user");
         }
     }
 
@@ -121,7 +127,7 @@ public class TaskService : ITaskService
         var serviceTask = await _taskRepository.ReadTaskId(taskId);
         if (serviceTask == null || serviceTask.AssignedUserId != userId)
         {
-            throw new NotFoundApplicationException("Task not found");
+            throw new UserAuthorizationException("This user does not own this task");
         }
 
         return _mapper.Map<TaskResponse>(serviceTask);

@@ -63,7 +63,7 @@ public class MetricService : IMetricService
         return _mapper.Map<MetricResponse>(metric);
     }
 
-    public async Task<IEnumerable<MetricResponse>> GetAllMetricsByServiceId(int resourceId)
+    public async Task<IEnumerable<MetricResponse>> GetAllMetricsByResourceId(int resourceId)
     {
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
         var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));

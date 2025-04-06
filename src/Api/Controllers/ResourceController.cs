@@ -29,7 +29,7 @@ public class ResourceController : ControllerBase
     public async Task<IActionResult> AddCompanyResource(int companyId, [FromBody] CreateResourceRequest request)
     {
         await _resourceService.AddCompanyResource(companyId, request);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

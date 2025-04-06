@@ -20,7 +20,7 @@ public class TaskPostgresRepository : ITaskRepository
             @"INSERT INTO service_tasks (resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status)
                 VALUES(@ResourceId, @Description, @AssignedUserId, @CreatedById, @StartTime, @CompletionTime, @Status)
                 RETURNING id",
-                serviceTask);
+            serviceTask);
 
         return taskId;
     }
@@ -70,40 +70,26 @@ public class TaskPostgresRepository : ITaskRepository
         return companyTasks;
     }
 
-    public async Task<bool> AssignTaskToUser(int userId, int taskId)
+    public async Task<bool> SetTaskAssignment(int userId, int taskId, bool assign)
     {
-        var taskToUpdate = await _connection.ExecuteAsync(
-            @"UPDATE service_tasks
+        switch (assign)
+        {
+            case true:
+                var taskToUpdate = await _connection.ExecuteAsync(
+                    @"UPDATE service_tasks
                 SET assigned_user_id = @AssignedUserId
                 WHERE id = @Id", new { AssignedUserId = userId, Id = taskId });
 
-        return taskToUpdate > 0;
-    }
+                return taskToUpdate > 0;
 
-    public async Task<bool> DeleteTaskToUser(int userId, int taskId)
-    {
-        var taskToDelete = await _connection.ExecuteAsync(
-            @"UPDATE service_tasks
+            case false:
+                var taskToDelete = await _connection.ExecuteAsync(
+                    @"UPDATE service_tasks
                 SET assigned_user_id = null
                 WHERE id = @Id and assigned_user_id = @UserId", new { Id = taskId, UserId = userId });
 
-        return taskToDelete > 0;
-    }
-
-    public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
-    {
-        var taskToUpdate = await _connection.ExecuteAsync(
-            @"UPDATE service_tasks
-                SET assigned_user_id = @AssignedUserId
-                WHERE id = @Id AND assigned_user_id = @OldUserId",
-            new
-            {
-                Id = taskId,
-                AssignedUserId = newUserId,
-                OldUserId = oldUserId
-            });
-
-        return taskToUpdate > 0;
+                return taskToDelete > 0;
+        }
     }
 
     public async Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)

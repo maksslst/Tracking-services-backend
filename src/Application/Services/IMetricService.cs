@@ -11,6 +11,6 @@ public interface IMetricService
     public Task UpdateMetric(UpdateMetricRequest request);
     public Task DeleteMetric(int metricId);
     public Task<MetricResponse> GetMetricByResourceId(int resourceId);
-    public Task<IEnumerable<MetricResponse>> GetAllMetricsByServiceId(int resourceId);
+    public Task<IEnumerable<MetricResponse>> GetAllMetricsByResourceId(int resourceId);
     public Task<IEnumerable<MetricResponse>> GetAll();
 }

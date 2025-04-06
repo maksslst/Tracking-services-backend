@@ -62,7 +62,7 @@ public class MetricServiceController : ControllerBase
     [HttpGet("GetAllMetricServiceId/{serviceId}")]
     public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
     {
-        var metrics = await _metricService.GetAllMetricsByServiceId(serviceId);
+        var metrics = await _metricService.GetAllMetricsByResourceId(serviceId);
         return Ok(metrics);
     }
 

@@ -31,7 +31,7 @@ public class CompanyController : ControllerBase
     public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
         await _companyService.AddUserToCompany(userId, companyId);
-        return Ok();
+        return NoContent();
     }
 
     #endregion
