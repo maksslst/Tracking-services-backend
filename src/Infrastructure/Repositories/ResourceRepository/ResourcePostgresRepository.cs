@@ -18,8 +18,7 @@ public class ResourcePostgresRepository : IResourceRepository
         var resourceId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO resources(company_id, name, type, source, status)
                 VALUES(@CompanyId, @Name, @Type, @Source, @Status)
-                RETURNING id",
-            new { resource.CompanyId, resource.Name, resource.Type, resource.Source, resource.Status });
+                RETURNING id", resource);
 
         return resourceId;
     }

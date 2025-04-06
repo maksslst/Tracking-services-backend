@@ -15,20 +15,12 @@ public class TaskPostgresRepository : ITaskRepository
 
     public async Task<int> CreateTask(ServiceTask serviceTask)
     {
+        serviceTask.StartTime = DateTime.Now;
         var taskId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO service_tasks (resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status)
                 VALUES(@ResourceId, @Description, @AssignedUserId, @CreatedById, @StartTime, @CompletionTime, @Status)
                 RETURNING id",
-            new
-            {
-                serviceTask.ResourceId,
-                serviceTask.Description,
-                serviceTask.AssignedUserId,
-                serviceTask.CreatedById,
-                StartTime = DateTime.Now,
-                serviceTask.CompletionTime,
-                serviceTask.Status
-            });
+                serviceTask);
 
         return taskId;
     }
@@ -112,21 +104,6 @@ public class TaskPostgresRepository : ITaskRepository
             });
 
         return taskToUpdate > 0;
-    }
-
-    public async Task<ServiceTask?> ReadTaskUser(int userId, int taskId)
-    {
-        var serviceTask = await _connection.QueryFirstOrDefaultAsync<ServiceTask>(
-            @"SELECT id, resource_id, description, assigned_user_id, created_by_id, start_time, completion_time, status
-                FROM service_tasks
-                WHERE id = @Id and assigned_user_id = @AssignedUserId",
-            new
-            {
-                Id = taskId,
-                AssignedUserId = userId
-            });
-
-        return serviceTask;
     }
 
     public async Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)

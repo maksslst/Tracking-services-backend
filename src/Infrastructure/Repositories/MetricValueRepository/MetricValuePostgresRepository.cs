@@ -18,8 +18,7 @@ public class MetricValuePostgresRepository : IMetricValueRepository
         var metricValueId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO metric_values (metric_id, value) 
                 VALUES (@metricId, @value)
-                RETURNING Id",
-            new { metricValue.MetricId, metricValue.Value });
+                RETURNING Id", metricValue);
 
         return metricValueId;
     }

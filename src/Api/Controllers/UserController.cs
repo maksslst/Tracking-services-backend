@@ -33,7 +33,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
     {
         await _userService.Update(request);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

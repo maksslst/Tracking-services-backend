@@ -42,7 +42,7 @@ public class CompanyController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UpdateCompanyRequest request)
     {
         await _companyService.Update(request);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

@@ -23,11 +23,6 @@ public class MetricService : IMetricService
 
     public async Task<int> AddMetric(CreateMetricRequest request)
     {
-        if (await _resourceRepository.ReadByResourceId(request.ResourceId) == null)
-        {
-            throw new NotFoundApplicationException("Resource not found");
-        }
-
         var metric = _mapper.Map<Metric>(request);
         return await _metricRepository.CreateMetric(metric);
     }
@@ -57,9 +52,9 @@ public class MetricService : IMetricService
         }
     }
 
-    public async Task<MetricResponse> GetMetricByResourceId(int serviceId)
+    public async Task<MetricResponse> GetMetricByResourceId(int resourceId)
     {
-        var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
+        var metric = await _metricRepository.ReadMetricByResourceId(resourceId);
         if (metric == null)
         {
             throw new NotFoundApplicationException("Metric not found");
@@ -68,9 +63,9 @@ public class MetricService : IMetricService
         return _mapper.Map<MetricResponse>(metric);
     }
 
-    public async Task<IEnumerable<MetricResponse>> GetAllMetricsByServiceId(int serviceId)
+    public async Task<IEnumerable<MetricResponse>> GetAllMetricsByServiceId(int resourceId)
     {
-        var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
         var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));
         return metricsResponses;
     }

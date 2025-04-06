@@ -40,7 +40,7 @@ public class ResourceController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UpdateResourceRequest request)
     {
         await _resourceService.Update(request);
-        return Ok();
+        return NoContent();
     }
 
     [HttpPut("{companyId}/{resourceId}")]
@@ -48,7 +48,7 @@ public class ResourceController : ControllerBase
         [FromBody] UpdateResourceRequest request)
     {
         await _resourceService.UpdateCompanyResource(companyId, request, resourceId);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

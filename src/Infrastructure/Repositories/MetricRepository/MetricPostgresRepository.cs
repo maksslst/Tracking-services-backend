@@ -18,8 +18,7 @@ public class MetricPostgresRepository : IMetricRepository
         var metricId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO metrics (name, resource_id, created, unit) 
                 VALUES (@name, @resourceId, @created, @unit)
-                RETURNING id",
-            new { metric.ResourceId, metric.Name, created = DateTime.Now, metric.Unit });
+                RETURNING id", metric);
 
         return metricId;
     }

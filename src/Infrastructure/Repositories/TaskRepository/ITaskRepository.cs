@@ -12,6 +12,5 @@ public interface ITaskRepository
     public Task<bool> AssignTaskToUser(int userId, int taskId);
     public Task<bool> DeleteTaskToUser(int userId, int taskId);
     public Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId);
-    public Task<ServiceTask?> ReadTaskUser(int userId, int taskId);
     public Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId);
 }

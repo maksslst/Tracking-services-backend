@@ -35,7 +35,7 @@ public class MonitoringSettingController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UpdateMonitoringSettingRequest request)
     {
         await _monitoringSettingService.Update(request);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

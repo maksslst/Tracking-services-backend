@@ -40,14 +40,14 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
     {
         await _taskService.Update(request);
-        return Ok();
+        return NoContent();
     }
 
     [HttpPut("ReassignTaskToUser/{oldUserId}/{newUserId}/{taskId}")]
     public async Task<IActionResult> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
         await _taskService.ReassignTaskToUser(oldUserId, newUserId, taskId);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

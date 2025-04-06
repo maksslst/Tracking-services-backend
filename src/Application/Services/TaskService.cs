@@ -79,23 +79,18 @@ public class TaskService : ITaskService
 
     public async Task<IEnumerable<TaskResponse>> GetAllCompanyTasks(int companyId)
     {
-        var serviceTasks = await _taskRepository.ReadAllTasksCompanyId(companyId);
-        if (serviceTasks.Count() == 0 || serviceTasks == null)
+        if (await _companyRepository.ReadByCompanyId(companyId) == null)
         {
-            throw new NotFoundApplicationException("Tasks not found");
+            throw new NotFoundApplicationException("Company not found");
         }
 
+        var serviceTasks = await _taskRepository.ReadAllTasksCompanyId(companyId);
         var tasksResponse = serviceTasks.Select(i => _mapper.Map<TaskResponse>(i));
         return tasksResponse;
     }
 
     public async Task AssignTaskToUser(int userId, int taskId)
     {
-        if (await _taskRepository.ReadTaskId(taskId) == null)
-        {
-            throw new NotFoundApplicationException("Task not found");
-        }
-
         bool isAssigned = await _taskRepository.AssignTaskToUser(userId, taskId);
         if (!isAssigned)
         {
@@ -105,11 +100,6 @@ public class TaskService : ITaskService
 
     public async Task DeleteTaskForUser(int userId, int taskId)
     {
-        if (await _taskRepository.ReadTaskId(taskId) == null)
-        {
-            throw new NotFoundApplicationException("Task not found");
-        }
-
         bool isDeleted = await _taskRepository.DeleteTaskToUser(userId, taskId);
         if (!isDeleted)
         {
@@ -119,11 +109,6 @@ public class TaskService : ITaskService
 
     public async Task ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
     {
-        if (await _taskRepository.ReadTaskId(taskId) == null)
-        {
-            throw new NotFoundApplicationException("Task not found");
-        }
-
         bool isReassigned = await _taskRepository.ReassignTaskToUser(oldUserId, newUserId, taskId);
         if (!isReassigned)
         {
@@ -133,8 +118,8 @@ public class TaskService : ITaskService
 
     public async Task<TaskResponse> GetTaskForUser(int userId, int taskId)
     {
-        var serviceTask = await _taskRepository.ReadTaskUser(userId, taskId);
-        if (serviceTask == null)
+        var serviceTask = await _taskRepository.ReadTaskId(taskId);
+        if (serviceTask == null || serviceTask.AssignedUserId != userId)
         {
             throw new NotFoundApplicationException("Task not found");
         }

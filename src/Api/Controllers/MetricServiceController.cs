@@ -34,7 +34,7 @@ public class MetricServiceController : ControllerBase
     public async Task<IActionResult> UpdateMetric([FromBody] UpdateMetricRequest request)
     {
         await _metricService.UpdateMetric(request);
-        return Ok();
+        return NoContent();
     }
 
     #endregion

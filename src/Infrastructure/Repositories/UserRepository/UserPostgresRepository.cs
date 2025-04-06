@@ -18,16 +18,7 @@ public class UserPostgresRepository : IUserRepository
         var userId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO users (username, first_name, last_name, patronymic, email, company_id)
                 VALUES(@Username, @FirstName, @LastName, @Patronymic, @Email, @CompanyId)
-                RETURNING Id",
-            new
-            {
-                user.Username,
-                user.FirstName,
-                user.LastName,
-                user.Patronymic,
-                user.Email,
-                user.CompanyId
-            });
+                RETURNING Id", user);
 
         return userId;
     }

@@ -40,8 +40,8 @@ public class MetricValueService : IMetricValueService
         }
 
         var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
-        var metricsId = metrics.Select(i => i.Id);
-        var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsId);
+        var metricsIds = metrics.Select(i => i.Id);
+        var metricValues = await _metricValueRepository.ReadAllMetricValuesForMetricsId(metricsIds);
         var metricValuesResponse = metricValues.Select(i => _mapper.Map<MetricValueResponse>(i));
         return metricValuesResponse;
     }
