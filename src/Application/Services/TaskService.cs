@@ -109,16 +109,10 @@ public class TaskService : ITaskService
 
     public async Task ReassignTaskToUser(int newUserId, int taskId)
     {
-        bool isDeleted = await _taskRepository.SetTaskAssignment(newUserId, taskId, false);
-        if (!isDeleted)
+        bool isReassigned = await _taskRepository.SetTaskAssignment(newUserId, taskId, true);
+        if (!isReassigned)
         {
-            throw new EntityDeleteException("Couldn't delete the user's task");
-        }
-        
-        bool isAssigned = await _taskRepository.SetTaskAssignment(newUserId, taskId, true);
-        if (!isAssigned)
-        {
-            throw new EntityUpdateException("Failed to assign task to user");
+            throw new EntityUpdateException("Couldn't reassign task");
         }
     }
 
