@@ -1,17 +1,19 @@
 using Application.DTOs.Mappings;
 using Domain.Entities;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
 public interface IResourceService
 {
-    public Task<Resource?> Add(ResourceDto resourceDto);
-    public Task<bool> Update(ResourceDto resourceDto);
-    public Task<bool> Delete(int resourceId);
-    public Task<bool> AddCompanyResource(int companyId, ResourceDto? resourceDto = null);
-    public Task<bool> UpdateCompanyResource(int companyId, ResourceDto resourceDto, int resourceUpdateId);
-    public Task<bool> DeleteCompanyResource(int resourceId, int companyId);
-    public Task<ResourceDto?> GetResource(int resourceId);
-    public Task<IEnumerable<ResourceDto?>> GetAllResources();
-    public Task<IEnumerable<ResourceDto?>> GetCompanyResources(int companyId);
+    public Task<int> Add(CreateResourceRequest request);
+    public Task Update(UpdateResourceRequest request);
+    public Task Delete(int resourceId);
+    public Task AddCompanyResource(int companyId, CreateResourceRequest request);
+    public Task UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId);
+    public Task DeleteCompanyResource(int resourceId, int companyId);
+    public Task<ResourceResponse> GetResource(int resourceId);
+    public Task<IEnumerable<ResourceResponse>> GetAllResources();
+    public Task<IEnumerable<ResourceResponse>> GetCompanyResources(int companyId);
 }

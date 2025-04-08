@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -17,98 +17,65 @@ public class TaskController : ControllerBase
     }
 
     #region HttpPost
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] ServiceTaskDto serviceTaskDto)
-    {
-        var serviceTask = await _taskService.Add(serviceTaskDto);
-        if (serviceTask == null)
-        {
-            return BadRequest("Не удалось создать задачу");
-        }
 
-        return CreatedAtAction(nameof(GetTaskId), new { taskId = serviceTask.Id }, serviceTask);
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] CreateTaskRequest request)
+    {
+        int serviceTask = await _taskService.Add(request);
+        return CreatedAtAction(nameof(GetTaskId), new { taskId = serviceTask }, serviceTask);
     }
 
     [HttpPost("AssignTaskToUser/{userId}/{taskId}")]
     public async Task<IActionResult> AssignTaskToUser(int userId, int taskId)
     {
-        var result = await _taskService.AssignTaskToUser(userId, taskId);
-        if (!result)
-        {
-            return BadRequest("Не удалось назначить задачу пользователю");
-        }
-
-        return Ok();
+        await _taskService.AssignTaskToUser(userId, taskId);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpPut
+
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] ServiceTaskDto serviceTaskDto)
+    public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
     {
-        var result = await _taskService.Update(serviceTaskDto);
-        if (!result)
-        {
-            return BadRequest("Не удалось обновить задачу");
-        }
-
-        return Ok();
+        await _taskService.Update(request);
+        return NoContent();
     }
 
-    [HttpPut("ReassignTaskToUser/{oldUserId}/{newUserId}/{taskId}")]
-    public async Task<IActionResult> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
+    [HttpPut("ReassignTaskToUser/{newUserId}/{taskId}")]
+    public async Task<IActionResult> ReassignTaskToUser(int newUserId, int taskId)
     {
-        var result = await _taskService.ReassignTaskToUser(oldUserId, newUserId, taskId);
-        if (!result)
-        {
-            return BadRequest($"Не удалось переназначить задачу пользователю с Id: {newUserId}");
-        }
-
-        return Ok();
+        await _taskService.ReassignTaskToUser(newUserId, taskId);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpDelete
+
     [HttpDelete("{taskId}")]
     public async Task<IActionResult> Delete(int taskId)
     {
-        if (await _taskService.GetTask(taskId) == null)
-        {
-            return NotFound("Задача не найдена");
-        }
-
-        var result = await _taskService.Delete(taskId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить задачу");
-        }
-
+        await _taskService.Delete(taskId);
         return NoContent();
     }
 
     [HttpDelete("DeleteTaskToUser/{userId}/{taskId}")]
     public async Task<IActionResult> DeleteTaskToUser(int userId, int taskId)
     {
-        var result = await _taskService.DeleteTaskForUser(userId, taskId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить задачу у пользователя");
-        }
-
+        await _taskService.DeleteTaskForUser(userId, taskId);
         return NoContent();
     }
+
     #endregion
 
     #region HttpGet
+
     [HttpGet("{taskId}")]
     public async Task<IActionResult> GetTaskId(int taskId)
     {
         var serviceTask = await _taskService.GetTask(taskId);
-        if (serviceTask == null)
-        {
-            return BadRequest("Не удалось найти задачу");
-        }
-
         return Ok(serviceTask);
     }
 
@@ -116,11 +83,6 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetAllCompanyTasks(int companyId)
     {
         var serviceTasks = await _taskService.GetAllCompanyTasks(companyId);
-        if (serviceTasks == null)
-        {
-            return BadRequest("Не удалось получить задачи компании");
-        }
-
         return Ok(serviceTasks);
     }
 
@@ -128,11 +90,6 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetTaskUser(int userId, int taskId)
     {
         var serviceTask = await _taskService.GetTaskForUser(userId, taskId);
-        if (serviceTask == null)
-        {
-            return BadRequest("Не удалось найти задачу");
-        }
-
         return Ok(serviceTask);
     }
 
@@ -140,12 +97,8 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetAllUserTasks(int userId)
     {
         var serviceTasks = await _taskService.GetAllUserTasks(userId);
-        if (serviceTasks == null)
-        {
-            return BadRequest("Не удалось найти список задач пользователя");
-        }
-
         return Ok(serviceTasks);
     }
+
     #endregion
 }

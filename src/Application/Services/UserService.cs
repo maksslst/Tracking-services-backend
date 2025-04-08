@@ -1,7 +1,11 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.UserRepository;
+using Application.Requests;
+using Application.Responses;
+using Infrastructure.Repositories.CompanyRepository;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -9,52 +13,61 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly ICompanyRepository _companyRepository;
 
-    public UserService(IUserRepository userRepository, IMapper mapper)
+    public UserService(IUserRepository userRepository, IMapper mapper, ICompanyRepository companyRepository)
     {
         _userRepository = userRepository;
         _mapper = mapper;
+        _companyRepository = companyRepository;
     }
 
-    public async Task<User?> Add(UserDto userDto)
+    public async Task<int> Add(CreateUserRequest request)
     {
-        var mappedUser = _mapper.Map<User>(userDto);
-        if (mappedUser != null)
+        var user = _mapper.Map<User>(request);
+        return await _userRepository.CreateUser(user);
+    }
+
+    public async Task Update(UpdateUserRequest request)
+    {
+        var user = await _userRepository.ReadById(request.Id);
+        if (user == null)
         {
-            await _userRepository.CreateUser(mappedUser);
-            return mappedUser;
+            throw new NotFoundApplicationException("User not found");
         }
 
-        return null;
-    }
-
-    public async Task<bool> Update(UserDto userDto)
-    {
-        var mappedUser = _mapper.Map<User>(userDto);
-        if (mappedUser == null)
+        user = _mapper.Map<User>(request);
+        bool isUpdated = await _userRepository.UpdateUser(user);
+        if (!isUpdated)
         {
-            return false;
+            throw new EntityUpdateException("Couldn't update the user");
         }
-
-        return await _userRepository.UpdateUser(mappedUser);
     }
 
-    public async Task<bool> Delete(int userId)
+    public async Task Delete(int userId)
     {
-        return await _userRepository.DeleteUser(userId);
+        bool isDeleted = await _userRepository.DeleteUser(userId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete user");
+        }
     }
 
-    public async Task<UserDto?> GetById(int? id)
+    public async Task<UserResponse> GetById(int id)
     {
         var user = await _userRepository.ReadById(id);
-        var mappedUser = _mapper.Map<UserDto>(user);
-        return mappedUser;
+        if (user == null)
+        {
+            throw new NotFoundApplicationException("User not found");
+        }
+
+        return _mapper.Map<UserResponse>(user);
     }
 
-    public async Task<IEnumerable<UserDto?>> GetAll()
+    public async Task<IEnumerable<UserResponse>> GetAll()
     {
         var users = await _userRepository.ReadAll();
-        var mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
-        return mappedUsers;
+        var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
+        return usersResponse;
     }
 }

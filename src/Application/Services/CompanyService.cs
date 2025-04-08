@@ -1,8 +1,11 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.UserRepository;
+using Application.Requests;
+using Application.Responses;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -19,88 +22,82 @@ public class CompanyService : ICompanyService
         _userRepository = userRepository;
     }
 
-    public async Task<Company?> Add(CompanyDto companyDto)
+    public async Task<int> Add(CreateCompanyRequest request)
     {
-        var mappedCompany = _mapper.Map<Company>(companyDto);
-        if (mappedCompany == null)
-        {
-            return null;
-        }
-
-        await _companyRepository.CreateCompany(mappedCompany);
-        return mappedCompany;
+        var company = _mapper.Map<Company>(request);
+        return await _companyRepository.CreateCompany(company);
     }
 
-    public async Task<bool> Update(CompanyDto companyDto)
+    public async Task Update(UpdateCompanyRequest request)
     {
-        var mappedCompany = _mapper.Map<Company>(companyDto);
-        if (mappedCompany == null)
+        var companyToUpdate = await _companyRepository.ReadByCompanyId(request.Id);
+        if (companyToUpdate == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        var users = companyDto.Users;
-        foreach (var user in users)
+        companyToUpdate.CompanyName = request.CompanyName;
+        bool isUpdated = await _companyRepository.UpdateCompany(companyToUpdate);
+        if (!isUpdated)
         {
-            if (_userRepository.ReadById(user.Id).Result != null)
-            {
-                return false;
-            }
+            throw new EntityUpdateException("Couldn't update company");
         }
-
-        return await _companyRepository.UpdateCompany(mappedCompany);
     }
 
-    public Task<bool> Delete(int companyId)
+    public async Task Delete(int companyId)
     {
-        return _companyRepository.DeleteCompany(companyId);
-    }
-
-    public async Task<bool> AddUserToCompany(int userId, int companyId)
-    {
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
+        bool isDeleted = await _companyRepository.DeleteCompany(companyId);
+        if (!isDeleted)
         {
-            return false;
+            throw new EntityDeleteException("Couldn't delete company");
         }
-
-        return await _companyRepository.AddUserToCompany(user, companyId);
     }
 
-    public async Task<bool> DeleteUserFromCompany(int userId, int companyId)
+    public async Task AddUserToCompany(int userId, int companyId)
     {
-        var user = _userRepository.ReadById(userId).Result;
-        if (user == null)
+        bool isAdded = await _companyRepository.AddUserToCompany(userId, companyId);
+        if (!isAdded)
         {
-            return false;
+            throw new EntityCreateException("Couldn't add user to company");
         }
-
-        return await _companyRepository.RemoveUserFromCompany(user, companyId);
     }
 
-    public async Task<CompanyDto?> GetCompany(int companyId)
+    public async Task DeleteUserFromCompany(int userId, int companyId)
+    {
+        bool isDeleted = await _companyRepository.RemoveUserFromCompany(userId, companyId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete user from company");
+        }
+    }
+
+    public async Task<CompanyResponse> GetCompany(int companyId)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
-        var mappedCompany = _mapper.Map<CompanyDto>(company);
-        return mappedCompany;
-    }
-
-    public async Task<IEnumerable<CompanyDto?>> GetAllCompanies()
-    {
-        var companies = await _companyRepository.ReadAllCompanies();
-        var mappedCompanies = companies.Select(i => _mapper.Map<CompanyDto>(i));
-        return mappedCompanies;
-    }
-
-    public async Task<IEnumerable<UserDto?>> GetCompanyUsers(int companyId)
-    {
-        var users = await _companyRepository.ReadCompanyUsers(companyId);
-        if (users == null)
+        if (company == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        var mappedUsers = users.Select(i => _mapper.Map<UserDto>(i));
-        return mappedUsers;
+        return _mapper.Map<CompanyResponse>(company);
+    }
+
+    public async Task<IEnumerable<CompanyResponse>> GetAllCompanies()
+    {
+        var companies = await _companyRepository.ReadAllCompanies();
+        var companiesResponse = companies.Select(i => _mapper.Map<CompanyResponse>(i));
+        return companiesResponse;
+    }
+
+    public async Task<IEnumerable<UserResponse>> GetCompanyUsers(int companyId)
+    {
+        if (await _companyRepository.ReadByCompanyId(companyId) == null)
+        {
+            throw new NotFoundApplicationException("Company not found");
+        }
+
+        var users = await _companyRepository.ReadCompanyUsers(companyId);
+        var usersResponse = users.Select(i => _mapper.Map<UserResponse>(i));
+        return usersResponse;
     }
 }

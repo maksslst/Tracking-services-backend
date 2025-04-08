@@ -44,7 +44,7 @@ public class CompanyInMemoryRepository : ICompanyRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> AddUserToCompany(User user, int companyId)
+    public Task<bool> AddUserToCompany(int userId, int companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         if (company == null)
@@ -52,17 +52,17 @@ public class CompanyInMemoryRepository : ICompanyRepository
             return Task.FromResult(false);
         }
 
-        if (!company.Users.Any(i => i.Id == user.Id))
-        {
-            user.CompanyId = companyId;
-            user.Company = company;
-            company.Users.Add(user);
-        }
+        // if (!company.Users.Any(i => i.Id == userId))
+        // {
+        //     user.CompanyId = companyId;
+        //     user.Company = company;
+        //     company.Users.Add(user);
+        // }
 
         return Task.FromResult(true);
     }
 
-    public Task<bool> RemoveUserFromCompany(User user, int companyId)
+    public Task<bool> RemoveUserFromCompany(int userId, int companyId)
     {
         var company = _companies.Find(i => i.Id == companyId);
         if (company == null)
@@ -70,12 +70,12 @@ public class CompanyInMemoryRepository : ICompanyRepository
             return Task.FromResult(false);
         }
 
-        if (!company.Users.Any(i => i.Id == user.Id))
+        if (!company.Users.Any(i => i.Id ==userId))
         {
             return Task.FromResult(false);
         }
 
-        company.Users.Remove(user);
+        // company.Users.Remove(user);
         return Task.FromResult(true);
     }
 

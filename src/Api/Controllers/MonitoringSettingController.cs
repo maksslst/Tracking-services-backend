@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -17,53 +17,42 @@ public class MonitoringSettingController : ControllerBase
     }
 
     #region HttpPost
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] MonitoringSettingDto monitoringSettingDto)
-    {
-        var monitoringSetting = await _monitoringSettingService.Add(monitoringSettingDto);
-        if (monitoringSetting == null)
-        {
-            return BadRequest("Не удалось создать настройку");
-        }
 
-        return CreatedAtAction(nameof(GetMonitoringSettingByResourceId), new { resourceId = monitoringSetting.ResourceId }, monitoringSetting);
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] CreateMonitoringSettingRequest request)
+    {
+        int monitoringSetting = await _monitoringSettingService.Add(request);
+
+        return CreatedAtAction(nameof(GetMonitoringSettingByResourceId), new { resourceId = monitoringSetting },
+            monitoringSetting);
     }
+
     #endregion
 
     #region HttpPut
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] MonitoringSettingDto monitoringSettingDto)
-    {
-        var result = await _monitoringSettingService.Update(monitoringSettingDto);
-        if (!result)
-        {
-            return BadRequest("Не удалось изменить настройку");
-        }
 
-        return Ok();
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateMonitoringSettingRequest request)
+    {
+        await _monitoringSettingService.Update(request);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpDelete
+
     [HttpDelete("{monitoringSettingId}")]
     public async Task<IActionResult> Delete(int monitoringSettingId)
     {
-        if (await _monitoringSettingService.GetMonitoringSetting(monitoringSettingId) == null)
-        {
-            return NotFound("Настройка не найдена");
-        }
-
-        var result = await _monitoringSettingService.Delete(monitoringSettingId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить настройку");
-        }
-
+        await _monitoringSettingService.Delete(monitoringSettingId);
         return NoContent();
     }
+
     #endregion
 
     #region HttpGet
+
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {
@@ -75,5 +64,6 @@ public class MonitoringSettingController : ControllerBase
 
         return Ok(monitoringSetting);
     }
+
     #endregion
 }

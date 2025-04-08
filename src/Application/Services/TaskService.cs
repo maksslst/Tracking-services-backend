@@ -1,10 +1,13 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.ResourceRepository;
 using Infrastructure.Repositories.TaskRepository;
 using Infrastructure.Repositories.UserRepository;
+using Application.Requests;
+using Application.Responses;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -26,114 +29,108 @@ public class TaskService : ITaskService
         _companyRepository = companyRepository;
     }
 
-    public async Task<ServiceTask?> Add(ServiceTaskDto serviceTaskDto)
+    public async Task<int> Add(CreateTaskRequest request)
     {
-        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ResourceId) == null)
-        {
-            return null;
-        }
-
-        var mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
-        if (mappedTask != null)
-        {
-            await _taskRepository.CreateTask(mappedTask);
-            return mappedTask;
-        }
-
-        return null;
+        var task = _mapper.Map<ServiceTask>(request);
+        return await _taskRepository.CreateTask(task);
     }
 
-    public async Task<bool> Update(ServiceTaskDto serviceTaskDto)
+    public async Task Update(UpdateTaskRequest request)
     {
-        var mappedTask = _mapper.Map<ServiceTask>(serviceTaskDto);
-        if (mappedTask == null)
+        var taskToUpdate = await _taskRepository.ReadTaskId(request.Id);
+        if (taskToUpdate == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Task not found");
         }
 
-        if (await _resourceRepository.ReadByResourceId(serviceTaskDto.ResourceId) == null)
+        var assignedUserToUpdate = await _userRepository.ReadById(request.AssignedUserId);
+        if (taskToUpdate.AssignedUser.CompanyId != assignedUserToUpdate.CompanyId)
         {
-            return false;
+            throw new UserAuthorizationException("User is not in the company");
         }
 
-        var assignedUserToUpdate = _userRepository.ReadById(serviceTaskDto.AssignedUserId).Result;
-        if (assignedUserToUpdate == null || assignedUserToUpdate.CompanyId !=
-            _userRepository.ReadById(serviceTaskDto.AssignedUserId).Result.CompanyId)
+        taskToUpdate = _mapper.Map<ServiceTask>(request);
+        bool isUpdated = await _taskRepository.UpdateTask(taskToUpdate, assignedUserToUpdate);
+        if (!isUpdated)
         {
-            return false;
+            throw new EntityUpdateException("Failed to update task");
         }
-
-        return await _taskRepository.UpdateTask(mappedTask, assignedUserToUpdate);
     }
 
-    public async Task<bool> Delete(int serviceTaskId)
+    public async Task Delete(int serviceTaskId)
     {
-        return await _taskRepository.DeleteTask(serviceTaskId);
+        bool isDeleted = await _taskRepository.DeleteTask(serviceTaskId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete task");
+        }
     }
 
-    public async Task<ServiceTaskDto?> GetTask(int taskId)
+    public async Task<TaskResponse> GetTask(int taskId)
     {
         var serviceTask = await _taskRepository.ReadTaskId(taskId);
-        var mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
-        return mappedTask;
+        if (serviceTask == null)
+        {
+            throw new NotFoundApplicationException("Task not found");
+        }
+
+        return _mapper.Map<TaskResponse>(serviceTask);
     }
 
-    public async Task<IEnumerable<ServiceTaskDto?>> GetAllCompanyTasks(int companyId)
+    public async Task<IEnumerable<TaskResponse>> GetAllCompanyTasks(int companyId)
     {
-        var company = await _companyRepository.ReadByCompanyId(companyId);
-        if (company == null)
+        if (await _companyRepository.ReadByCompanyId(companyId) == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Company not found");
         }
-        
+
         var serviceTasks = await _taskRepository.ReadAllTasksCompanyId(companyId);
-        var mappedServiceTask = serviceTasks.Select(i => _mapper.Map<ServiceTaskDto>(i));
-        return mappedServiceTask;
+        var tasksResponse = serviceTasks.Select(i => _mapper.Map<TaskResponse>(i));
+        return tasksResponse;
     }
 
-    public async Task<bool> AssignTaskToUser(int userId, int taskId)
+    public async Task AssignTaskToUser(int userId, int taskId)
     {
-        var user = await _userRepository.ReadById(userId);
-        if (user == null)
+        bool isAssigned = await _taskRepository.SetTaskAssignment(userId, taskId, true);
+        if (!isAssigned)
         {
-            return false;
+            throw new EntityUpdateException("Failed to assign task to user");
+        }
+    }
+
+    public async Task DeleteTaskForUser(int userId, int taskId)
+    {
+        bool isUnassigned = await _taskRepository.SetTaskAssignment(userId, taskId, false);
+        if (!isUnassigned)
+        {
+            throw new EntityUpdateException("Failed to unassign task from user");
+        }
+    }
+
+    public async Task ReassignTaskToUser(int newUserId, int taskId)
+    {
+        bool isReassigned = await _taskRepository.SetTaskAssignment(newUserId, taskId, true);
+        if (!isReassigned)
+        {
+            throw new EntityUpdateException("Couldn't reassign task");
+        }
+    }
+
+    public async Task<TaskResponse> GetTaskForUser(int userId, int taskId)
+    {
+        var serviceTask = await _taskRepository.ReadTaskId(taskId);
+        if (serviceTask == null || serviceTask.AssignedUserId != userId)
+        {
+            throw new UserAuthorizationException("This user does not own this task");
         }
 
-        return await _taskRepository.AssignTaskToUser(user, taskId);
+        return _mapper.Map<TaskResponse>(serviceTask);
     }
 
-    public async Task<bool> DeleteTaskForUser(int userId, int taskId)
-    {
-        var user = await _userRepository.ReadById(userId);
-        if (user == null)
-        {
-            return false;
-        }
-        return await _taskRepository.DeleteTaskToUser(user, taskId);
-    }
-
-    public async Task<bool> ReassignTaskToUser(int oldUserId, int newUserId, int taskId)
-    {
-        var newUser = _userRepository.ReadById(newUserId).Result;
-        if (newUser == null)
-        {
-            return false;
-        }
-
-        return await _taskRepository.ReassignTaskToUser(oldUserId, newUser, taskId);
-    }
-
-    public async Task<ServiceTaskDto?> GetTaskForUser(int userId, int taskId)
-    {
-        var serviceTask = await _taskRepository.ReadTaskUser(userId, taskId);
-        var mappedTask = _mapper.Map<ServiceTaskDto>(serviceTask);
-        return mappedTask;
-    }
-
-    public async Task<IEnumerable<ServiceTaskDto?>> GetAllUserTasks(int userId)
+    public async Task<IEnumerable<TaskResponse>> GetAllUserTasks(int userId)
     {
         var serviceTasksUser = await _taskRepository.ReadAllUserTasks(userId);
-        var mappedTasksUser = serviceTasksUser.Select(i => _mapper.Map<ServiceTaskDto>(i));
-        return mappedTasksUser;
+        var tasksResponse = serviceTasksUser.Select(i => _mapper.Map<TaskResponse>(i));
+        return tasksResponse;
     }
 }

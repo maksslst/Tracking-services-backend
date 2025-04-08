@@ -1,4 +1,5 @@
-using Application.DTOs.Mappings;
+using Application.Requests;
+using Application.Responses;
 using AutoMapper;
 using Domain.Entities;
 
@@ -8,12 +9,24 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<User, UserDto>().ReverseMap();
-        CreateMap<Company, CompanyDto>().ReverseMap();
-        CreateMap<ServiceTask, ServiceTaskDto>().ReverseMap();
-        CreateMap<MonitoringSetting, MonitoringSettingDto>().ReverseMap();
-        CreateMap<Metric, MetricDto>().ReverseMap();
-        CreateMap<MetricValue, MetricValueDto>().ReverseMap();
-        CreateMap<Resource, ResourceDto>().ReverseMap();
+        CreateMap<User, UserResponse>().ReverseMap();
+        CreateMap<CreateUserRequest, User>();
+        CreateMap<UpdateUserRequest, User>();
+        CreateMap<Company, CompanyResponse>().ReverseMap();
+        CreateMap<CreateCompanyRequest, Company>();
+        CreateMap<ServiceTask, TaskResponse>().ReverseMap();
+        CreateMap<CreateTaskRequest, ServiceTask>();
+        CreateMap<UpdateTaskRequest, ServiceTask>();
+        CreateMap<MonitoringSetting, MonitoringSettingResponse>().ReverseMap();
+        CreateMap<CreateMonitoringSettingRequest, MonitoringSetting>();
+        CreateMap<UpdateMonitoringSettingRequest, MonitoringSetting>();
+        CreateMap<Metric, MetricResponse>().ReverseMap();
+        CreateMap<CreateMetricRequest, Metric>();
+        CreateMap<UpdateMetricRequest, Metric>();
+        CreateMap<MetricValue, MetricValueResponse>().ReverseMap();
+        CreateMap<CreateMetricValueRequest, MetricValue>();
+        CreateMap<Resource, ResourceResponse>().ReverseMap();
+        CreateMap<CreateResourceRequest, Resource>();
+        CreateMap<UpdateResourceRequest, Resource>();
     }
 }

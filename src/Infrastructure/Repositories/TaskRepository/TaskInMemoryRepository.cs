@@ -76,70 +76,9 @@ public class TaskInMemoryRepository : ITaskRepository
         return Task.FromResult<IEnumerable<ServiceTask?>>(companyTasks);
     }
 
-    public Task<bool> AssignTaskToUser(User user, int taskId)
+    public Task<bool> SetTaskAssignment(int userId, int taskId, bool assign)
     {
-        
-        var task = _tasks.Find(i => i.Id == taskId);
-        if (task == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        if (task.AssignedUserId != null)
-        {
-            return Task.FromResult(false);
-        }
-        
-        task.AssignedUserId = user.Id;
-        task.AssignedUser = user;
         return Task.FromResult(true);
-    }
-
-    public Task<bool> DeleteTaskToUser(User user, int taskId)
-    {
-        var task = _tasks.Find(i => i.Id == taskId);
-        if (task == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        if (task.AssignedUserId != user.Id)
-        {
-            return Task.FromResult(false);
-        }
-
-        task.AssignedUserId = null;
-        task.AssignedUser = null;
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> ReassignTaskToUser(int oldUserId, User newUser, int taskId)
-    {
-        var task = _tasks.Find(i => i.Id == taskId && i.AssignedUserId == oldUserId);
-        if (task == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        if (task.AssignedUserId == null)
-        {
-            return Task.FromResult(false);
-        }
-
-        task.AssignedUserId = newUser.Id;
-        task.AssignedUser = newUser;
-        return Task.FromResult(true);
-    }
-
-    public Task<ServiceTask?> ReadTaskUser(int userId, int taskId)
-    {
-        var task = _tasks.Find(i => i.Id == taskId && i.AssignedUserId == userId);
-        if (task == null)
-        {
-            return Task.FromResult((ServiceTask?)null);
-        }
-
-        return Task.FromResult(task);
     }
 
     public Task<IEnumerable<ServiceTask?>> ReadAllUserTasks(int userId)

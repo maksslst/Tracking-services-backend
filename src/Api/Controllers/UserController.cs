@@ -1,7 +1,7 @@
 using Application.DTOs.Mappings;
 using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -17,62 +17,44 @@ public class UserController : ControllerBase
     }
 
     #region HttPost
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] UserDto userDto)
-    {
-        var user = await _userService.Add(userDto);
-        if (user == null)
-        {
-            return BadRequest("Не удалось создать пользователя");
-        }
 
-        return CreatedAtAction(nameof(GetById), new { userId = user.Id }, user);
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] CreateUserRequest request)
+    {
+        int user = await _userService.Add(request);
+        return CreatedAtAction(nameof(GetById), new { userId = user }, user);
     }
+
     #endregion
 
     #region HttPut
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UserDto userDto)
-    {
-        var result = await _userService.Update(userDto);
-        if (!result)
-        {
-            return NotFound("Не удалось обновить пользователя");
-        }
 
-        return Ok(result);
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
+    {
+        await _userService.Update(request);
+        return NoContent();
     }
+
     #endregion
 
     #region HttDelete
+
     [HttpDelete("{userId}")]
     public async Task<IActionResult> Delete(int userId)
     {
-        if (await _userService.GetById(userId) == null)
-        {
-            return NotFound("Пользователь не найден");
-        }
-
-        var result = await _userService.Delete(userId);
-        if (!result)
-        {
-            return NotFound("Не удалось удалить пользователя");
-        }
-
+        await _userService.Delete(userId);
         return NoContent();
     }
+
     #endregion
 
     #region HttGet
+
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetById(int userId)
     {
         var user = await _userService.GetById(userId);
-        if (user == null)
-        {
-            return NotFound("Такой польователь не найден");
-        }
-
         return Ok(user);
     }
 
@@ -80,12 +62,8 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAll();
-        if (users == null)
-        {
-            return NotFound("Список пользователей не найден");
-        }
-
         return Ok(users);
     }
+
     #endregion
 }

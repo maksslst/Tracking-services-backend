@@ -1,12 +1,14 @@
 using Application.DTOs.Mappings;
 using Domain.Entities;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
 public interface IMonitoringSettingService
 {
-    public Task<MonitoringSetting?> Add(MonitoringSettingDto monitoringSettingDto);
-    public Task<bool> Update(MonitoringSettingDto monitoringSettingDto);
-    public Task<bool> Delete(int monitoringSettingId);
-    public Task<MonitoringSettingDto?> GetMonitoringSetting(int serviceId);
+    public Task<int> Add(CreateMonitoringSettingRequest request);
+    public Task Update(UpdateMonitoringSettingRequest request);
+    public Task Delete(int monitoringSettingId);
+    public Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId);
 }

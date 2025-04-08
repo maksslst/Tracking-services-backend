@@ -18,8 +18,7 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
         var settingId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO monitoring_settings (resource_id, check_interval, mode)
                 VALUES(@ResourceId, @CheckInterval, @Mode)
-                RETURNING id",
-            new { monitoringSetting.ResourceId, monitoringSetting.CheckInterval, monitoringSetting.Mode });
+                RETURNING id", monitoringSetting);
 
         return settingId;
     }
@@ -31,7 +30,7 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
                 SET resource_id = @ResourceId, 
                     check_interval = @CheckInterval, 
                     mode = @Mode
-                WHERE id=@Id", monitoringSetting);
+                WHERE id = @Id", monitoringSetting);
 
         return settingToUpdate > 0;
     }
@@ -62,5 +61,15 @@ public class MonitoringSettingPostgresRepository : IMonitoringSettingRepository
                 FROM monitoring_settings");
 
         return settings;
+    }
+
+    public async Task<MonitoringSetting?> ReadById(int monitoringSettingId)
+    {
+        var monitoringSetting = await _connection.QueryFirstOrDefaultAsync<MonitoringSetting>(
+            @"SELECT id, resource_id, check_interval, mode
+                FROM monitoring_settings
+                WHERE id = @Id", new { Id = monitoringSettingId });
+
+        return monitoringSetting;
     }
 }

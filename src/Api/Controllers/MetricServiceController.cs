@@ -2,6 +2,7 @@ using Application.DTOs.Mappings;
 using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -17,74 +18,51 @@ public class MetricServiceController : ControllerBase
     }
 
     #region HttpPost
-    [HttpPost]
-    public async Task<IActionResult> AddMetric([FromBody] MetricDto metricDto)
-    {
-        var metric = await _metricService.AddMetric(metricDto);
-        if (metric == null)
-        {
-            return BadRequest("Не удалось создать метрику");
-        }
 
-        return CreatedAtAction(nameof(GetMetricByResourceId), new { resourceId = metric.ResourceId }, metric);
+    [HttpPost]
+    public async Task<IActionResult> AddMetric([FromBody] CreateMetricRequest request)
+    {
+        int metric = await _metricService.AddMetric(request);
+        return CreatedAtAction(nameof(GetMetricByResourceId), new { resourceId = metric }, metric);
     }
+
     #endregion
 
     #region HttpPut
-    [HttpPut]
-    public async Task<IActionResult> UpdateMetric([FromBody] MetricDto metricDto)
-    {
-        var result = await _metricService.UpdateMetric(metricDto);
-        if (!result)
-        {
-            return BadRequest("Не удалось обновить метрику");
-        }
 
-        return Ok();
+    [HttpPut]
+    public async Task<IActionResult> UpdateMetric([FromBody] UpdateMetricRequest request)
+    {
+        await _metricService.UpdateMetric(request);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpDelete
+
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
     {
-        if (await _metricService.GetMetricByResourceId(metricId) == null)
-        {
-            return NotFound("Метрика не найдена");
-        }
-
-        var result = await _metricService.DeleteMetric(metricId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить метрику");
-        }
-
+        await _metricService.DeleteMetric(metricId);
         return NoContent();
     }
+
     #endregion
 
     #region HttpGet
+
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMetricByResourceId(int resourceId)
     {
         var metric = await _metricService.GetMetricByResourceId(resourceId);
-        if (metric == null)
-        {
-            return BadRequest("Не удалось получить метрику");
-        }
-
         return Ok(metric);
     }
 
     [HttpGet("GetAllMetricServiceId/{serviceId}")]
     public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
     {
-        var metrics = await _metricService.GetAllMetricsByServiceId(serviceId);
-        if (metrics == null)
-        {
-            return BadRequest("Не удалось получить метрики сервиса");
-        }
-
+        var metrics = await _metricService.GetAllMetricsByResourceId(serviceId);
         return Ok(metrics);
     }
 
@@ -92,12 +70,8 @@ public class MetricServiceController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var metrics = await _metricService.GetAll();
-        if (metrics == null)
-        {
-            return BadRequest("Не удалось получить метрики");
-        }
-
         return Ok(metrics);
     }
+
     #endregion
 }

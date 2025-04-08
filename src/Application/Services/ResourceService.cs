@@ -1,9 +1,11 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Enums;
 using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.ResourceRepository;
+using Application.Requests;
+using Application.Responses;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -20,121 +22,105 @@ public class ResourceService : IResourceService
         _companyRepository = companyRepository;
     }
 
-    public async Task<Resource?> Add(ResourceDto resourceDto)
+    public async Task<int> Add(CreateResourceRequest request)
     {
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource != null)
-        {
-            await _resourceRepository.CreateResource(mappedResource);
-            return mappedResource;
-        }
-
-        return null;
+        var resource = _mapper.Map<Resource>(request);
+        return await _resourceRepository.CreateResource(resource);
     }
 
-    public async Task<bool> Update(ResourceDto resourceDto)
+    public async Task Update(UpdateResourceRequest request)
     {
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource == null)
+        var resource = await _resourceRepository.ReadByResourceId(request.Id);
+        if (resource == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        var company = await _companyRepository.ReadByCompanyId(resourceDto.CompanyId);
-        if (company == null)
+        resource = _mapper.Map<Resource>(request);
+        bool isUpdated = await _resourceRepository.UpdateResource(resource);
+        if (!isUpdated)
         {
-            return false;
+            throw new EntityUpdateException("Failed to update the resource");
         }
-
-        return await _resourceRepository.UpdateResource(mappedResource);
     }
 
-    public async Task<bool> Delete(int resourceId)
+    public async Task Delete(int resourceId)
     {
-        return await _resourceRepository.DeleteResource(resourceId);
+        bool isDeleted = await _resourceRepository.DeleteResource(resourceId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete the resource");
+        }
     }
 
-    public async Task<bool> AddCompanyResource(int companyId, ResourceDto? resourceDto)
+    public async Task AddCompanyResource(int companyId, CreateResourceRequest request)
     {
-        var company = await _companyRepository.ReadByCompanyId(companyId);
-        if (company == null)
-        {
-            return false;
-        }
+        var resource = _mapper.Map<Resource>(request);
+        resource.CompanyId = companyId;
 
-        var mappedResource = _mapper.Map<Resource>(resourceDto);
-        if (mappedResource == null)
-        {
-            return false;
-        }
+        int resourceId = await _resourceRepository.CreateResource(resource);
+        resource.Id = resourceId;
 
-        if (mappedResource.Id == 0)
+        bool isAdded = await _resourceRepository.AddCompanyResource(resource);
+        if (!isAdded)
         {
-            int resourceId = await _resourceRepository.CreateResource(mappedResource);
-            mappedResource = await _resourceRepository.ReadByResourceId(resourceId);
+            throw new EntityCreateException("Couldn't add company resource");
         }
-
-        return await _resourceRepository.AddCompanyResource(company, mappedResource);
     }
 
-    public async Task<bool> UpdateCompanyResource(int companyId, ResourceDto resourceDto, int resourceUpdateId)
+    public async Task UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId)
     {
         var resourceToUpdate = await _resourceRepository.ReadByResourceId(resourceUpdateId);
-        if (resourceToUpdate == null || await _companyRepository.ReadByCompanyId(companyId) == null ||
-            resourceToUpdate.CompanyId != companyId)
+        if (resourceToUpdate == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Resource not found");
         }
 
-        resourceToUpdate.Name = resourceDto.Name;
-        resourceToUpdate.Type = resourceDto.Type;
-        resourceToUpdate.Status = (ResourceStatus)resourceDto.Status;
-        resourceToUpdate.Source = resourceDto.Source;
-
-        return await _resourceRepository.UpdateResource(resourceToUpdate);
+        resourceToUpdate = _mapper.Map<Resource>(request);
+        bool isUpdated = await _resourceRepository.UpdateResource(resourceToUpdate);
+        if (!isUpdated)
+        {
+            throw new EntityUpdateException("Failed to update the resource");
+        }
     }
 
-    public async Task<bool> DeleteCompanyResource(int resourceId, int companyId)
+    public async Task DeleteCompanyResource(int resourceId, int companyId)
+    {
+        bool isDeleted = await _resourceRepository.DeleteCompanyResource(resourceId, companyId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete a resource from the company");
+        }
+    }
+
+    public async Task<ResourceResponse> GetResource(int resourceId)
+    {
+        var resource = await _resourceRepository.ReadByResourceId(resourceId);
+        if (resource == null)
+        {
+            throw new NotFoundApplicationException("Resource not found");
+        }
+
+        return _mapper.Map<ResourceResponse>(resource);
+    }
+
+    public async Task<IEnumerable<ResourceResponse>> GetAllResources()
+    {
+        var resources = await _resourceRepository.ReadAllResources();
+        var resourcesResponse = resources.Select(i => _mapper.Map<ResourceResponse>(i));
+        return resourcesResponse;
+    }
+
+    public async Task<IEnumerable<ResourceResponse>> GetCompanyResources(int companyId)
     {
         var company = await _companyRepository.ReadByCompanyId(companyId);
         if (company == null)
         {
-            return false;
+            throw new NotFoundApplicationException("Company not found");
         }
 
-        var resource = await _resourceRepository.ReadByResourceId(resourceId);
-        if (resource == null || resource.CompanyId != companyId)
-        {
-            return false;
-        }
-
-        return await _resourceRepository.DeleteCompanyResource(resourceId, company);
-    }
-
-    public async Task<ResourceDto?> GetResource(int resourceId)
-    {
-        var resource = await _resourceRepository.ReadByResourceId(resourceId);
-        var mappedResource = _mapper.Map<ResourceDto>(resource);
-        return mappedResource;
-    }
-
-    public async Task<IEnumerable<ResourceDto?>> GetAllResources()
-    {
-        var resource = await _resourceRepository.ReadAllResources();
-        var mappedResource = resource.Select(i => _mapper.Map<ResourceDto>(i)).ToList();
-        return mappedResource;
-    }
-
-    public async Task<IEnumerable<ResourceDto?>> GetCompanyResources(int companyId)
-    {
-        var company = await _companyRepository.ReadByCompanyId(companyId);
-        if (company == null)
-        {
-            return null;
-        }
-
-        var resourcesCompany = await _resourceRepository.ReadCompanyResources(company);
-        var mappedResourcesCompany = resourcesCompany.Select(i => _mapper.Map<ResourceDto>(i));
-        return mappedResourcesCompany;
+        var resourcesCompany = await _resourceRepository.ReadCompanyResources(companyId);
+        var resourcesResponse = resourcesCompany.Select(i => _mapper.Map<ResourceResponse>(i));
+        return resourcesResponse;
     }
 }

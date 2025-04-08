@@ -1,8 +1,10 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.ResourceRepository;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
@@ -19,62 +21,59 @@ public class MetricService : IMetricService
         _resourceRepository = resourceRepository;
     }
 
-    public async Task<Metric?> AddMetric(MetricDto metricDto)
+    public async Task<int> AddMetric(CreateMetricRequest request)
     {
-        if (await _resourceRepository.ReadByResourceId(metricDto.ResourceId) == null)
+        var metric = _mapper.Map<Metric>(request);
+        return await _metricRepository.CreateMetric(metric);
+    }
+
+    public async Task UpdateMetric(UpdateMetricRequest request)
+    {
+        var metric = await _metricRepository.ReadMetricId(request.Id);
+        if (metric == null)
         {
-            return null;
+            throw new NotFoundApplicationException("Metric not found");
         }
 
-        var mappedMetric = _mapper.Map<Metric>(metricDto);
-        if (mappedMetric != null)
+        metric = _mapper.Map<Metric>(request);
+        bool isUpdated = await _metricRepository.UpdateMetric(metric);
+        if (!isUpdated)
         {
-            await _metricRepository.CreateMetric(mappedMetric);
-            return mappedMetric;
+            throw new EntityUpdateException("Couldn't update the metric");
+        }
+    }
+
+    public async Task DeleteMetric(int metricId)
+    {
+        bool isDeleted = await _metricRepository.DeleteMetric(metricId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete the metric");
+        }
+    }
+
+    public async Task<MetricResponse> GetMetricByResourceId(int resourceId)
+    {
+        var metric = await _metricRepository.ReadMetricByResourceId(resourceId);
+        if (metric == null)
+        {
+            throw new NotFoundApplicationException("Metric not found");
         }
 
-        return null;
+        return _mapper.Map<MetricResponse>(metric);
     }
 
-    public async Task<bool> UpdateMetric(MetricDto metricDto)
+    public async Task<IEnumerable<MetricResponse>> GetAllMetricsByResourceId(int resourceId)
     {
-        var mappedMetric = _mapper.Map<Metric>(metricDto);
-        if (mappedMetric == null)
-        {
-            return false;
-        }
-
-        if (_resourceRepository.ReadByResourceId(metricDto.ResourceId).Result == null)
-        {
-            return false;
-        }
-
-        return await _metricRepository.UpdateMetric(mappedMetric);
+        var metrics = await _metricRepository.ReadAllMetricValuesForResource(resourceId);
+        var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));
+        return metricsResponses;
     }
 
-    public async Task<bool> DeleteMetric(int metricId)
-    {
-        return await _metricRepository.DeleteMetric(metricId);
-    }
-
-    public async Task<MetricDto?> GetMetricByResourceId(int serviceId)
-    {
-        var metric = await _metricRepository.ReadMetricByResourceId(serviceId);
-        var mappedMetric = _mapper.Map<MetricDto>(metric);
-        return mappedMetric;
-    }
-
-    public async Task<IEnumerable<MetricDto?>> GetAllMetricsByServiceId(int serviceId)
-    {
-        var metrics = await _metricRepository.ReadAllMetricValuesForResource(serviceId);
-        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
-        return mappedMetrics;
-    }
-
-    public async Task<IEnumerable<MetricDto?>> GetAll()
+    public async Task<IEnumerable<MetricResponse>> GetAll()
     {
         var metrics = await _metricRepository.ReadAll();
-        var mappedMetrics = metrics.Select(i => _mapper.Map<MetricDto>(i));
-        return mappedMetrics;
+        var metricsResponses = metrics.Select(i => _mapper.Map<MetricResponse>(i));
+        return metricsResponses;
     }
 }

@@ -50,7 +50,7 @@ public class UserInMemoryRepository : IUserRepository
         return Task.FromResult(true);
     }
 
-    public Task<User?> ReadById(int? id)
+    public Task<User?> ReadById(int id)
     {
         User user = _users.Find(i => i.Id == id);
         return Task.FromResult(user);

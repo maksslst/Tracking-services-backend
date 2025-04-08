@@ -1,0 +1,26 @@
+using FluentValidation;
+
+namespace Application.Requests;
+
+public class CreateMetricRequest
+{
+    public string Name { get; set; } = null!;
+    public int ResourceId { get; set; }
+    public string Unit { get; set; } = null!;
+}
+
+public class CreateMetricRequestValidator : AbstractValidator<CreateMetricRequest>
+{
+    public CreateMetricRequestValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty()
+            .MaximumLength(ValidationConstants.MetricNameLength)
+            .WithMessage("{PropertyName} maximum length is 100 characters");
+        RuleFor(x => x.ResourceId).NotEmpty()
+            .GreaterThan(0).WithMessage("ResourceId must be positive")
+            .LessThan(int.MaxValue).WithMessage("ResourceId is too long");
+        RuleFor(x => x.Unit).NotEmpty()
+            .MaximumLength(ValidationConstants.MetricUnitLength)
+            .WithMessage("{PropertyName} maximum length is 10 characters");
+    }
+}

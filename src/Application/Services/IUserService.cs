@@ -1,13 +1,14 @@
-using Application.DTOs.Mappings;
 using Domain.Entities;
+using Application.Requests;
+using Application.Responses;
 
 namespace Application.Services;
 
 public interface IUserService
 {
-    public Task<User?> Add(UserDto userDto);
-    public Task<bool> Update(UserDto userDto);
-    public Task<bool> Delete(int userId);
-    public Task<UserDto?> GetById(int? id);
-    public Task<IEnumerable<UserDto?>> GetAll();
+    public Task<int> Add(CreateUserRequest request);
+    public Task Update(UpdateUserRequest request);
+    public Task Delete(int userId);
+    public Task<UserResponse> GetById(int id);
+    public Task<IEnumerable<UserResponse>> GetAll();
 }

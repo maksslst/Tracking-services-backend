@@ -1,6 +1,9 @@
+using Api.ExceptionHandlers;
 using Application.DTOs.Mappings;
+using Application.Exceptions;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using Application.Requests;
 
 namespace Api.Controllers;
 
@@ -16,86 +19,58 @@ public class CompanyController : ControllerBase
     }
 
     #region HttpPost
-    [HttpPost]
-    public async Task<IActionResult> Add([FromBody] CompanyDto companyDto)
-    {
-        var company = await _companyService.Add(companyDto);
-        if (company == null)
-        {
-            return BadRequest("Не удалось создать компанию");
-        }
 
-        return CreatedAtAction(nameof(GetByCompanyId), new { companyId = company.Id }, company);
+    [HttpPost]
+    public async Task<IActionResult> Add([FromBody] CreateCompanyRequest request)
+    {
+        int company = await _companyService.Add(request);
+        return CreatedAtAction(nameof(GetByCompanyId), new { companyId = company }, company);
     }
 
     [HttpPost("AddUserToCompany/{userId}/{companyId}")]
     public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
-        var result = await _companyService.AddUserToCompany(userId, companyId);
-        if (!result)
-        {
-            return BadRequest("Не удалось добавить пользователя в компанию");
-        }
-
-        return Ok();
+        await _companyService.AddUserToCompany(userId, companyId);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpPut
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] CompanyDto companyDto)
-    {
-        var result = await _companyService.Update(companyDto);
-        if (!result)
-        {
-            return BadRequest("Не удалось обновить компанию");
-        }
 
-        return Ok();
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateCompanyRequest request)
+    {
+        await _companyService.Update(request);
+        return NoContent();
     }
+
     #endregion
 
     #region HttpDelete
+
     [HttpDelete("{companyId}")]
     public async Task<IActionResult> Delete(int companyId)
     {
-        if (await _companyService.GetCompany(companyId) == null)
-        {
-            return NotFound("Такой компании не найдено");
-        }
-
-        var result = await _companyService.Delete(companyId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить компанию");
-        }
-
+        await _companyService.Delete(companyId);
         return NoContent();
     }
 
     [HttpDelete("DeleteUserFromCompany/{userId}/{companyId}")]
     public async Task<IActionResult> DeleteUserFromCompany(int userId, int companyId)
     {
-        var result = await _companyService.DeleteUserFromCompany(userId, companyId);
-        if (!result)
-        {
-            return BadRequest("Не удалось удалить пользователя из компании");
-        }
-
+        await _companyService.DeleteUserFromCompany(userId, companyId);
         return NoContent();
     }
+
     #endregion
 
     #region HttpGet
+
     [HttpGet("{companyId}")]
     public async Task<IActionResult> GetByCompanyId(int companyId)
     {
         var company = await _companyService.GetCompany(companyId);
-        if (company == null)
-        {
-            return BadRequest("Не удалось найти компанию");
-        }
-
         return Ok(company);
     }
 
@@ -103,11 +78,6 @@ public class CompanyController : ControllerBase
     public async Task<IActionResult> GetAllCompanies()
     {
         var companies = await _companyService.GetAllCompanies();
-        if (companies == null)
-        {
-            return BadRequest("Не удалось получить список компаний");
-        }
-
         return Ok(companies);
     }
 
@@ -115,12 +85,8 @@ public class CompanyController : ControllerBase
     public async Task<IActionResult> GetCompanyUsers(int companyId)
     {
         var users = await _companyService.GetCompanyUsers(companyId);
-        if (users == null)
-        {
-            return NotFound("Не удалось найти список пользователей");
-        }
-
         return Ok(users);
     }
+
     #endregion
 }

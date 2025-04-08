@@ -1,7 +1,11 @@
-using Application.DTOs.Mappings;
+using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MonitoringSettingRepository;
+using Application.Requests;
+using Application.Responses;
+using Infrastructure.Repositories.ResourceRepository;
+using Npgsql;
 
 namespace Application.Services;
 
@@ -9,45 +13,55 @@ public class MonitoringSettingService : IMonitoringSettingService
 {
     private readonly IMonitoringSettingRepository _monitoringSettingRepository;
     private readonly IMapper _mapper;
+    private readonly IResourceRepository _resourceRepository;
 
-    public MonitoringSettingService(IMonitoringSettingRepository monitoringSettingRepository, IMapper mapper)
+    public MonitoringSettingService(IMonitoringSettingRepository monitoringSettingRepository, IMapper mapper,
+        IResourceRepository resourceRepository)
     {
         _mapper = mapper;
         _monitoringSettingRepository = monitoringSettingRepository;
+        _resourceRepository = resourceRepository;
     }
 
-    public async Task<MonitoringSetting?> Add(MonitoringSettingDto monitoringSettingDto)
+    public async Task<int> Add(CreateMonitoringSettingRequest request)
     {
-        var mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
-        if (mappedMonitoringSetting != null)
+        var monitoringSetting = _mapper.Map<MonitoringSetting>(request);
+        return await _monitoringSettingRepository.CreateSetting(monitoringSetting);
+    }
+
+    public async Task Update(UpdateMonitoringSettingRequest request)
+    {
+        var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(request.ResourceId);
+        if (monitoringSetting == null)
         {
-            await _monitoringSettingRepository.CreateSetting(mappedMonitoringSetting);
-            return mappedMonitoringSetting;
+            throw new NotFoundApplicationException("MonitoringSetting not found");
         }
 
-        return null;
-    }
-
-    public async Task<bool> Update(MonitoringSettingDto monitoringSettingDto)
-    {
-        var mappedMonitoringSetting = _mapper.Map<MonitoringSetting>(monitoringSettingDto);
-        if (mappedMonitoringSetting == null)
+        monitoringSetting = _mapper.Map<MonitoringSetting>(request);
+        bool isUpdated = await _monitoringSettingRepository.UpdateSetting(monitoringSetting);
+        if (!isUpdated)
         {
-            return false;
+            throw new EntityUpdateException("Couldn't update the setting");
         }
-
-        return await _monitoringSettingRepository.UpdateSetting(mappedMonitoringSetting);
     }
 
-    public async Task<bool> Delete(int monitoringSettingId)
+    public async Task Delete(int monitoringSettingId)
     {
-        return await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
+        bool isDeleted = await _monitoringSettingRepository.DeleteSetting(monitoringSettingId);
+        if (!isDeleted)
+        {
+            throw new EntityDeleteException("Couldn't delete the setting");
+        }
     }
 
-    public async Task<MonitoringSettingDto?> GetMonitoringSetting(int serviceId)
+    public async Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId)
     {
         var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
-        var mappedMonitoringSetting = _mapper.Map<MonitoringSettingDto>(monitoringSetting);
-        return mappedMonitoringSetting;
+        if (monitoringSetting == null)
+        {
+            throw new NotFoundApplicationException("MonitoringSetting not found");
+        }
+
+        return _mapper.Map<MonitoringSettingResponse>(monitoringSetting);
     }
 }
