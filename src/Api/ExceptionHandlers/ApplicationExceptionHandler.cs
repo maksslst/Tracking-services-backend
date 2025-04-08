@@ -16,7 +16,7 @@ public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsS
         httpContext.Response.StatusCode = (int)ex.StatusCode;
         httpContext.Response.ContentType = "application/problem+json";
 
-        var problemDatails = new ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Status = (int)ex.StatusCode,
             Title = ex.Title,
@@ -25,14 +25,14 @@ public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsS
             Type = ex.GetType().Name
         };
         
-        var problemDatailsContext = new ProblemDetailsContext
+        var problemDetailsContext = new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            ProblemDetails = problemDatails,
+            ProblemDetails = problemDetails,
             Exception = ex
         };
 
-        await _problemDetailsService.WriteAsync(problemDatailsContext);
+        await _problemDetailsService.WriteAsync(problemDetailsContext);
 
         return true;
     }

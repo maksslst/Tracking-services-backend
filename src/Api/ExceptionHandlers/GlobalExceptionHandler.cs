@@ -12,7 +12,7 @@ public class GlobalExceptionHandler(IProblemDetailsService _problemDetailsServic
         httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         httpContext.Response.ContentType = "application/problem+json";
 
-        var problemDatails = new ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Status = (int)HttpStatusCode.InternalServerError,
             Title = "An error occured while processing your request",
@@ -21,14 +21,14 @@ public class GlobalExceptionHandler(IProblemDetailsService _problemDetailsServic
             Type = exception.GetType().Name
         };
 
-        var problemDatailsContext = new ProblemDetailsContext
+        var problemDetailsContext = new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            ProblemDetails = problemDatails,
+            ProblemDetails = problemDetails,
             Exception = exception
         };
             
-        await _problemDetailsService.WriteAsync(problemDatailsContext);
+        await _problemDetailsService.WriteAsync(problemDetailsContext);
         return true;
     }
 }

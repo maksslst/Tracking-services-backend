@@ -100,10 +100,10 @@ public class TaskService : ITaskService
 
     public async Task DeleteTaskForUser(int userId, int taskId)
     {
-        bool isDeleted = await _taskRepository.SetTaskAssignment(userId, taskId, false);
-        if (!isDeleted)
+        bool isUnassigned = await _taskRepository.SetTaskAssignment(userId, taskId, false);
+        if (!isUnassigned)
         {
-            throw new EntityDeleteException("Couldn't delete the user's task");
+            throw new EntityUpdateException("Failed to unassign task from user");
         }
     }
 

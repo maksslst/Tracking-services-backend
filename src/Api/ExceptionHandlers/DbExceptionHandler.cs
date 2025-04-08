@@ -17,7 +17,7 @@ public class DbExceptionHandler(IProblemDetailsService _problemDetailsService) :
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/problem+json";
 
-        var problemDatails = new ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
             Title ="Database error",
@@ -26,14 +26,14 @@ public class DbExceptionHandler(IProblemDetailsService _problemDetailsService) :
             Type = ex.GetType().Name
         };
         
-        var problemDatailsContext = new ProblemDetailsContext
+        var problemDetailsContext = new ProblemDetailsContext
         {
             HttpContext = httpContext,
-            ProblemDetails = problemDatails,
+            ProblemDetails = problemDetails,
             Exception = ex
         };
 
-        await _problemDetailsService.WriteAsync(problemDatailsContext);
+        await _problemDetailsService.WriteAsync(problemDetailsContext);
 
         return true;
     }
