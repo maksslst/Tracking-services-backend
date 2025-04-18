@@ -7,7 +7,7 @@ using Infrastructure.Repositories.TaskRepository;
 using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -18,21 +18,25 @@ public class TaskService : ITaskService
     private readonly IResourceRepository _resourceRepository;
     private readonly IUserRepository _userRepository;
     private readonly ICompanyRepository _companyRepository;
+    private readonly ILogger<TaskService> _logger;
 
     public TaskService(ITaskRepository taskRepository, IMapper mapper, IResourceRepository resourceRepository,
-        IUserRepository userRepository, ICompanyRepository companyRepository)
+        IUserRepository userRepository, ICompanyRepository companyRepository, ILogger<TaskService> logger)
     {
         _taskRepository = taskRepository;
         _mapper = mapper;
         _resourceRepository = resourceRepository;
         _userRepository = userRepository;
         _companyRepository = companyRepository;
+        _logger = logger;
     }
 
     public async Task<int> Add(CreateTaskRequest request)
     {
         var task = _mapper.Map<ServiceTask>(request);
-        return await _taskRepository.CreateTask(task);
+        var taskId = await _taskRepository.CreateTask(task);
+        _logger.LogInformation("Added a task with id: {taskId}", taskId);
+        return taskId;
     }
 
     public async Task Update(UpdateTaskRequest request)
@@ -55,6 +59,8 @@ public class TaskService : ITaskService
         {
             throw new EntityUpdateException("Failed to update task");
         }
+
+        _logger.LogInformation("Updated a task with id: {taskId}", taskToUpdate.Id);
     }
 
     public async Task Delete(int serviceTaskId)
@@ -64,6 +70,8 @@ public class TaskService : ITaskService
         {
             throw new EntityDeleteException("Couldn't delete task");
         }
+
+        _logger.LogInformation("Deleted a task with id: {serviceTaskId}", serviceTaskId);
     }
 
     public async Task<TaskResponse> GetTask(int taskId)
@@ -96,6 +104,8 @@ public class TaskService : ITaskService
         {
             throw new EntityUpdateException("Failed to assign task to user");
         }
+
+        _logger.LogInformation("Assigned a task with id: {taskId} to a user with id: {userId}", taskId, userId);
     }
 
     public async Task DeleteTaskForUser(int userId, int taskId)
@@ -105,6 +115,8 @@ public class TaskService : ITaskService
         {
             throw new EntityUpdateException("Failed to unassign task from user");
         }
+
+        _logger.LogInformation("Unassigned a task with id: {taskId} the user with id: {userId}", taskId, userId);
     }
 
     public async Task ReassignTaskToUser(int newUserId, int taskId)
@@ -114,6 +126,8 @@ public class TaskService : ITaskService
         {
             throw new EntityUpdateException("Couldn't reassign task");
         }
+
+        _logger.LogInformation("Reassigned a task with id: {taskId} the user with id: {userId}", taskId, newUserId);
     }
 
     public async Task<TaskResponse> GetTaskForUser(int userId, int taskId)

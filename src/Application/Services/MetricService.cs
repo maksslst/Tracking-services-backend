@@ -5,6 +5,7 @@ using Infrastructure.Repositories.MetricRepository;
 using Infrastructure.Repositories.ResourceRepository;
 using Application.Requests;
 using Application.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -13,18 +14,23 @@ public class MetricService : IMetricService
     private readonly IMetricRepository _metricRepository;
     private readonly IMapper _mapper;
     private readonly IResourceRepository _resourceRepository;
+    private readonly ILogger<MetricService> _logger;
 
-    public MetricService(IMetricRepository repository, IMapper mapper, IResourceRepository resourceRepository)
+    public MetricService(IMetricRepository repository, IMapper mapper, IResourceRepository resourceRepository,
+        ILogger<MetricService> logger)
     {
         _metricRepository = repository;
         _mapper = mapper;
         _resourceRepository = resourceRepository;
+        _logger = logger;
     }
 
     public async Task<int> AddMetric(CreateMetricRequest request)
     {
         var metric = _mapper.Map<Metric>(request);
-        return await _metricRepository.CreateMetric(metric);
+        var metricId = await _metricRepository.CreateMetric(metric);
+        _logger.LogInformation("Created metric with id: {metricId}", metricId);
+        return metricId;
     }
 
     public async Task UpdateMetric(UpdateMetricRequest request)
@@ -41,6 +47,8 @@ public class MetricService : IMetricService
         {
             throw new EntityUpdateException("Couldn't update the metric");
         }
+
+        _logger.LogInformation("Updated metric with id: {metricId}", metric.Id);
     }
 
     public async Task DeleteMetric(int metricId)
@@ -50,6 +58,8 @@ public class MetricService : IMetricService
         {
             throw new EntityDeleteException("Couldn't delete the metric");
         }
+
+        _logger.LogInformation("Deleted metric with id: {metricId}", metricId);
     }
 
     public async Task<MetricResponse> GetMetricByResourceId(int resourceId)

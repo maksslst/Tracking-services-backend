@@ -5,7 +5,7 @@ using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -14,18 +14,23 @@ public class CompanyService : ICompanyService
     private readonly ICompanyRepository _companyRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<CompanyService> _logger;
 
-    public CompanyService(ICompanyRepository companyRepository, IMapper mapper, IUserRepository userRepository)
+    public CompanyService(ICompanyRepository companyRepository, IMapper mapper, IUserRepository userRepository,
+        ILogger<CompanyService> logger)
     {
         _companyRepository = companyRepository;
         _mapper = mapper;
         _userRepository = userRepository;
+        _logger = logger;
     }
 
     public async Task<int> Add(CreateCompanyRequest request)
     {
         var company = _mapper.Map<Company>(request);
-        return await _companyRepository.CreateCompany(company);
+        var companyId = await _companyRepository.CreateCompany(company);
+        _logger.LogInformation("Created company with id: {companyId}", companyId);
+        return companyId;
     }
 
     public async Task Update(UpdateCompanyRequest request)
@@ -42,6 +47,8 @@ public class CompanyService : ICompanyService
         {
             throw new EntityUpdateException("Couldn't update company");
         }
+
+        _logger.LogInformation("Updated company with id: {companyId}", companyToUpdate.Id);
     }
 
     public async Task Delete(int companyId)
@@ -51,6 +58,8 @@ public class CompanyService : ICompanyService
         {
             throw new EntityDeleteException("Couldn't delete company");
         }
+
+        _logger.LogInformation("Deleted company with id: {companyId}", companyId);
     }
 
     public async Task AddUserToCompany(int userId, int companyId)
@@ -60,6 +69,8 @@ public class CompanyService : ICompanyService
         {
             throw new EntityCreateException("Couldn't add user to company");
         }
+
+        _logger.LogInformation("Added user with id: {userId} to company with id: {companyId}", userId, companyId);
     }
 
     public async Task DeleteUserFromCompany(int userId, int companyId)
@@ -69,6 +80,8 @@ public class CompanyService : ICompanyService
         {
             throw new EntityDeleteException("Couldn't delete user from company");
         }
+
+        _logger.LogInformation("Deleted user with id: {userId} from company with id: {companyId}", userId, companyId);
     }
 
     public async Task<CompanyResponse> GetCompany(int companyId)

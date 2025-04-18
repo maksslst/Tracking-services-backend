@@ -5,7 +5,7 @@ using Infrastructure.Repositories.MonitoringSettingRepository;
 using Application.Requests;
 using Application.Responses;
 using Infrastructure.Repositories.ResourceRepository;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -14,19 +14,23 @@ public class MonitoringSettingService : IMonitoringSettingService
     private readonly IMonitoringSettingRepository _monitoringSettingRepository;
     private readonly IMapper _mapper;
     private readonly IResourceRepository _resourceRepository;
+    private readonly ILogger<MonitoringSettingService> _logger;
 
     public MonitoringSettingService(IMonitoringSettingRepository monitoringSettingRepository, IMapper mapper,
-        IResourceRepository resourceRepository)
+        IResourceRepository resourceRepository, ILogger<MonitoringSettingService> logger)
     {
         _mapper = mapper;
         _monitoringSettingRepository = monitoringSettingRepository;
         _resourceRepository = resourceRepository;
+        _logger = logger;
     }
 
     public async Task<int> Add(CreateMonitoringSettingRequest request)
     {
         var monitoringSetting = _mapper.Map<MonitoringSetting>(request);
-        return await _monitoringSettingRepository.CreateSetting(monitoringSetting);
+        var monitoringSettingId = await _monitoringSettingRepository.CreateSetting(monitoringSetting);
+        _logger.LogInformation($"Created MonitoringSetting with id: {monitoringSettingId}", monitoringSettingId);
+        return monitoringSettingId;
     }
 
     public async Task Update(UpdateMonitoringSettingRequest request)
@@ -43,6 +47,8 @@ public class MonitoringSettingService : IMonitoringSettingService
         {
             throw new EntityUpdateException("Couldn't update the setting");
         }
+
+        _logger.LogInformation("Updated monitoringSetting with id: {monitoringSettingId}", monitoringSetting.Id);
     }
 
     public async Task Delete(int monitoringSettingId)
@@ -52,6 +58,8 @@ public class MonitoringSettingService : IMonitoringSettingService
         {
             throw new EntityDeleteException("Couldn't delete the setting");
         }
+
+        _logger.LogInformation("Deleted  monitoringSetting with id: {monitoringSettingId}", monitoringSettingId);
     }
 
     public async Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId)

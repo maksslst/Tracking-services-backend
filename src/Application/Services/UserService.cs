@@ -5,7 +5,7 @@ using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
 using Infrastructure.Repositories.CompanyRepository;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -14,18 +14,23 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly ICompanyRepository _companyRepository;
+    private readonly ILogger<UserService> _logger;
 
-    public UserService(IUserRepository userRepository, IMapper mapper, ICompanyRepository companyRepository)
+    public UserService(IUserRepository userRepository, IMapper mapper, ICompanyRepository companyRepository,
+        ILogger<UserService> logger)
     {
         _userRepository = userRepository;
         _mapper = mapper;
         _companyRepository = companyRepository;
+        _logger = logger;
     }
 
     public async Task<int> Add(CreateUserRequest request)
     {
         var user = _mapper.Map<User>(request);
-        return await _userRepository.CreateUser(user);
+        var userId = await _userRepository.CreateUser(user);
+        _logger.LogInformation("Created user with id: {userId}", userId);
+        return userId;
     }
 
     public async Task Update(UpdateUserRequest request)
@@ -42,6 +47,8 @@ public class UserService : IUserService
         {
             throw new EntityUpdateException("Couldn't update the user");
         }
+
+        _logger.LogInformation("Updated user with id: {userId}", user.Id);
     }
 
     public async Task Delete(int userId)
@@ -51,6 +58,8 @@ public class UserService : IUserService
         {
             throw new EntityDeleteException("Couldn't delete user");
         }
+
+        _logger.LogInformation("Deleted user with id: {userId}", userId);
     }
 
     public async Task<UserResponse> GetById(int id)

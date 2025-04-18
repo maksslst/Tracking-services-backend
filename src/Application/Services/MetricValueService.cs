@@ -6,7 +6,7 @@ using Infrastructure.Repositories.MetricValueRepository;
 using Application.Requests;
 using Application.Responses;
 using Infrastructure.Repositories.ResourceRepository;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -16,20 +16,24 @@ public class MetricValueService : IMetricValueService
     private readonly IMapper _mapper;
     private readonly IMetricRepository _metricRepository;
     private readonly IResourceRepository _resourceRepository;
+    private readonly ILogger<MetricValueService> _logger;
 
     public MetricValueService(IMetricValueRepository metricValueRepository, IMapper mapper,
-        IMetricRepository metricRepository, IResourceRepository resourceRepository)
+        IMetricRepository metricRepository, IResourceRepository resourceRepository, ILogger<MetricValueService> logger)
     {
         _metricValueRepository = metricValueRepository;
         _mapper = mapper;
         _metricRepository = metricRepository;
         _resourceRepository = resourceRepository;
+        _logger = logger;
     }
 
     public async Task<int> AddMetricValue(CreateMetricValueRequest request)
     {
         var metricValue = _mapper.Map<MetricValue>(request);
-        return await _metricValueRepository.CreateMetricValue(metricValue);
+        var metricValueId = await _metricValueRepository.CreateMetricValue(metricValue);
+        _logger.LogInformation("Created metricValue with id: {metricValueId}", metricValueId);
+        return metricValueId;
     }
 
     public async Task<IEnumerable<MetricValueResponse>> GetAllMetricValuesForResource(int resourceId)
