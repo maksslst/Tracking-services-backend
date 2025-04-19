@@ -5,7 +5,7 @@ using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.ResourceRepository;
 using Application.Requests;
 using Application.Responses;
-using Npgsql;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
@@ -14,18 +14,23 @@ public class ResourceService : IResourceService
     private readonly IResourceRepository _resourceRepository;
     private readonly IMapper _mapper;
     private readonly ICompanyRepository _companyRepository;
+    private readonly ILogger<ResourceService> _logger;
 
-    public ResourceService(IResourceRepository resourceRepository, IMapper mapper, ICompanyRepository companyRepository)
+    public ResourceService(IResourceRepository resourceRepository, IMapper mapper, ICompanyRepository companyRepository,
+        ILogger<ResourceService> logger)
     {
         _resourceRepository = resourceRepository;
         _mapper = mapper;
         _companyRepository = companyRepository;
+        _logger = logger;
     }
 
     public async Task<int> Add(CreateResourceRequest request)
     {
         var resource = _mapper.Map<Resource>(request);
-        return await _resourceRepository.CreateResource(resource);
+        var resourceId = await _resourceRepository.CreateResource(resource);
+        _logger.LogInformation("Created resource with id: {resourceId}", resourceId);
+        return resourceId;
     }
 
     public async Task Update(UpdateResourceRequest request)
@@ -42,6 +47,8 @@ public class ResourceService : IResourceService
         {
             throw new EntityUpdateException("Failed to update the resource");
         }
+
+        _logger.LogInformation("Updated resource with id: {resource.Id}", resource.Id);
     }
 
     public async Task Delete(int resourceId)
@@ -51,6 +58,8 @@ public class ResourceService : IResourceService
         {
             throw new EntityDeleteException("Couldn't delete the resource");
         }
+
+        _logger.LogInformation("Deleted resource with id: {resourceId}", resourceId);
     }
 
     public async Task AddCompanyResource(int companyId, CreateResourceRequest request)
@@ -66,6 +75,9 @@ public class ResourceService : IResourceService
         {
             throw new EntityCreateException("Couldn't add company resource");
         }
+
+        _logger.LogInformation("Company with id:{companyId} added resource with id: {resourceId}", companyId,
+            resource.Id);
     }
 
     public async Task UpdateCompanyResource(int companyId, UpdateResourceRequest request, int resourceUpdateId)
@@ -82,6 +94,9 @@ public class ResourceService : IResourceService
         {
             throw new EntityUpdateException("Failed to update the resource");
         }
+
+        _logger.LogInformation("Updated the resource with id:{resourceId} the company has with id: {companyId}",
+            resourceToUpdate.Id, companyId);
     }
 
     public async Task DeleteCompanyResource(int resourceId, int companyId)
@@ -91,6 +106,9 @@ public class ResourceService : IResourceService
         {
             throw new EntityDeleteException("Couldn't delete a resource from the company");
         }
+
+        _logger.LogInformation("Resource with an: {resourceId} deleted from a company with an {companyId}", resourceId,
+            companyId);
     }
 
     public async Task<ResourceResponse> GetResource(int resourceId)
