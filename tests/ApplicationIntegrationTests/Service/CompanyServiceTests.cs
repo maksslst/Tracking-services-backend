@@ -11,6 +11,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
 {
     private readonly TestingFixture _fixture;
     private readonly ICompanyService _companyService;
+    private readonly IUserService _userService;
     private readonly Faker _faker;
 
     public CompanyServiceTests(TestingFixture fixture)
@@ -18,6 +19,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         _fixture = fixture;
         var scope = fixture.ServiceProvider.CreateScope();
         _companyService = scope.ServiceProvider.GetRequiredService<ICompanyService>();
+        _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
         _faker = new Faker();
     }
 
@@ -25,6 +27,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateCompany()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var request = new CreateCompanyRequest { CompanyName = _faker.Company.CompanyName() };
 
         // Act
@@ -39,6 +42,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task Update_ShouldUpdateCompany()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var request = new UpdateCompanyRequest { Id = company.Id, CompanyName = _faker.Company.CompanyName() };
 
@@ -54,6 +58,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task Delete_ShouldRemoveCompany()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
 
         // Act
@@ -70,6 +75,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task AddUserToCompany_ShouldAddUser()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var user = await _fixture.CreateUser(company.Id);
 
@@ -85,6 +91,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task DeleteUserFromCompany_ShouldRemoveUser()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var user = await _fixture.CreateUser(company.Id);
         await _companyService.AddUserToCompany(user.Id, company.Id);
@@ -101,6 +108,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task GetCompany_ShouldReturnCompany()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
 
         // Act
@@ -115,6 +123,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllCompanies_ShouldReturnAllCompanies()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company1 = await _fixture.CreateCompany();
         var company2 = await _fixture.CreateCompany();
 
@@ -131,6 +140,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task GetCompanyUsers_ShouldReturnUsers()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         
         var user1 = await _fixture.CreateUser(company.Id);

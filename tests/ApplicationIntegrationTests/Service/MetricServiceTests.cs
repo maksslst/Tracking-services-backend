@@ -25,6 +25,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task AddMetric_ShouldCreateMetric()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var request = new CreateMetricRequest { ResourceId = resource.Id, Name = _faker.Random.Word(), Unit = "мс" };
@@ -45,6 +46,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task UpdateMetric_ShouldUpdateMetric()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
@@ -71,6 +73,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task DeleteMetric_ShouldDeleteMetric()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
@@ -89,6 +92,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task GetMetricByResourceId_ShouldReturnMetric()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
@@ -107,6 +111,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllMetricsByResourceId_ShouldReturnAllMetrics()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         await _fixture.CreateMetric(resource.Id);
@@ -123,6 +128,7 @@ public class MetricServiceTests : IClassFixture<TestingFixture>
     public async Task GetAll_ShouldReturnAllMetrics()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company1 = await _fixture.CreateCompany();
         var resource1 = await _fixture.CreateResource(company1.Id);
         await _fixture.CreateMetric(resource1.Id);

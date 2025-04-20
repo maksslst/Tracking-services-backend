@@ -26,7 +26,6 @@ namespace ApplicationIntegrationTests;
 public sealed class TestingFixture : IAsyncLifetime
 {
     private readonly Faker _faker;
-
     private Respawner _respawner = null!;
 
     public TestingFixture()
@@ -93,7 +92,7 @@ public sealed class TestingFixture : IAsyncLifetime
             FirstName = _faker.Name.FirstName(),
             LastName = _faker.Name.LastName(),
             Email = _faker.Random.Word() + _faker.Random.Word() + "@gmail.com",
-            Username = _faker.Random.Word(),
+            Username = $"user_{Guid.NewGuid().ToString("N")}",
             CompanyId = companyId,
         });
 
@@ -150,20 +149,21 @@ public sealed class TestingFixture : IAsyncLifetime
         using var scope = ServiceProvider.CreateScope();
         var metricRepository = scope.ServiceProvider.GetRequiredService<IMetricRepository>();
 
-        var metricId = await metricRepository.CreateMetric(new Metric
+        var metric = new Metric
         {
             Name = _faker.Random.Word(),
             Unit = "мс",
             Created = DateTime.Now,
             ResourceId = resourceId
-        });
+        };
 
-        var metric = await metricRepository.ReadMetricId(metricId);
+        var metricId = await metricRepository.CreateMetric(metric);
+        var createdMetric = await metricRepository.ReadMetricId(metricId);
 
-        if (metric == null)
+        if (createdMetric == null)
             throw new Exception("Can't create metric");
 
-        return metric;
+        return createdMetric;
     }
 
     public async Task<MetricValue> CreateMetricValue(int metricId)
@@ -181,7 +181,7 @@ public sealed class TestingFixture : IAsyncLifetime
 
         if (metricValue == null)
             throw new Exception("Can't create metricValue");
-        
+
         return metricValue;
     }
 
@@ -193,7 +193,7 @@ public sealed class TestingFixture : IAsyncLifetime
         await monitoringSettingRepository.CreateSetting(new MonitoringSetting
         {
             ResourceId = resourceId,
-            CheckInterval = _faker.Random.Word(),
+            CheckInterval = "0 0/5 * * * ?",
             Mode = true
         });
 
@@ -209,7 +209,6 @@ public sealed class TestingFixture : IAsyncLifetime
     {
         using var scope = ServiceProvider.CreateScope();
         var serviceTaskRepository = scope.ServiceProvider.GetRequiredService<ITaskRepository>();
-
 
         var serviceTaskId = await serviceTaskRepository.CreateTask(new ServiceTask
         {
@@ -236,8 +235,6 @@ public sealed class TestingFixture : IAsyncLifetime
 
     private async Task ResetDatabase()
     {
-        Console.WriteLine("ResetDatabase called");
-        
         using var scope = ServiceProvider.CreateScope();
         var connection = scope.ServiceProvider.GetRequiredService<NpgsqlConnection>();
         await connection.OpenAsync();

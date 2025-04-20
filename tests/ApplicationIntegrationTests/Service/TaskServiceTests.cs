@@ -26,6 +26,7 @@ public class TaskServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateTask()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var assignedUser = await _fixture.CreateUser(company.Id);
         var createdUser = await _fixture.CreateUser(company.Id);
@@ -56,6 +57,7 @@ public class TaskServiceTests : IClassFixture<TestingFixture>
     public async Task Delete_ShouldRemoveTask()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var assignedUser = await _fixture.CreateUser(company.Id);
         var createdUser = await _fixture.CreateUser(company.Id);
@@ -76,6 +78,7 @@ public class TaskServiceTests : IClassFixture<TestingFixture>
     public async Task GetTask_ShouldReturnCorrectTask()
     {
         // Arrange
+        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var assignedUser = await _fixture.CreateUser(company.Id);
         var createdUser = await _fixture.CreateUser(company.Id);
