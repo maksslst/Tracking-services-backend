@@ -28,7 +28,7 @@ public class CompanyPostgresRepository : ICompanyRepository
         var companyToUpdate = await _connection.ExecuteAsync(
             @"UPDATE companies
                 SET company_name = @companyName
-                WHERE id = @Id", company);
+                WHERE id = @Id", new Company { Id = company.Id, CompanyName = company.CompanyName });
 
         return companyToUpdate > 0;
     }
@@ -47,7 +47,7 @@ public class CompanyPostgresRepository : ICompanyRepository
         var addedUser = await _connection.ExecuteAsync(
             @"UPDATE users
                 SET company_id = @CompanyId
-                WHERE id = @Id AND company_id != @CompanyId",
+                WHERE id = @Id",
             new
             {
                 CompanyId = companyId,
@@ -93,7 +93,7 @@ public class CompanyPostgresRepository : ICompanyRepository
 
     public async Task<IEnumerable<User?>> ReadCompanyUsers(int companyId)
     {
-       var users = await _connection.QueryAsync<User>(
+        var users = await _connection.QueryAsync<User>(
             @"SELECT id, username, first_name, last_name, patronymic, email, company_id
                 FROM users
                 WHERE company_id = @CompanyId", new { CompanyId = companyId });

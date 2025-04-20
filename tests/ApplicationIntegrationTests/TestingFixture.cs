@@ -83,24 +83,18 @@ public sealed class TestingFixture : IAsyncLifetime
         });
     }
 
-    public async Task<User> CreateUser(int companyId = -1)
+    public async Task<User> CreateUser(int companyId)
     {
         using var scope = ServiceProvider.CreateScope();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-
-        if (companyId == -1)
-        {
-            var company = await CreateCompany();
-            companyId = company.Id;
-        }
 
         var userId = await userRepository.CreateUser(new User
         {
             FirstName = _faker.Name.FirstName(),
             LastName = _faker.Name.LastName(),
-            Email = _faker.Random.Word() + "@gmail.com",
+            Email = _faker.Random.Word() + _faker.Random.Word() + "@gmail.com",
             Username = _faker.Random.Word(),
-            CompanyId = companyId
+            CompanyId = companyId,
         });
 
         var user = await userRepository.ReadById(userId);
@@ -129,16 +123,10 @@ public sealed class TestingFixture : IAsyncLifetime
         return company;
     }
 
-    public async Task<Resource> CreateResource(int companyId = -1)
+    public async Task<Resource> CreateResource(int companyId)
     {
         using var scope = ServiceProvider.CreateScope();
         var resourceRepository = scope.ServiceProvider.GetRequiredService<IResourceRepository>();
-
-        if (companyId == -1)
-        {
-            var company = await CreateCompany();
-            companyId = company.Id;
-        }
 
         var resourceId = await resourceRepository.CreateResource(new Resource
         {
@@ -157,16 +145,10 @@ public sealed class TestingFixture : IAsyncLifetime
         return resource;
     }
 
-    public async Task<Metric> CreateMetric(int resourceId = -1)
+    public async Task<Metric> CreateMetric(int resourceId)
     {
         using var scope = ServiceProvider.CreateScope();
         var metricRepository = scope.ServiceProvider.GetRequiredService<IMetricRepository>();
-
-        if (resourceId == -1)
-        {
-            var resource = await CreateResource();
-            resourceId = resource.Id;
-        }
 
         var metricId = await metricRepository.CreateMetric(new Metric
         {
@@ -179,21 +161,15 @@ public sealed class TestingFixture : IAsyncLifetime
         var metric = await metricRepository.ReadMetricId(metricId);
 
         if (metric == null)
-            throw new Exception("Can't create resource");
+            throw new Exception("Can't create metric");
 
         return metric;
     }
 
-    public async Task<MetricValue> CreateMetricValue(int metricId = -1)
+    public async Task<MetricValue> CreateMetricValue(int metricId)
     {
         using var scope = ServiceProvider.CreateScope();
         var metricValueRepository = scope.ServiceProvider.GetRequiredService<IMetricValueRepository>();
-
-        if (metricId == -1)
-        {
-            var metric = await CreateMetric();
-            metricId = metric.Id;
-        }
 
         var metricValueId = await metricValueRepository.CreateMetricValue(new MetricValue
         {
@@ -204,21 +180,15 @@ public sealed class TestingFixture : IAsyncLifetime
         var metricValue = await metricValueRepository.ReadMetricValueId(metricValueId);
 
         if (metricValue == null)
-            throw new Exception("Can't create resource");
+            throw new Exception("Can't create metricValue");
 
         return metricValue;
     }
 
-    public async Task<MonitoringSetting> CreateMonitoringSetting(int resourceId = -1)
+    public async Task<MonitoringSetting> CreateMonitoringSetting(int resourceId)
     {
         using var scope = ServiceProvider.CreateScope();
         var monitoringSettingRepository = scope.ServiceProvider.GetRequiredService<IMonitoringSettingRepository>();
-
-        if (resourceId == -1)
-        {
-            var resource = await CreateResource();
-            resourceId = resource.Id;
-        }
 
         await monitoringSettingRepository.CreateSetting(new MonitoringSetting
         {
@@ -230,26 +200,23 @@ public sealed class TestingFixture : IAsyncLifetime
         var monitoringSetting = await monitoringSettingRepository.ReadByResourceId(resourceId);
 
         if (monitoringSetting == null)
-            throw new Exception("Can't create resource");
+            throw new Exception("Can't create monitoringSetting");
 
         return monitoringSetting;
     }
 
-    public async Task<ServiceTask> CreateServiceTask()
+    public async Task<ServiceTask> CreateServiceTask(int resourceId, int assignedUserId, int createdByUserId)
     {
         using var scope = ServiceProvider.CreateScope();
         var serviceTaskRepository = scope.ServiceProvider.GetRequiredService<ITaskRepository>();
 
-        var resource = await CreateResource();
-        var createdByUser = await CreateUser();
-        var assignedUser = await CreateUser();
 
         var serviceTaskId = await serviceTaskRepository.CreateTask(new ServiceTask
         {
-            ResourceId = resource.Id,
+            ResourceId = resourceId,
             Description = _faker.Random.Word(),
-            AssignedUserId = assignedUser.Id,
-            CreatedById = createdByUser.Id,
+            AssignedUserId = assignedUserId,
+            CreatedById = createdByUserId,
             StartTime = DateTime.Now,
             Status = TaskStatus.Opened
         });
@@ -257,7 +224,7 @@ public sealed class TestingFixture : IAsyncLifetime
         var serviceTask = await serviceTaskRepository.ReadTaskId(serviceTaskId);
 
         if (serviceTask == null)
-            throw new Exception("Can't create resource");
+            throw new Exception("Can't create serviceTask");
 
         return serviceTask;
     }

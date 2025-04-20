@@ -19,31 +19,35 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
         _metricValueService = scope.ServiceProvider.GetRequiredService<IMetricValueService>();
         _faker = new Faker();
     }
-    
+
     [Fact]
     public async Task AddMetricValue_ShouldCreateMetricValue()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
         var request = new CreateMetricValueRequest
         {
             MetricId = metric.Id,
-            Value = _faker.Random.Double(1,100)
+            Value = _faker.Random.Double(1, 100)
         };
 
         // Act
-        var result = await _metricValueService.AddMetricValue(request);
-
+        var metricValueId = await _metricValueService.AddMetricValue(request);
         // Assert
-        result.Should().BeGreaterThan(0);
+        var createdMetricValue = await _metricValueService.GetMetricValue(metricValueId);
+        createdMetricValue.Should().NotBeNull();
+        createdMetricValue.MetricId.Should().Be(metric.Id);
+        createdMetricValue.Value.Should().Be(request.Value);
     }
-    
+
     [Fact]
     public async Task GetMetricValue_ShouldReturnMetricValue()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
         var metricValue = await _fixture.CreateMetricValue(metric.Id);
 
@@ -59,7 +63,8 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllMetricValuesForResource_ShouldReturnMetricValues()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
         await _fixture.CreateMetricValue(metric.Id);
         await _fixture.CreateMetricValue(metric.Id);

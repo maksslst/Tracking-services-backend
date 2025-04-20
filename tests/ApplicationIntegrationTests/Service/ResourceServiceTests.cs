@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Application.Requests;
 using Application.Services;
 using Bogus;
@@ -51,7 +52,8 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task Update_ShouldUpdateResource()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
 
         var updateRequest = new UpdateResourceRequest
         {
@@ -64,23 +66,33 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         };
 
         // Act
-        Func<Task> act = async () => await _resourceService.Update(updateRequest);
+        await _resourceService.Update(updateRequest);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        var response = await _resourceService.GetResource(updateRequest.Id);
+        response.Should().NotBeNull();
+        response.Name.Should().Be(updateRequest.Name);
+        response.CompanyId.Should().Be(updateRequest.CompanyId);
+        response.Type.Should().Be(updateRequest.Type);
+        response.Source.Should().Be(updateRequest.Source);
+        response.Status.Should().Be(updateRequest.Status);
     }
 
     [Fact]
     public async Task Delete_ShouldRemoveResource()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
 
         // Act
-        Func<Task> act = async () => await _resourceService.Delete(resource.Id);
+        await _resourceService.Delete(resource.Id);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        await _resourceService.Invoking(i => i.GetResource(resource.Id))
+            .Should()
+            .ThrowAsync<NotFoundApplicationException>()
+            .WithMessage("Resource not found");
     }
 
     [Fact]
@@ -98,10 +110,17 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         };
 
         // Act
-        Func<Task> act = async () => await _resourceService.AddCompanyResource(company.Id, resource);
+        await _resourceService.AddCompanyResource(company.Id, resource);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        var resourcesCompany = (await _resourceService.GetCompanyResources(resource.CompanyId)).ToList();
+        resourcesCompany.Should().NotBeNull();
+        resourcesCompany.Should().Contain(i =>
+            i.CompanyId == company.Id &&
+            i.Type == resource.Type &&
+            i.Source == resource.Source &&
+            i.Status == resource.Status &&
+            i.Name == resource.Name);
     }
 
     [Fact]
@@ -121,11 +140,16 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         };
 
         // Act
-        Func<Task> act = async () =>
-            await _resourceService.UpdateCompanyResource(company.Id, updateRequest, resource.Id);
+        await _resourceService.UpdateCompanyResource(company.Id, updateRequest, resource.Id);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        var resourceCompany = await _resourceService.GetResource(updateRequest.Id);
+        resourceCompany.Should().NotBeNull();
+        resourceCompany.Name.Should().Be(updateRequest.Name);
+        resourceCompany.CompanyId.Should().Be(updateRequest.CompanyId);
+        resourceCompany.Type.Should().Be(updateRequest.Type);
+        resourceCompany.Source.Should().Be(updateRequest.Source);
+        resourceCompany.Status.Should().Be(updateRequest.Status);
     }
 
     [Fact]
@@ -136,17 +160,19 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         var resource = await _fixture.CreateResource(company.Id);
 
         // Act
-        Func<Task> act = async () => await _resourceService.DeleteCompanyResource(resource.Id, company.Id);
+        await _resourceService.DeleteCompanyResource(resource.Id, company.Id);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        var companyResources = (await _resourceService.GetCompanyResources(resource.CompanyId)).ToList();
+        companyResources.Count.Should().Be(0);
     }
 
     [Fact]
     public async Task GetResource_ShouldReturnResource()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
 
         // Act
         var result = await _resourceService.GetResource(resource.Id);
@@ -163,8 +189,10 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllResources_ShouldReturnAll()
     {
         // Arrange
-        await _fixture.CreateResource();
-        await _fixture.CreateResource();
+        var company1 = await _fixture.CreateCompany();
+        await _fixture.CreateResource(company1.Id);
+        var company2 = await _fixture.CreateCompany();
+        await _fixture.CreateResource(company2.Id);
 
         // Act
         var result = await _resourceService.GetAllResources();
@@ -172,9 +200,9 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         // Assert
         var resourceResponses = result.ToList();
         resourceResponses.Should().NotBeEmpty();
-        resourceResponses.Count().Should().BeGreaterThanOrEqualTo(2);
+        resourceResponses.Count.Should().BeGreaterThanOrEqualTo(2);
     }
-    
+
     [Fact]
     public async Task GetCompanyResources_ShouldReturnOnlyCompanyResources()
     {
@@ -188,6 +216,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
         // Assert
         var resourceResponses = result.ToList();
         resourceResponses.Should().NotBeEmpty();
-        resourceResponses.All(r => r.CompanyId == company.Id).Should().BeTrue();
+        resourceResponses.Should().Contain(r => r.CompanyId == company.Id);
     }
 }

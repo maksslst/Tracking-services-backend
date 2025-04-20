@@ -31,7 +31,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         await _companyService.Add(request);
 
         // Assert
-        var companies = await _companyService.GetAllCompanies();
+        var companies = (await _companyService.GetAllCompanies()).ToList();
         companies.Should().Contain(c => c.CompanyName == request.CompanyName);
     }
 
@@ -46,7 +46,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         await _companyService.Update(request);
 
         // Assert
-        var result = await _companyService.GetCompany(company.Id);
+        var result = await _companyService.GetCompany(request.Id);
         result.CompanyName.Should().Be(request.CompanyName);
     }
 
@@ -71,13 +71,13 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     {
         // Arrange
         var company = await _fixture.CreateCompany();
-        var user = await _fixture.CreateUser();
+        var user = await _fixture.CreateUser(company.Id);
 
         // Act
         await _companyService.AddUserToCompany(user.Id, company.Id);
 
         // Assert
-        var users = await _companyService.GetCompanyUsers(company.Id);
+        var users = (await _companyService.GetCompanyUsers(company.Id)).ToList();
         users.Should().Contain(u => u.Username == user.Username);
     }
 
@@ -86,15 +86,15 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     {
         // Arrange
         var company = await _fixture.CreateCompany();
-        var user = await _fixture.CreateUser();
+        var user = await _fixture.CreateUser(company.Id);
         await _companyService.AddUserToCompany(user.Id, company.Id);
 
         // Act
         await _companyService.DeleteUserFromCompany(user.Id, company.Id);
 
         // Assert
-        var users = await _companyService.GetCompanyUsers(company.Id);
-        users.Should().NotContain(u => u.Username == user.Username);
+        var usersCompany = (await _companyService.GetCompanyUsers(company.Id)).ToList();
+        usersCompany.Should().NotContain(u => u.Username == user.Username);
     }
 
     [Fact]
@@ -107,7 +107,8 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         var response = await _companyService.GetCompany(company.Id);
 
         // Assert
-        company.CompanyName.Should().Be(response.CompanyName);
+        response.Should().NotBeNull();
+        response.CompanyName.Should().Be(company.CompanyName);
     }
 
     [Fact]
@@ -131,9 +132,11 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     {
         // Arrange
         var company = await _fixture.CreateCompany();
-        var user1 = await _fixture.CreateUser();
-        var user2 = await _fixture.CreateUser();
+        
+        var user1 = await _fixture.CreateUser(company.Id);
         await _companyService.AddUserToCompany(user1.Id, company.Id);
+        
+        var user2 = await _fixture.CreateUser(company.Id);
         await _companyService.AddUserToCompany(user2.Id, company.Id);
 
         // Act

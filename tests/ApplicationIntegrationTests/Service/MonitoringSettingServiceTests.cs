@@ -25,7 +25,8 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateMonitoringSetting()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var request = new CreateMonitoringSettingRequest
         {
             ResourceId = resource.Id,
@@ -37,14 +38,19 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
         var id = await _monitoringSettingService.Add(request);
 
         // Assert
-        id.Should().BeGreaterThan(0);
+        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resource.Id);
+        monitoringSetting.Should().NotBeNull();
+        monitoringSetting.ResourceId.Should().Be(resource.Id);
+        monitoringSetting.CheckInterval.Should().Be(request.CheckInterval);
+        monitoringSetting.Mode.Should().Be(request.Mode);
     }
 
     [Fact]
     public async Task Update_ShouldUpdateMonitoringSetting()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
 
         var updateRequest = new UpdateMonitoringSettingRequest
@@ -57,20 +63,21 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
 
         // Act
         await _monitoringSettingService.Update(updateRequest);
-        var response = await _monitoringSettingService.GetMonitoringSetting(updateRequest.ResourceId);
 
         // Assert
+        var response = await _monitoringSettingService.GetMonitoringSetting(resource.Id);
         response.Should().NotBeNull();
         response.CheckInterval.Should().Be(updateRequest.CheckInterval);
         response.Mode.Should().Be(updateRequest.Mode);
         response.ResourceId.Should().Be(updateRequest.ResourceId);
     }
-    
+
     [Fact]
     public async Task Delete_ShouldRemoveMonitoringSetting()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
 
         // Act
@@ -87,12 +94,13 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task GetMonitoringSetting_ShouldReturnMonitoringSetting()
     {
         // Arrange
-        var resource = await _fixture.CreateResource();
+        var company = await _fixture.CreateCompany();
+        var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
 
         // Act
         var response = await _monitoringSettingService.GetMonitoringSetting(monitoringSetting.ResourceId);
-        
+
         // Assert
         response.Should().NotBeNull();
         response.CheckInterval.Should().Be(monitoringSetting.CheckInterval);

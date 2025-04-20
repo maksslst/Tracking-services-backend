@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Application.Requests;
 using Application.Services;
 using Bogus;
@@ -26,14 +27,14 @@ public class TaskServiceTests : IClassFixture<TestingFixture>
     {
         // Arrange
         var company = await _fixture.CreateCompany();
-        var user = await _fixture.CreateUser(company.Id);
+        var assignedUser = await _fixture.CreateUser(company.Id);
+        var createdUser = await _fixture.CreateUser(company.Id);
         var resource = await _fixture.CreateResource(company.Id);
-
         var request = new CreateTaskRequest
         {
             Description = _faker.Random.Words(),
-            AssignedUserId = user.Id,
-            CreatedById = user.Id,
+            AssignedUserId = assignedUser.Id,
+            CreatedById = createdUser.Id,
             ResourceId = resource.Id,
             Status = TaskStatus.Opened
         };
@@ -55,20 +56,31 @@ public class TaskServiceTests : IClassFixture<TestingFixture>
     public async Task Delete_ShouldRemoveTask()
     {
         // Arrange
-        var task = await _fixture.CreateServiceTask();
+        var company = await _fixture.CreateCompany();
+        var assignedUser = await _fixture.CreateUser(company.Id);
+        var createdUser = await _fixture.CreateUser(company.Id);
+        var resource = await _fixture.CreateResource(company.Id);
+        var task = await _fixture.CreateServiceTask(resource.Id, assignedUser.Id, createdUser.Id);
 
         // Act
-        Func<Task> act = async () => await _taskService.Delete(task.Id);
+       await _taskService.Delete(task.Id);
 
         // Assert
-        await act.Should().NotThrowAsync();
+        await _taskService.Invoking(i => i.GetTask(task.Id))
+            .Should()
+            .ThrowAsync<NotFoundApplicationException>()
+            .WithMessage("Task not found");
     }
     
     [Fact]
     public async Task GetTask_ShouldReturnCorrectTask()
     {
         // Arrange
-        var task = await _fixture.CreateServiceTask();
+        var company = await _fixture.CreateCompany();
+        var assignedUser = await _fixture.CreateUser(company.Id);
+        var createdUser = await _fixture.CreateUser(company.Id);
+        var resource = await _fixture.CreateResource(company.Id);
+        var task = await _fixture.CreateServiceTask(resource.Id, assignedUser.Id, createdUser.Id);
 
         // Act
         var result = await _taskService.GetTask(task.Id);
