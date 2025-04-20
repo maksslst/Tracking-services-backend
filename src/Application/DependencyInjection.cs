@@ -12,13 +12,13 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(MappingProfile));
-        services.AddTransient<ICompanyService, CompanyService>();
-        services.AddTransient<IMonitoringSettingService, MonitoringSettingService>();
-        services.AddTransient<IResourceService, ResourceService>();
-        services.AddTransient<ITaskService, TaskService>();
-        services.AddTransient<IUserService, UserService>();
-        services.AddTransient<IMetricService, MetricService>();
-        services.AddTransient<IMetricValueService, MetricValueService>();
+        services.AddScoped<ICompanyService, CompanyService>();
+        services.AddScoped<IMonitoringSettingService, MonitoringSettingService>();
+        services.AddScoped<IResourceService, ResourceService>();
+        services.AddScoped<ITaskService, TaskService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IMetricService, MetricService>();
+        services.AddScoped<IMetricValueService, MetricValueService>();
 
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();

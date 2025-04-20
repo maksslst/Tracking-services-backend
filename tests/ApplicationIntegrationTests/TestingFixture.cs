@@ -181,7 +181,7 @@ public sealed class TestingFixture : IAsyncLifetime
 
         if (metricValue == null)
             throw new Exception("Can't create metricValue");
-
+        
         return metricValue;
     }
 
@@ -236,6 +236,8 @@ public sealed class TestingFixture : IAsyncLifetime
 
     private async Task ResetDatabase()
     {
+        Console.WriteLine("ResetDatabase called");
+        
         using var scope = ServiceProvider.CreateScope();
         var connection = scope.ServiceProvider.GetRequiredService<NpgsqlConnection>();
         await connection.OpenAsync();

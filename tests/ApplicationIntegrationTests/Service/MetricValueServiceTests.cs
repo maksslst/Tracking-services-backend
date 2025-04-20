@@ -40,6 +40,9 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
         createdMetricValue.Should().NotBeNull();
         createdMetricValue.MetricId.Should().Be(metric.Id);
         createdMetricValue.Value.Should().Be(request.Value);
+        
+        var all = await _metricValueService.GetAllMetricValuesForResource(resource.Id);
+
     }
 
     [Fact]
