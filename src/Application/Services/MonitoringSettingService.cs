@@ -62,9 +62,9 @@ public class MonitoringSettingService : IMonitoringSettingService
         _logger.LogInformation("Deleted  monitoringSetting with id: {monitoringSettingId}", monitoringSettingId);
     }
 
-    public async Task<MonitoringSettingResponse> GetMonitoringSetting(int serviceId)
+    public async Task<MonitoringSettingResponse> GetMonitoringSetting(int resourceId)
     {
-        var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(serviceId);
+        var monitoringSetting = await _monitoringSettingRepository.ReadByResourceId(resourceId);
         if (monitoringSetting == null)
         {
             throw new NotFoundApplicationException("MonitoringSetting not found");

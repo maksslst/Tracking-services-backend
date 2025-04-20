@@ -5,7 +5,7 @@ namespace Application.Responses;
 public class TaskResponse
 {
     public int ResourceId { get; set; }
-    public string Description { get; set; }
+    public string? Description { get; set; }
     public int? AssignedUserId { get; set; }
     public int CreatedById { get; set; }
     public DateTime StartTime { get; set; }

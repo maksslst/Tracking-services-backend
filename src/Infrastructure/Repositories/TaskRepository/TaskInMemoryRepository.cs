@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 using TaskStatus = Domain.Enums.TaskStatus;
 
 namespace Infrastructure.Repositories.TaskRepository;
 
+[ExcludeFromCodeCoverage]
 public class TaskInMemoryRepository : ITaskRepository
 {
     private List<ServiceTask> _tasks;

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.MonitoringSettingRepository;
 
+[ExcludeFromCodeCoverage]
 public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
 {
     private List<MonitoringSetting> _monitoringSettings;

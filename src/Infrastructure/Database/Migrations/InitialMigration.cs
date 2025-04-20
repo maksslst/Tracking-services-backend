@@ -22,7 +22,7 @@ public class InitialMigration : Migration
             .WithColumn("last_name").AsString(100).NotNullable()
             .WithColumn("patronymic").AsString(100).Nullable()
             .WithColumn("email").AsString(100).Nullable().Unique()
-            .WithColumn("company_id").AsInt32().NotNullable()
+            .WithColumn("company_id").AsInt32().Nullable()
             .ForeignKey("companies", "id")
             .OnDeleteOrUpdate(Rule.Cascade);
         #endregion

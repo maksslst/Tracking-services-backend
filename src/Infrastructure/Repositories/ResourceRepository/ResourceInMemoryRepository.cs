@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 using Domain.Enums;
 
 namespace Infrastructure.Repositories.ResourceRepository;
 
+[ExcludeFromCodeCoverage]
 public class ResourceInMemoryRepository : IResourceRepository
 {
     private List<Resource> _resources;

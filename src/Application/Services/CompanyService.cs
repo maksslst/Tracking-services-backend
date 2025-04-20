@@ -2,7 +2,6 @@ using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
-using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
 using Microsoft.Extensions.Logging;
@@ -12,16 +11,13 @@ namespace Application.Services;
 public class CompanyService : ICompanyService
 {
     private readonly ICompanyRepository _companyRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<CompanyService> _logger;
 
-    public CompanyService(ICompanyRepository companyRepository, IMapper mapper, IUserRepository userRepository,
-        ILogger<CompanyService> logger)
+    public CompanyService(ICompanyRepository companyRepository, IMapper mapper, ILogger<CompanyService> logger)
     {
         _companyRepository = companyRepository;
         _mapper = mapper;
-        _userRepository = userRepository;
         _logger = logger;
     }
 

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.MetricValueRepository;
 
+[ExcludeFromCodeCoverage]
 public class MetricValueInMemoryRepository : IMetricValueRepository
 {
     private List<MetricValue> _metricValues;

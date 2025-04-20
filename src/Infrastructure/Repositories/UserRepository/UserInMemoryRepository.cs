@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.UserRepository;
 
+[ExcludeFromCodeCoverage]
 public class UserInMemoryRepository : IUserRepository
 {
     private List<User> _users;
