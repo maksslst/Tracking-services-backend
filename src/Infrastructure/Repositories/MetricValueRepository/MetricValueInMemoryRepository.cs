@@ -29,7 +29,7 @@ public class MetricValueInMemoryRepository : IMetricValueRepository
             return Task.FromResult<MetricValue?>(null);
         }
         
-        return Task.FromResult(metricValue);
+        return Task.FromResult(metricValue)!;
     }
 
     public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId(IEnumerable<int> metricsId)

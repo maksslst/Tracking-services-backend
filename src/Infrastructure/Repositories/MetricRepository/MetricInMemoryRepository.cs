@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.MetricRepository;
@@ -14,7 +13,7 @@ public class MetricInMemoryRepository : IMetricRepository
         _metrics = new List<Metric>();
         DataGeneration();
     }
-    
+
     public Task<int> CreateMetric(Metric metric)
     {
         _metrics.Add(metric);
@@ -28,7 +27,7 @@ public class MetricInMemoryRepository : IMetricRepository
         {
             return Task.FromResult(false);
         }
-        
+
         metricToUpdate.ResourceId = metric.ResourceId;
         metricToUpdate.Resource = metric.Resource;
         metricToUpdate.Name = metric.Name;
@@ -43,7 +42,7 @@ public class MetricInMemoryRepository : IMetricRepository
         {
             return Task.FromResult(false);
         }
-        
+
         _metrics.Remove(metricToDelete);
         return Task.FromResult(true);
     }
@@ -55,8 +54,8 @@ public class MetricInMemoryRepository : IMetricRepository
         {
             return Task.FromResult<Metric?>(null);
         }
-        
-        return Task.FromResult(metric);
+
+        return Task.FromResult(metric)!;
     }
 
     public Task<Metric?> ReadMetricByResourceId(int resourceId)
@@ -66,8 +65,8 @@ public class MetricInMemoryRepository : IMetricRepository
         {
             return Task.FromResult<Metric?>(null);
         }
-        
-        return Task.FromResult(metric);
+
+        return Task.FromResult(metric)!;
     }
 
     public Task<IEnumerable<Metric?>> ReadAllMetricValuesForResource(int resourceId)
@@ -83,19 +82,18 @@ public class MetricInMemoryRepository : IMetricRepository
 
     private void DataGeneration()
     {
-        var faker = new Faker();
         Random random = new Random();
         for (int i = 0; i < 5; i++)
         {
             Metric metric = new Metric()
             {
-                Id = i +1,
+                Id = i + 1,
                 Name = "Проверка доступности ping",
-                ResourceId = random.Next(1,3),
+                ResourceId = random.Next(1, 3),
                 Created = DateTime.Now,
                 Unit = "мс"
             };
-            
+
             _metrics.Add(metric);
         }
     }

@@ -50,10 +50,10 @@ public class MetricServiceTests
 
         // Assert
         result.Should().Be(1);
-        _metricRepositoryMock.Verify(i => i.CreateMetric(It.Is<Metric>(i =>
-            i.Name == request.Name &&
-            i.ResourceId == request.ResourceId &&
-            i.Unit == request.Unit)), Times.Once);
+        _metricRepositoryMock.Verify(i => i.CreateMetric(It.Is<Metric>(m =>
+            m.Name == request.Name &&
+            m.ResourceId == request.ResourceId &&
+            m.Unit == request.Unit)), Times.Once);
     }
 
     #endregion
@@ -89,10 +89,10 @@ public class MetricServiceTests
 
         // Assert
         _metricRepositoryMock.Verify(i => i.ReadMetricId(request.Id), Times.Once);
-        _metricRepositoryMock.Verify(i => i.UpdateMetric(It.Is<Metric>(i =>
-            i.Id == request.Id &&
-            i.ResourceId == request.ResourceId &&
-            i.Unit == request.Unit)), Times.Once);
+        _metricRepositoryMock.Verify(i => i.UpdateMetric(It.Is<Metric>(m =>
+            m.Id == request.Id &&
+            m.ResourceId == request.ResourceId &&
+            m.Unit == request.Unit)), Times.Once);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class MetricServiceTests
             Unit = "мс",
         };
 
-        _metricRepositoryMock.Setup(i => i.ReadMetricId(request.Id)).ReturnsAsync((Metric)null);
+        _metricRepositoryMock.Setup(i => i.ReadMetricId(request.Id)).ReturnsAsync((Metric)null!);
 
         // Act & Assert
         await _metricService.Invoking(i => i.UpdateMetric(request))
@@ -148,11 +148,11 @@ public class MetricServiceTests
             .WithMessage("Couldn't update the metric");
 
         _metricRepositoryMock.Verify(i => i.ReadMetricId(request.Id), Times.Once);
-        _metricRepositoryMock.Verify(i => i.UpdateMetric(It.Is<Metric>(i =>
-            i.Id == request.Id &&
-            i.ResourceId == request.ResourceId &&
-            i.Unit == request.Unit &&
-            i.Name == request.Name)), Times.Once);
+        _metricRepositoryMock.Verify(i => i.UpdateMetric(It.Is<Metric>(m =>
+            m.Id == request.Id &&
+            m.ResourceId == request.ResourceId &&
+            m.Unit == request.Unit &&
+            m.Name == request.Name)), Times.Once);
     }
 
     #endregion
@@ -225,7 +225,7 @@ public class MetricServiceTests
     {
         // Arrange
         int resourceId = _faker.Random.Int();
-        _metricRepositoryMock.Setup(i => i.ReadMetricByResourceId(resourceId)).ReturnsAsync((Metric)null);
+        _metricRepositoryMock.Setup(i => i.ReadMetricByResourceId(resourceId)).ReturnsAsync((Metric)null!);
 
         // Act & Assert
         await _metricService.Invoking(i => i.GetMetricByResourceId(resourceId))

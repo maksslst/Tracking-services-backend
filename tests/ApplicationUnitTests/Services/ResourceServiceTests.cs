@@ -84,7 +84,7 @@ public class ResourceServiceTests
     {
         // Arrange
         var request = new UpdateResourceRequest { Id = 1 };
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync((Resource)null);
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync((Resource)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundApplicationException>(() => _resourceService.Update(request));
@@ -204,7 +204,7 @@ public class ResourceServiceTests
     {
         // Arrange
         var request = new UpdateResourceRequest();
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(1)).ReturnsAsync((Resource)null);
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(1)).ReturnsAsync((Resource)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundApplicationException>(() =>
@@ -288,7 +288,7 @@ public class ResourceServiceTests
     public async Task GetResource_NotFound_ThrowsNotFoundException()
     {
         // Arrange
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(1)).ReturnsAsync((Resource)null);
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(1)).ReturnsAsync((Resource)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundApplicationException>(() => _resourceService.GetResource(1));
@@ -373,7 +373,7 @@ public class ResourceServiceTests
     public async Task GetCompanyResources_CompanyNotFound_ThrowsNotFoundException()
     {
         // Arrange
-        _companyRepoMock.Setup(c => c.ReadByCompanyId(1)).ReturnsAsync((Domain.Entities.Company)null);
+        _companyRepoMock.Setup(c => c.ReadByCompanyId(1)).ReturnsAsync((Company)null!);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundApplicationException>(() => _resourceService.GetCompanyResources(1));

@@ -2,7 +2,6 @@ using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
-using Infrastructure.Repositories.ResourceRepository;
 using Application.Requests;
 using Application.Responses;
 using Microsoft.Extensions.Logging;

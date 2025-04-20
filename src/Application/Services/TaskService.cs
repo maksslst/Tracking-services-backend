@@ -2,7 +2,6 @@ using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.CompanyRepository;
-using Infrastructure.Repositories.ResourceRepository;
 using Infrastructure.Repositories.TaskRepository;
 using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
@@ -15,17 +14,15 @@ public class TaskService : ITaskService
 {
     private readonly ITaskRepository _taskRepository;
     private readonly IMapper _mapper;
-    private readonly IResourceRepository _resourceRepository;
     private readonly IUserRepository _userRepository;
     private readonly ICompanyRepository _companyRepository;
     private readonly ILogger<TaskService> _logger;
 
-    public TaskService(ITaskRepository taskRepository, IMapper mapper, IResourceRepository resourceRepository,
-        IUserRepository userRepository, ICompanyRepository companyRepository, ILogger<TaskService> logger)
+    public TaskService(ITaskRepository taskRepository, IMapper mapper, IUserRepository userRepository,
+        ICompanyRepository companyRepository, ILogger<TaskService> logger)
     {
         _taskRepository = taskRepository;
         _mapper = mapper;
-        _resourceRepository = resourceRepository;
         _userRepository = userRepository;
         _companyRepository = companyRepository;
         _logger = logger;
@@ -48,7 +45,7 @@ public class TaskService : ITaskService
         }
 
         var assignedUserToUpdate = await _userRepository.ReadById(request.AssignedUserId);
-        if (taskToUpdate.AssignedUser.CompanyId != assignedUserToUpdate.CompanyId)
+        if (assignedUserToUpdate == null || taskToUpdate.AssignedUser?.CompanyId != assignedUserToUpdate.CompanyId)
         {
             throw new UserAuthorizationException("User is not in the company");
         }

@@ -32,7 +32,7 @@ public sealed class TestingFixture : IAsyncLifetime
     public TestingFixture()
     {
         var host = Host.CreateDefaultBuilder()
-            .ConfigureAppConfiguration((context, config) => { config.AddJsonFile("appsettings.json"); })
+            .ConfigureAppConfiguration((config) => { config.AddJsonFile("appsettings.json"); })
             .ConfigureServices((context, services) =>
             {
                 services.AddInfrastructure();

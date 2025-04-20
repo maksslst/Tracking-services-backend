@@ -55,7 +55,7 @@ public class ResourceInMemoryRepository : IResourceRepository
         bool isCorrect = DataVerification(resource);
         if (isCorrect)
         {
-            resource.Company.Resources.Add(resource);
+            resource.Company?.Resources.Add(resource);
         }
 
         return Task.FromResult(isCorrect);
@@ -108,7 +108,7 @@ public class ResourceInMemoryRepository : IResourceRepository
         }
     }
 
-    private bool DataVerification(Resource resource)
+    private bool DataVerification(Resource? resource)
     {
         if (resource == null)
         {

@@ -7,7 +7,6 @@ using Bogus;
 using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Repositories.CompanyRepository;
-using Infrastructure.Repositories.UserRepository;
 using Moq;
 using Microsoft.Extensions.Logging;
 
@@ -147,7 +146,7 @@ public class CompanyServiceTests
 
         _companyRepositoryMock.Verify(i => i.ReadByCompanyId(request.Id), Times.Once);
         _companyRepositoryMock.Verify(
-            i => i.UpdateCompany(It.Is<Company>(i => i.Id == request.Id && i.CompanyName == request.CompanyName)),
+            i => i.UpdateCompany(It.Is<Company>(c => c.Id == request.Id && c.CompanyName == request.CompanyName)),
             Times.Once);
     }
 
@@ -160,7 +159,7 @@ public class CompanyServiceTests
             Id = 1,
             CompanyName = _faker.Company.CompanyName(),
         };
-        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null);
+        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null!);
 
         // Act & Assert
         await _companyService.Invoking(i => i.Update(request))
@@ -263,7 +262,7 @@ public class CompanyServiceTests
     {
         // Arrange
         var companyId = new Random().Next(1, int.MaxValue);
-        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null);
+        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null!);
 
         // Act & Assert
         await _companyService.Invoking(i => i.GetCompany(companyId))
@@ -359,7 +358,7 @@ public class CompanyServiceTests
     {
         // Arrange
         var companyId = 1;
-        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null);
+        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync((Company)null!);
 
         // Act & Assert
         await _companyService.Invoking(i => i.GetCompanyUsers(companyId))

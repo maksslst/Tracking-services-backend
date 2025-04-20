@@ -1,4 +1,3 @@
-
 using Application.Exceptions;
 using Application.Requests;
 using Application.Services;
@@ -26,16 +25,16 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateCompany()
     {
         // Arrange
-        var request = new CreateCompanyRequest { CompanyName = _faker.Company.CompanyName()};
+        var request = new CreateCompanyRequest { CompanyName = _faker.Company.CompanyName() };
 
         // Act
-        var companyId = await _companyService.Add(request);
+        await _companyService.Add(request);
 
         // Assert
         var companies = await _companyService.GetAllCompanies();
         companies.Should().Contain(c => c.CompanyName == request.CompanyName);
     }
-    
+
     [Fact]
     public async Task Update_ShouldUpdateCompany()
     {
@@ -50,7 +49,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         var result = await _companyService.GetCompany(company.Id);
         result.CompanyName.Should().Be(request.CompanyName);
     }
-    
+
     [Fact]
     public async Task Delete_ShouldRemoveCompany()
     {
@@ -61,12 +60,12 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         await _companyService.Delete(company.Id);
 
         // Assert
-        await _companyService.Invoking(i =>i.GetCompany(company.Id))
+        await _companyService.Invoking(i => i.GetCompany(company.Id))
             .Should()
             .ThrowAsync<NotFoundApplicationException>()
             .WithMessage("Company not found");
     }
-    
+
     [Fact]
     public async Task AddUserToCompany_ShouldAddUser()
     {
@@ -81,7 +80,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         var users = await _companyService.GetCompanyUsers(company.Id);
         users.Should().Contain(u => u.Username == user.Username);
     }
-    
+
     [Fact]
     public async Task DeleteUserFromCompany_ShouldRemoveUser()
     {
@@ -97,7 +96,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         var users = await _companyService.GetCompanyUsers(company.Id);
         users.Should().NotContain(u => u.Username == user.Username);
     }
-    
+
     [Fact]
     public async Task GetCompany_ShouldReturnCompany()
     {
@@ -110,7 +109,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         // Assert
         company.CompanyName.Should().Be(response.CompanyName);
     }
-    
+
     [Fact]
     public async Task GetAllCompanies_ShouldReturnAllCompanies()
     {
@@ -126,7 +125,7 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         companies.Should().Contain(i => i.CompanyName == company2.CompanyName);
         companies.Should().Contain(i => i.CompanyName == company1.CompanyName);
     }
-    
+
     [Fact]
     public async Task GetCompanyUsers_ShouldReturnUsers()
     {

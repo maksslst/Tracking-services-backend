@@ -7,7 +7,6 @@ using Bogus;
 using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Repositories.CompanyRepository;
-using Infrastructure.Repositories.ResourceRepository;
 using Infrastructure.Repositories.TaskRepository;
 using Infrastructure.Repositories.UserRepository;
 using Microsoft.Extensions.Logging;
@@ -21,24 +20,22 @@ public class TaskServiceTests
     private readonly Mock<ITaskRepository> _taskRepositoryMock;
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<ICompanyRepository> _companyRepositoryMock;
-    private readonly Mock<ILogger<TaskService>> _loggerMock;
     private readonly ITaskService _taskService;
     private readonly Faker _faker;
 
     public TaskServiceTests()
     {
         _taskRepositoryMock = new Mock<ITaskRepository>();
-        var resourceRepositoryMock = new Mock<IResourceRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
         _companyRepositoryMock = new Mock<ICompanyRepository>();
-        _loggerMock = new Mock<ILogger<TaskService>>();
+        var loggerMock = new Mock<ILogger<TaskService>>();
         _faker = new Faker();
 
         var mappingConfig = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
         var mapper = mappingConfig.CreateMapper();
 
-        _taskService = new TaskService(_taskRepositoryMock.Object, mapper, resourceRepositoryMock.Object,
-            _userRepositoryMock.Object, _companyRepositoryMock.Object, _loggerMock.Object);
+        _taskService = new TaskService(_taskRepositoryMock.Object, mapper, _userRepositoryMock.Object,
+            _companyRepositoryMock.Object, loggerMock.Object);
     }
 
     #region AddTests
@@ -149,7 +146,7 @@ public class TaskServiceTests
             Description = _faker.Lorem.Sentence(),
             Status = TaskStatus.Completed
         };
-        _taskRepositoryMock.Setup(i => i.ReadTaskId(request.Id)).ReturnsAsync((ServiceTask)null);
+        _taskRepositoryMock.Setup(i => i.ReadTaskId(request.Id)).ReturnsAsync((ServiceTask)null!);
 
         // Act & Assert
         await _taskService.Invoking(i => i.Update(request))
@@ -324,7 +321,7 @@ public class TaskServiceTests
             Description = _faker.Lorem.Sentence(),
             CreatedById = _faker.Random.Int(1, 100),
             StartTime = DateTime.Now,
-            Status = Domain.Enums.TaskStatus.Opened
+            Status = TaskStatus.Opened
         };
         _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync(task);
 
@@ -336,7 +333,7 @@ public class TaskServiceTests
         result.Description.Should().Be(task.Description);
         result.CreatedById.Should().Be(task.CreatedById);
         result.StartTime.Should().Be(task.StartTime);
-        result.Status.Should().Be(Domain.Enums.TaskStatus.Opened);
+        result.Status.Should().Be(TaskStatus.Opened);
         result.ResourceId.Should().Be(task.ResourceId);
         result.CompletionTime.Should().Be(task.CompletionTime);
         result.AssignedUserId.Should().Be(task.AssignedUserId);
@@ -348,7 +345,7 @@ public class TaskServiceTests
     {
         // Arrange
         int taskId = _faker.Random.Int(1, 100);
-        _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync((ServiceTask)null);
+        _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync((ServiceTask)null!);
 
         // Act & Assert
         await _taskService.Invoking(i => i.GetTask(taskId))
@@ -374,13 +371,13 @@ public class TaskServiceTests
             {
                 Id = 1, ResourceId = _faker.Random.Int(1, 100), Description = _faker.Lorem.Sentence(),
                 CreatedById = _faker.Random.Int(1, 100), StartTime = DateTime.Now,
-                Status = Domain.Enums.TaskStatus.Completed
+                Status = TaskStatus.Completed
             },
             new ServiceTask
             {
                 Id = 2, ResourceId = _faker.Random.Int(1, 100), Description = _faker.Lorem.Sentence(),
                 CreatedById = _faker.Random.Int(1, 100), StartTime = DateTime.Now,
-                Status = Domain.Enums.TaskStatus.Opened
+                Status = TaskStatus.Opened
             }
         };
         _companyRepositoryMock.Setup(i => i.ReadByCompanyId(companyId)).ReturnsAsync(company);
@@ -388,10 +385,11 @@ public class TaskServiceTests
 
         // Act
         var result = await _taskService.GetAllCompanyTasks(companyId);
+        var tasksList = result.ToList();
 
         // Assert
-        result.Should().HaveCount(2);
-        result.Select(r => r.Description).Should().Contain(tasks.Select(t => t.Description));
+        tasksList.Should().HaveCount(2);
+        tasksList.Select(r => r.Description).Should().Contain(tasks.Select(t => t.Description));
         _companyRepositoryMock.Verify(i => i.ReadByCompanyId(companyId), Times.Once());
         _taskRepositoryMock.Verify(i => i.ReadAllTasksCompanyId(companyId), Times.Once());
     }
@@ -401,7 +399,7 @@ public class TaskServiceTests
     {
         // Arrange
         int companyId = _faker.Random.Int(1, 100);
-        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(companyId)).ReturnsAsync((Company)null);
+        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(companyId)).ReturnsAsync((Company)null!);
 
         // Act & Assert
         await _taskService.Invoking(i => i.GetAllCompanyTasks(companyId))
@@ -556,7 +554,7 @@ public class TaskServiceTests
             Description = _faker.Lorem.Sentence(),
             CreatedById = _faker.Random.Int(1, 100),
             StartTime = DateTime.Now,
-            Status = Domain.Enums.TaskStatus.Completed
+            Status = TaskStatus.Completed
         };
         _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync(task);
 
@@ -569,7 +567,7 @@ public class TaskServiceTests
         result.Description.Should().Be(task.Description);
         result.CreatedById.Should().Be(task.CreatedById);
         result.StartTime.Should().Be(task.StartTime);
-        result.Status.Should().Be(Domain.Enums.TaskStatus.Completed);
+        result.Status.Should().Be(TaskStatus.Completed);
         result.ResourceId.Should().Be(task.ResourceId);
         _taskRepositoryMock.Verify(i => i.ReadTaskId(taskId), Times.Once());
     }
@@ -580,7 +578,7 @@ public class TaskServiceTests
         // Arrange
         int userId = _faker.Random.Int(1, 100);
         int taskId = _faker.Random.Int(1, 100);
-        _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync((ServiceTask)null);
+        _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync((ServiceTask)null!);
 
         // Act & Assert
         await _taskService.Invoking(i => i.GetTaskForUser(userId, taskId))
@@ -605,7 +603,7 @@ public class TaskServiceTests
             Description = _faker.Lorem.Sentence(),
             CreatedById = _faker.Random.Int(1, 100),
             StartTime = DateTime.Now,
-            Status = Domain.Enums.TaskStatus.Completed
+            Status = TaskStatus.Completed
         };
         _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync(task);
 
@@ -633,7 +631,7 @@ public class TaskServiceTests
             {
                 Id = 1, ResourceId = _faker.Random.Int(1, 100), AssignedUserId = userId,
                 Description = _faker.Lorem.Sentence(), CreatedById = _faker.Random.Int(1, 100),
-                StartTime = DateTime.Now, Status = Domain.Enums.TaskStatus.Opened
+                StartTime = DateTime.Now, Status = TaskStatus.Opened
             },
             new ServiceTask
             {
@@ -646,10 +644,11 @@ public class TaskServiceTests
 
         // Act
         var result = await _taskService.GetAllUserTasks(userId);
-
+        var taskResponses = result.ToList();
+        
         // Assert
-        result.Should().HaveCount(2);
-        result.Select(r => r.Description).Should().Contain(tasks.Select(t => t.Description));
+        taskResponses.Should().HaveCount(2);
+        taskResponses.Select(r => r.Description).Should().Contain(tasks.Select(t => t.Description));
         _taskRepositoryMock.Verify(i => i.ReadAllUserTasks(userId), Times.Once());
     }
 

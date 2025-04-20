@@ -20,8 +20,8 @@ jobs:
         image: postgres
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: quiz_db_integration
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: trackingServices_integrationdb
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

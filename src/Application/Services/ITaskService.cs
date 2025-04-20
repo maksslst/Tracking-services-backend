@@ -1,4 +1,3 @@
-using Domain.Entities;
 using Application.Requests;
 using Application.Responses;
 

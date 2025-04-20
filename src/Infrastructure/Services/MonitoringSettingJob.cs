@@ -25,13 +25,13 @@ public class MonitoringSettingJob : IJob
         var monitoringSettings = await _monitoringSettingRepository.ReadAll();
         foreach (var monitoringSetting in monitoringSettings)
         {
-            var metrics = await _metricRepository.ReadAllMetricValuesForResource(monitoringSetting.ResourceId);
+            var metrics = await _metricRepository.ReadAllMetricValuesForResource(monitoringSetting!.ResourceId);
             foreach (var metric in metrics)
             {
                 MetricValue metricValue = new MetricValue
                 {
                     Metric = metric,
-                    MetricId = metric.Id,
+                    MetricId = metric!.Id,
                     // Value = 
                 };
                 

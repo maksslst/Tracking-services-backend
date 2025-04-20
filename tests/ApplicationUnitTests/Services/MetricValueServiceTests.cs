@@ -57,9 +57,9 @@ public class MetricValueServiceTests
 
         // Assert
         result.Should().Be(1);
-        _metricValueRepositoryMock.Verify(i => i.CreateMetricValue(It.Is<MetricValue>(i =>
-            i.MetricId == request.MetricId &&
-            i.Value == request.Value)), Times.Once);
+        _metricValueRepositoryMock.Verify(i => i.CreateMetricValue(It.Is<MetricValue>(m =>
+            m.MetricId == request.MetricId &&
+            Math.Abs(m.Value - request.Value) < 0.0000001)), Times.Once);
     }
 
     #endregion
@@ -139,7 +139,7 @@ public class MetricValueServiceTests
     {
         // Arrange
         int resourceId = _faker.Random.Int(1, 100);
-        _resourceRepositoryMock.Setup(i => i.ReadByResourceId(resourceId)).ReturnsAsync((Resource)null);
+        _resourceRepositoryMock.Setup(i => i.ReadByResourceId(resourceId)).ReturnsAsync((Resource)null!);
 
         // Act & Assert
         await _metricValueService.Invoking(i => i.GetAllMetricValuesForResource(resourceId))
@@ -181,7 +181,7 @@ public class MetricValueServiceTests
     {
         // Arrange
         int metricValueId = _faker.Random.Int(1, 100);
-        _metricValueRepositoryMock.Setup(i => i.ReadMetricValueId(metricValueId)).ReturnsAsync((MetricValue)null);
+        _metricValueRepositoryMock.Setup(i => i.ReadMetricValueId(metricValueId)).ReturnsAsync((MetricValue)null!);
 
         // Act & Assert
         await _metricValueService.Invoking(i => i.GetMetricValue(metricValueId))

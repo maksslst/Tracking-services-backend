@@ -1,7 +1,6 @@
 using Application.Requests;
 using Application.Services;
 using Bogus;
-using Domain.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using TaskStatus = Domain.Enums.TaskStatus;

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.ExceptionHandlers;
 
-public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsService) : IExceptionHandler
+public class ApplicationExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
@@ -32,7 +32,7 @@ public class ApplicationExceptionHandler(IProblemDetailsService _problemDetailsS
             Exception = ex
         };
 
-        await _problemDetailsService.WriteAsync(problemDetailsContext);
+        await problemDetailsService.WriteAsync(problemDetailsContext);
 
         return true;
     }

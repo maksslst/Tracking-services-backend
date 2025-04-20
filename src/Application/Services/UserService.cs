@@ -4,7 +4,6 @@ using Domain.Entities;
 using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
-using Infrastructure.Repositories.CompanyRepository;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
@@ -13,15 +12,12 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
-    private readonly ICompanyRepository _companyRepository;
     private readonly ILogger<UserService> _logger;
 
-    public UserService(IUserRepository userRepository, IMapper mapper, ICompanyRepository companyRepository,
-        ILogger<UserService> logger)
+    public UserService(IUserRepository userRepository, IMapper mapper, ILogger<UserService> logger)
     {
         _userRepository = userRepository;
         _mapper = mapper;
-        _companyRepository = companyRepository;
         _logger = logger;
     }
 

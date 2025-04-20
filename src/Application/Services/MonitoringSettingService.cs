@@ -4,7 +4,6 @@ using Domain.Entities;
 using Infrastructure.Repositories.MonitoringSettingRepository;
 using Application.Requests;
 using Application.Responses;
-using Infrastructure.Repositories.ResourceRepository;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
@@ -13,15 +12,13 @@ public class MonitoringSettingService : IMonitoringSettingService
 {
     private readonly IMonitoringSettingRepository _monitoringSettingRepository;
     private readonly IMapper _mapper;
-    private readonly IResourceRepository _resourceRepository;
     private readonly ILogger<MonitoringSettingService> _logger;
 
     public MonitoringSettingService(IMonitoringSettingRepository monitoringSettingRepository, IMapper mapper,
-        IResourceRepository resourceRepository, ILogger<MonitoringSettingService> logger)
+        ILogger<MonitoringSettingService> logger)
     {
         _mapper = mapper;
         _monitoringSettingRepository = monitoringSettingRepository;
-        _resourceRepository = resourceRepository;
         _logger = logger;
     }
 

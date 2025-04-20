@@ -7,7 +7,6 @@ using Bogus;
 using Domain.Entities;
 using FluentAssertions;
 using Infrastructure.Repositories.MonitoringSettingRepository;
-using Infrastructure.Repositories.ResourceRepository;
 using Moq;
 using Microsoft.Extensions.Logging;
 
@@ -22,14 +21,13 @@ public class MonitoringSettingServiceTests
     public MonitoringSettingServiceTests()
     {
         _monitoringSettingRepositoryMock = new Mock<IMonitoringSettingRepository>();
-        var resourceRepositoryMock = new Mock<IResourceRepository>();
         var loggerMock = new Mock<ILogger<MonitoringSettingService>>();
-        
+
         var mappingConfig = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
         var mapper = mappingConfig.CreateMapper();
 
-        _monitoringSettingService = new MonitoringSettingService(_monitoringSettingRepositoryMock.Object, mapper,
-            resourceRepositoryMock.Object, loggerMock.Object);
+        _monitoringSettingService =
+            new MonitoringSettingService(_monitoringSettingRepositoryMock.Object, mapper, loggerMock.Object);
         _faker = new Faker();
     }
 
@@ -53,10 +51,10 @@ public class MonitoringSettingServiceTests
 
         // Assert
         result.Should().Be(1);
-        _monitoringSettingRepositoryMock.Verify(i => i.CreateSetting(It.Is<MonitoringSetting>(i =>
-            i.ResourceId == request.ResourceId &&
-            i.Mode == request.Mode &&
-            i.CheckInterval == request.CheckInterval)), Times.Once);
+        _monitoringSettingRepositoryMock.Verify(i => i.CreateSetting(It.Is<MonitoringSetting>(m =>
+            m.ResourceId == request.ResourceId &&
+            m.Mode == request.Mode &&
+            m.CheckInterval == request.CheckInterval)), Times.Once);
     }
 
     #endregion
@@ -91,11 +89,11 @@ public class MonitoringSettingServiceTests
 
         // Assert
         _monitoringSettingRepositoryMock.Verify(i => i.ReadByResourceId(request.ResourceId), Times.Once);
-        _monitoringSettingRepositoryMock.Verify(i => i.UpdateSetting(It.Is<MonitoringSetting>(i =>
-            i.Id == request.Id &&
-            i.Mode == request.Mode &&
-            i.ResourceId == request.ResourceId &&
-            i.CheckInterval == request.CheckInterval)), Times.Once);
+        _monitoringSettingRepositoryMock.Verify(i => i.UpdateSetting(It.Is<MonitoringSetting>(m =>
+            m.Id == request.Id &&
+            m.Mode == request.Mode &&
+            m.ResourceId == request.ResourceId &&
+            m.CheckInterval == request.CheckInterval)), Times.Once);
     }
 
     [Fact]
@@ -111,7 +109,7 @@ public class MonitoringSettingServiceTests
             CheckInterval = "1 0/5 * * * ?"
         };
         _monitoringSettingRepositoryMock.Setup(i => i.ReadByResourceId(resourceId))
-            .ReturnsAsync((MonitoringSetting)null);
+            .ReturnsAsync((MonitoringSetting)null!);
 
         // Act & Assert
         await _monitoringSettingService.Invoking(i => i.Update(monitoringSetting))
@@ -152,11 +150,11 @@ public class MonitoringSettingServiceTests
             .WithMessage("Couldn't update the setting");
 
         _monitoringSettingRepositoryMock.Verify(i => i.ReadByResourceId(request.ResourceId), Times.Once);
-        _monitoringSettingRepositoryMock.Verify(i => i.UpdateSetting(It.Is<MonitoringSetting>(i =>
-            i.Id == request.Id &&
-            i.CheckInterval == request.CheckInterval &&
-            i.Mode == request.Mode &&
-            i.ResourceId == request.ResourceId)), Times.Once);
+        _monitoringSettingRepositoryMock.Verify(i => i.UpdateSetting(It.Is<MonitoringSetting>(m =>
+            m.Id == request.Id &&
+            m.CheckInterval == request.CheckInterval &&
+            m.Mode == request.Mode &&
+            m.ResourceId == request.ResourceId)), Times.Once);
     }
 
     #endregion
@@ -228,14 +226,14 @@ public class MonitoringSettingServiceTests
         // Arrange
         int resourceId = _faker.Random.Int();
         _monitoringSettingRepositoryMock.Setup(i => i.ReadByResourceId(resourceId))
-            .ReturnsAsync((MonitoringSetting)null);
-        
+            .ReturnsAsync((MonitoringSetting)null!);
+
         // Act & Assert
         await _monitoringSettingService.Invoking(i => i.GetMonitoringSetting(resourceId))
             .Should()
             .ThrowAsync<NotFoundApplicationException>()
             .WithMessage("MonitoringSetting not found");
-        
+
         _monitoringSettingRepositoryMock.Verify(i => i.ReadByResourceId(resourceId), Times.Once);
     }
 

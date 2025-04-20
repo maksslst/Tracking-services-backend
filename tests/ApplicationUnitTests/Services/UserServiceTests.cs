@@ -3,7 +3,6 @@ using Application.Mappings;
 using Application.Requests;
 using Application.Services;
 using AutoMapper;
-using Infrastructure.Repositories.CompanyRepository;
 using Infrastructure.Repositories.UserRepository;
 using Moq;
 using Microsoft.Extensions.Logging;
@@ -16,22 +15,19 @@ namespace ApplicationUnitTests.Services;
 public class UserServiceTests
 {
     private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly Mock<ICompanyRepository> _companyRepositoryMock;
     private readonly IUserService _userService;
     private readonly Faker _faker;
 
     public UserServiceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
-        _companyRepositoryMock = new Mock<ICompanyRepository>();
         var loggerMock = new Mock<ILogger<UserService>>();
         _faker = new Faker();
 
         var mappingConfig = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
         var mapper = mappingConfig.CreateMapper();
 
-        _userService = new UserService(_userRepositoryMock.Object, mapper, _companyRepositoryMock.Object,
-            loggerMock.Object);
+        _userService = new UserService(_userRepositoryMock.Object, mapper, loggerMock.Object);
     }
 
     # region AddTests
@@ -128,7 +124,7 @@ public class UserServiceTests
             CompanyId = _faker.Random.Int(1, 100)
         };
         
-        _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync((User)null);
+        _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync((User)null!);
         
         // Act & Assert
         await _userService.Invoking(i=> i.Update(request))
@@ -249,7 +245,7 @@ public class UserServiceTests
     {
         // Arrange
         int userId = _faker.Random.Int(1, 100);
-        _userRepositoryMock.Setup(i => i.ReadById(userId)).ReturnsAsync((User)null);
+        _userRepositoryMock.Setup(i => i.ReadById(userId)).ReturnsAsync((User)null!);
         
         // Act & Assert
         await _userService.Invoking(i => i.GetById(userId))
@@ -290,10 +286,11 @@ public class UserServiceTests
         
         // Act
         var result = await _userService.GetAll();
+        var userResponses = result.ToList();
         
         // Assert
-        result.Should().HaveCount(2);
-        result.Select(r => r.Username).Should().Contain(users.Select(t => t.Username));
+        userResponses.Should().HaveCount(2);
+        userResponses.Select(r => r.Username).Should().Contain(users.Select(t => t.Username));
         _userRepositoryMock.Verify(i => i.ReadAll(), Times.Once());
     }
 
