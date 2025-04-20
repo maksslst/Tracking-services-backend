@@ -213,9 +213,9 @@ public class InitialMigration : Migration
 
     public override void Down()
     {
-        Delete.Table("serviceTasks");
-        Delete.Table("monitoringSettings");
-        Delete.Table("metricValues");
+        Delete.Table("service_tasks");
+        Delete.Table("monitoring_settings");
+        Delete.Table("metric_values");
         Delete.Table("metrics");
         Delete.Table("resources");
         Delete.Table("users");

@@ -26,7 +26,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateResource()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var request = new CreateResourceRequest
         {
@@ -53,7 +52,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task Update_ShouldUpdateResource()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
 
@@ -84,7 +82,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task Delete_ShouldRemoveResource()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
 
@@ -102,7 +99,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task AddCompanyResource_ShouldCreateResourceAndLinkToCompany()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = new CreateResourceRequest
         {
@@ -131,7 +127,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task UpdateCompanyResource_ShouldUpdateResourceForCompany()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var updateRequest = new UpdateResourceRequest
@@ -161,7 +156,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task DeleteCompanyResource_ShouldDeleteResourceFromCompany()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
 
@@ -177,7 +171,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task GetResource_ShouldReturnResource()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
 
@@ -196,7 +189,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllResources_ShouldReturnAll()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company1 = await _fixture.CreateCompany();
         await _fixture.CreateResource(company1.Id);
         var company2 = await _fixture.CreateCompany();
@@ -215,7 +207,6 @@ public class ResourceServiceTests : IClassFixture<TestingFixture>
     public async Task GetCompanyResources_ShouldReturnOnlyCompanyResources()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         await _fixture.CreateResource(company.Id);
 

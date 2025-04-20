@@ -24,7 +24,6 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
     public async Task AddMetricValue_ShouldCreateMetricValue()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
@@ -47,7 +46,6 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
     public async Task GetMetricValue_ShouldReturnMetricValue()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);
@@ -65,7 +63,6 @@ public class MetricValueServiceTests : IClassFixture<TestingFixture>
     public async Task GetAllMetricValuesForResource_ShouldReturnMetricValues()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var metric = await _fixture.CreateMetric(resource.Id);

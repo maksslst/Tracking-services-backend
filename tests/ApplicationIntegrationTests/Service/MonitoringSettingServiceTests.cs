@@ -25,7 +25,6 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task Add_ShouldCreateMonitoringSetting()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var request = new CreateMonitoringSettingRequest
@@ -36,7 +35,7 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
         };
 
         // Act
-        var id = await _monitoringSettingService.Add(request);
+        await _monitoringSettingService.Add(request);
 
         // Assert
         var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resource.Id);
@@ -50,7 +49,6 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task Update_ShouldUpdateMonitoringSetting()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
@@ -78,7 +76,6 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task Delete_ShouldRemoveMonitoringSetting()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
@@ -97,7 +94,6 @@ public class MonitoringSettingServiceTests : IClassFixture<TestingFixture>
     public async Task GetMonitoringSetting_ShouldReturnMonitoringSetting()
     {
         // Arrange
-        await _fixture.DisposeAsync();
         var company = await _fixture.CreateCompany();
         var resource = await _fixture.CreateResource(company.Id);
         var monitoringSetting = await _fixture.CreateMonitoringSetting(resource.Id);
