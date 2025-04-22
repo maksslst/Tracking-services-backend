@@ -45,11 +45,7 @@ public static class DependencyInjection
             .ConfigureRunner(
                 rb => rb
                     .AddPostgres()
-                    .WithGlobalConnectionString(sp =>
-                    {
-                        var config = sp.GetRequiredService<IConfiguration>();
-                        return config.GetConnectionString("PostgresDB");
-                    })
+                    .WithGlobalConnectionString("PostgresDB")
                     .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations())
             .AddLogging(lb => lb.AddFluentMigratorConsole());
 

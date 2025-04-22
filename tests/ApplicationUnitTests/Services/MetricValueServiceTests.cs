@@ -108,18 +108,8 @@ public class MetricValueServiceTests
 
         var metricValues = new List<MetricValue>()
         {
-            new MetricValue()
-            {
-                Id = _faker.Random.Int(1, 100),
-                MetricId = metricId,
-                Value = _faker.Random.Double()
-            },
-            new MetricValue()
-            {
-                Id = _faker.Random.Int(1, 100),
-                MetricId = metricId,
-                Value = _faker.Random.Double()
-            },
+            CreatingMetricValue(metricId),
+            CreatingMetricValue(metricId)
         };
 
         var metricsIds = metrics.Select(i => i.Id);
@@ -157,18 +147,12 @@ public class MetricValueServiceTests
     public async Task GetMetricValue_WhenMetricValueExists_ReturnsMetricValueResponse()
     {
         // Arrange
-        int metricValueId = _faker.Random.Int(1, 100);
-        var metricValue = new MetricValue()
-        {
-            Id = metricValueId,
-            MetricId = _faker.Random.Int(1, 100),
-            Value = _faker.Random.Double()
-        };
+        var metricValue = CreatingMetricValue(_faker.Random.Int(1, 100));
 
-        _metricValueRepositoryMock.Setup(i => i.ReadMetricValueId(metricValueId)).ReturnsAsync(metricValue);
+        _metricValueRepositoryMock.Setup(i => i.ReadMetricValueId(metricValue.Id)).ReturnsAsync(metricValue);
 
         // Act
-        var result = await _metricValueService.GetMetricValue(metricValueId);
+        var result = await _metricValueService.GetMetricValue(metricValue.Id);
 
         // Assert
         result.Should().NotBeNull();
@@ -193,4 +177,16 @@ public class MetricValueServiceTests
     }
 
     #endregion
+
+    private MetricValue CreatingMetricValue(int metricId)
+    {
+        var metricValue = new MetricValue()
+        {
+            Id = _faker.Random.Int(1, 100),
+            MetricId = metricId,
+            Value = _faker.Random.Double()
+        };
+
+        return metricValue;
+    }
 }

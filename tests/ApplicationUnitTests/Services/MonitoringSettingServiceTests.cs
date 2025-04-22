@@ -73,13 +73,8 @@ public class MonitoringSettingServiceTests
             CheckInterval = "0 0/5 * * * ?"
         };
 
-        var response = new MonitoringSetting()
-        {
-            Id = request.Id,
-            ResourceId = request.ResourceId,
-            Mode = false,
-            CheckInterval = "1 0/5 * * * ?"
-        };
+        var response = CreatingMonitoringSetting(request.ResourceId);
+        response.Id = request.Id;
 
         _monitoringSettingRepositoryMock.Setup(i => i.ReadByResourceId(request.ResourceId)).ReturnsAsync(response);
         _monitoringSettingRepositoryMock.Setup(i => i.UpdateSetting(It.IsAny<MonitoringSetting>())).ReturnsAsync(true);
@@ -132,13 +127,8 @@ public class MonitoringSettingServiceTests
             CheckInterval = "0 0/5 * * * ?"
         };
 
-        var response = new MonitoringSetting()
-        {
-            Id = request.Id,
-            ResourceId = request.ResourceId,
-            Mode = true,
-            CheckInterval = "1 0/5 * * * ?"
-        };
+        var response = CreatingMonitoringSetting(request.ResourceId);
+        response.Id = request.Id;
 
         _monitoringSettingRepositoryMock.Setup(i => i.ReadByResourceId(request.ResourceId)).ReturnsAsync(response);
         _monitoringSettingRepositoryMock.Setup(i => i.UpdateSetting(It.IsAny<MonitoringSetting>())).ReturnsAsync(false);
@@ -199,13 +189,7 @@ public class MonitoringSettingServiceTests
     public async Task GetMonitoringSetting_WhenMonitoringSettingExists_ReturnsMonitoringSettingResponse()
     {
         // Arrange
-        var monitoringSetting = new MonitoringSetting()
-        {
-            Id = _faker.Random.Int(1, 100),
-            ResourceId = _faker.Random.Int(1, 100),
-            Mode = true,
-            CheckInterval = "0 0/5 * * * ?"
-        };
+        var monitoringSetting = CreatingMonitoringSetting(_faker.Random.Int(1, 100));
 
         _monitoringSettingRepositoryMock.Setup(i => i.ReadByResourceId(monitoringSetting.ResourceId))
             .ReturnsAsync(monitoringSetting);
@@ -238,4 +222,17 @@ public class MonitoringSettingServiceTests
     }
 
     #endregion
+
+    private MonitoringSetting CreatingMonitoringSetting(int resourceId)
+    {
+        var monitoringSetting = new MonitoringSetting()
+        {
+            Id = _faker.Random.Int(1, 100),
+            ResourceId = resourceId,
+            Mode = true,
+            CheckInterval = "0 0/5 * * * ?"
+        };
+
+        return monitoringSetting;
+    }
 }

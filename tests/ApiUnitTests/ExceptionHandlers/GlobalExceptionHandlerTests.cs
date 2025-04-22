@@ -1,4 +1,5 @@
 using Api.ExceptionHandlers;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 
@@ -42,6 +43,6 @@ public class GlobalExceptionHandlerTests
         var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
 
         // Assert
-        Assert.True(result);
+        result.Should().BeTrue();
     }
 }

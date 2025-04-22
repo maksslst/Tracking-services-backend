@@ -62,6 +62,7 @@ public class UserServiceTests
     #endregion
 
     #region UpdateTests
+
     [Fact]
     public async Task Update_WhenUserExist_UpdatesUserSuccessfully()
     {
@@ -77,15 +78,8 @@ public class UserServiceTests
             CompanyId = _faker.Random.Int(1, 100)
         };
 
-        var user = new User()
-        {
-            Id = userId,
-            FirstName = _faker.Person.FirstName,
-            Username = _faker.Person.UserName,
-            LastName = _faker.Person.LastName,
-            Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
-        };
+        var user = CreatingUser(request.CompanyId);
+        user.Id = userId;
 
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync(user);
         _userRepositoryMock.Setup(i => i.UpdateUser(It.Is<User>(u =>
@@ -123,15 +117,15 @@ public class UserServiceTests
             Email = _faker.Person.Email,
             CompanyId = _faker.Random.Int(1, 100)
         };
-        
+
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync((User)null!);
-        
+
         // Act & Assert
-        await _userService.Invoking(i=> i.Update(request))
+        await _userService.Invoking(i => i.Update(request))
             .Should()
             .ThrowAsync<NotFoundApplicationException>()
             .WithMessage("User not found");
-        
+
         _userRepositoryMock.Verify(i => i.ReadById(request.Id), Times.Once);
         _userRepositoryMock.Verify(i => i.UpdateUser(It.IsAny<User>()), Times.Never);
     }
@@ -151,16 +145,9 @@ public class UserServiceTests
             CompanyId = _faker.Random.Int(1, 100)
         };
 
-        var user = new User()
-        {
-            Id = userId,
-            FirstName = _faker.Person.FirstName,
-            Username = _faker.Person.UserName,
-            LastName = _faker.Person.LastName,
-            Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
-        };
-        
+        var user = CreatingUser(request.CompanyId);
+        user.Id = userId;
+
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync(user);
         _userRepositoryMock.Setup(i => i.UpdateUser(It.IsAny<User>())).ReturnsAsync(false);
 
@@ -169,10 +156,11 @@ public class UserServiceTests
             .Should()
             .ThrowAsync<EntityUpdateException>()
             .WithMessage("Couldn't update the user");
-        
+
         _userRepositoryMock.Verify(i => i.ReadById(request.Id), Times.Once);
         _userRepositoryMock.Verify(i => i.UpdateUser(It.IsAny<User>()), Times.Once);
     }
+
     #endregion
 
     #region DeleteTests
@@ -183,10 +171,10 @@ public class UserServiceTests
         // Arrange
         int userId = _faker.Random.Int(1, 100);
         _userRepositoryMock.Setup(i => i.DeleteUser(userId)).ReturnsAsync(true);
-        
+
         // Act
         await _userService.Delete(userId);
-        
+
         // Assert
         _userRepositoryMock.Verify(i => i.DeleteUser(userId), Times.Once);
     }
@@ -197,15 +185,16 @@ public class UserServiceTests
         // Arrange
         int userId = _faker.Random.Int(1, 100);
         _userRepositoryMock.Setup(i => i.DeleteUser(userId)).ReturnsAsync(false);
-        
+
         // Act & Assert
         await _userService.Invoking(i => i.Delete(userId))
             .Should()
             .ThrowAsync<EntityDeleteException>()
             .WithMessage("Couldn't delete user");
-        
+
         _userRepositoryMock.Verify(i => i.DeleteUser(userId), Times.Once);
     }
+
     #endregion
 
     #region GetTests
@@ -215,21 +204,14 @@ public class UserServiceTests
     {
         // Arrange
         int userId = _faker.Random.Int(1, 100);
-        var user = new User()
-        {
-            Id = userId,
-            FirstName = _faker.Person.FirstName,
-            Username = _faker.Person.UserName,
-            LastName = _faker.Person.LastName,
-            Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
-        };
-        
+        var user = CreatingUser(_faker.Random.Int(1, 100));
+        user.Id = userId;
+
         _userRepositoryMock.Setup(i => i.ReadById(userId)).ReturnsAsync(user);
-        
+
         // Act
         var result = await _userService.GetById(userId);
-        
+
         // Assert
         result.Should().NotBeNull();
         result.FirstName.Should().Be(user.FirstName);
@@ -246,14 +228,13 @@ public class UserServiceTests
         // Arrange
         int userId = _faker.Random.Int(1, 100);
         _userRepositoryMock.Setup(i => i.ReadById(userId)).ReturnsAsync((User)null!);
-        
+
         // Act & Assert
         await _userService.Invoking(i => i.GetById(userId))
             .Should()
             .ThrowAsync<NotFoundApplicationException>()
             .WithMessage("User not found");
         _userRepositoryMock.Verify(i => i.ReadById(userId), Times.Once);
-        
     }
 
     [Fact]
@@ -262,32 +243,16 @@ public class UserServiceTests
         // Arrange
         var users = new List<User>()
         {
-            new User()
-            {
-                Id = _faker.Random.Int(1, 100),
-                FirstName = _faker.Person.FirstName,
-                Username = _faker.Person.UserName,
-                LastName = _faker.Person.LastName,
-                Email = _faker.Person.Email,
-                CompanyId = _faker.Random.Int(1, 100)
-            },
-            new User()
-            {
-                Id = _faker.Random.Int(1, 100),
-                FirstName = _faker.Person.FirstName,
-                Username = _faker.Person.UserName,
-                LastName = _faker.Person.LastName,
-                Email = _faker.Person.Email,
-                CompanyId = _faker.Random.Int(1, 100)
-            }
+            CreatingUser( _faker.Random.Int(1, 100)),
+            CreatingUser( _faker.Random.Int(1, 100)),
         };
-        
+
         _userRepositoryMock.Setup(i => i.ReadAll()).ReturnsAsync(users);
-        
+
         // Act
         var result = await _userService.GetAll();
         var userResponses = result.ToList();
-        
+
         // Assert
         userResponses.Should().HaveCount(2);
         userResponses.Select(r => r.Username).Should().Contain(users.Select(t => t.Username));
@@ -298,14 +263,30 @@ public class UserServiceTests
     public async Task GetAll_WhenNoUsersExist_ReturnsEmptyCollection()
     {
         // Arrange
-        _userRepositoryMock.Setup(i => i.ReadAll()).ReturnsAsync(new List<User>()); 
-        
+        _userRepositoryMock.Setup(i => i.ReadAll()).ReturnsAsync(new List<User>());
+
         // Act
         var result = await _userService.GetAll();
-        
+
         // Assert
         result.Should().BeEmpty();
         _userRepositoryMock.Verify(i => i.ReadAll(), Times.Once());
     }
+
     #endregion
+
+    private User CreatingUser(int companyId)
+    {
+        var user = new User()
+        {
+            Id = _faker.Random.Int(1, 100),
+            FirstName = _faker.Person.FirstName,
+            Username = _faker.Person.UserName,
+            LastName = _faker.Person.LastName,
+            Email = _faker.Person.Email,
+            CompanyId = companyId
+        };
+        
+        return user;
+    }
 }

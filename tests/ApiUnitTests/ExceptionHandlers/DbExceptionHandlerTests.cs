@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Api.ExceptionHandlers;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 
@@ -51,9 +52,9 @@ public class DbExceptionHandlerTests
         var result = await _handler.TryHandleAsync(_httpContext, exception, CancellationToken.None);
 
         // Assert
-        Assert.False(result);
-        Assert.Equal(StatusCodes.Status200OK, _httpContext.Response.StatusCode); // default
-        Assert.Null(_httpContext.Response.ContentType);
+        result.Should().BeFalse();
+        _httpContext.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+        _httpContext.Response.ContentType.Should().BeNull();
         _problemDetailsServiceMock.Verify(p => p.WriteAsync(It.IsAny<ProblemDetailsContext>()), Times.Never);
     }
     
@@ -69,7 +70,7 @@ public class DbExceptionHandlerTests
         var result = await _handler.TryHandleAsync(_httpContext, exception.Object, CancellationToken.None);
 
         // Assert
-        Assert.True(result);
+        result.Should().BeTrue();
         _problemDetailsServiceMock.Verify(p => p.WriteAsync(It.Is<ProblemDetailsContext>(
             ctx => ctx.ProblemDetails.Instance == "/api/test"
         )), Times.Once);

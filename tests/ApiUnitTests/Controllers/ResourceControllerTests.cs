@@ -127,8 +127,9 @@ public class ResourceControllerTests
     }
 
     #endregion
-    
+
     #region DeleteTests
+
     [Fact]
     public async Task Delete_ExistingResource_ReturnsNoContent()
     {
@@ -143,7 +144,7 @@ public class ResourceControllerTests
         result.Should().BeOfType<NoContentResult>();
         _resourceServiceMock.Verify(x => x.Delete(resourceId), Times.Once());
     }
-    
+
     [Fact]
     public async Task DeleteCompanyResource_ValidRequest_ReturnsNoContent()
     {
@@ -159,21 +160,17 @@ public class ResourceControllerTests
         result.Should().BeOfType<NoContentResult>();
         _resourceServiceMock.Verify(x => x.DeleteCompanyResource(resourceId, companyId), Times.Once());
     }
+
     #endregion
-    
+
     #region GetTests
+
     [Fact]
     public async Task GetByResourceId_ExistingResource_ReturnsOkWithResource()
     {
         // Arrange
         var resourceId = _faker.Random.Int(1, 100);
-        var resource = new ResourceResponse()
-        {
-            Name = _faker.Random.String(),
-            Type = _faker.Random.String(),
-            Status = ResourceStatus.Active,
-            Source = _faker.Random.String(),
-        };
+        var resource = CreatingResourceResponse(resourceId);
         _resourceServiceMock.Setup(x => x.GetResource(resourceId)).ReturnsAsync(resource);
 
         // Act
@@ -185,27 +182,15 @@ public class ResourceControllerTests
         okResult?.Value.Should().BeEquivalentTo(resource);
         _resourceServiceMock.Verify(x => x.GetResource(resourceId), Times.Once());
     }
-    
+
     [Fact]
     public async Task GetAllResources_ExistingResources_ReturnsOkWithResources()
     {
         // Arrange
         var resources = new List<ResourceResponse>
         {
-            new ResourceResponse
-            {
-                Name = _faker.Random.String(),
-                Type = _faker.Random.String(),
-                Status = ResourceStatus.Active,
-                Source = _faker.Random.String(),
-            },
-            new ResourceResponse
-            {
-                Name = _faker.Random.String(),
-                Type = _faker.Random.String(),
-                Status = ResourceStatus.Active,
-                Source = _faker.Random.String(),
-            }
+            CreatingResourceResponse(_faker.Random.Int(1, 100)),
+            CreatingResourceResponse(_faker.Random.Int(1, 100))
         };
         _resourceServiceMock.Setup(x => x.GetAllResources()).ReturnsAsync(resources);
 
@@ -217,7 +202,7 @@ public class ResourceControllerTests
             .Which.Value.Should().BeEquivalentTo(resources);
         _resourceServiceMock.Verify(x => x.GetAllResources(), Times.Once());
     }
-    
+
     [Fact]
     public async Task GetCompanyResources_ExistingResources_ReturnsOkWithResources()
     {
@@ -225,22 +210,8 @@ public class ResourceControllerTests
         var companyId = _faker.Random.Int(1, 100);
         var resources = new List<ResourceResponse>
         {
-            new ResourceResponse
-            {
-                CompanyId = companyId,
-                Name = _faker.Random.String(),
-                Type = _faker.Random.String(),
-                Status = ResourceStatus.Active,
-                Source = _faker.Random.String(),
-            },
-            new ResourceResponse
-            {
-                CompanyId = companyId,
-                Name = _faker.Random.String(),
-                Type = _faker.Random.String(),
-                Status = ResourceStatus.Active,
-                Source = _faker.Random.String(),
-            }
+            CreatingResourceResponse(companyId),
+            CreatingResourceResponse(companyId)
         };
         _resourceServiceMock.Setup(x => x.GetCompanyResources(companyId)).ReturnsAsync(resources);
 
@@ -252,5 +223,20 @@ public class ResourceControllerTests
             .Which.Value.Should().BeEquivalentTo(resources);
         _resourceServiceMock.Verify(x => x.GetCompanyResources(companyId), Times.Once());
     }
+
     #endregion
+
+    private ResourceResponse CreatingResourceResponse(int companyId)
+    {
+        var resource = new ResourceResponse()
+        {
+            CompanyId = companyId,
+            Name = _faker.Random.String(),
+            Type = _faker.Random.String(),
+            Status = ResourceStatus.Active,
+            Source = _faker.Random.String(),
+        };
+
+        return resource;
+    }
 }

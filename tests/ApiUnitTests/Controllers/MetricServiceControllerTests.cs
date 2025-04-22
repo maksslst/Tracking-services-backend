@@ -102,13 +102,7 @@ public class MetricServiceControllerTests
     {
         // Arrange
         var resourceId = _faker.Random.Int(1, 100);
-        var metric = new MetricResponse()
-        {
-            ResourceId = resourceId,
-            Created = DateTime.Now,
-            Unit = _faker.Random.String(),
-            Name = _faker.Random.String(),
-        };
+        var metric = CreatingMetricResponse(resourceId);
         _metricServiceMock.Setup(x => x.GetMetricByResourceId(resourceId)).ReturnsAsync(metric);
 
         // Act
@@ -128,20 +122,8 @@ public class MetricServiceControllerTests
         var resourceId = _faker.Random.Int(1, 100);
         var metrics = new List<MetricResponse>
         {
-            new MetricResponse
-            {
-                ResourceId = resourceId,
-                Created = DateTime.Now,
-                Unit = _faker.Random.String(),
-                Name = _faker.Random.String(),
-            },
-            new MetricResponse
-            {
-                ResourceId = resourceId,
-                Created = DateTime.Now,
-                Unit = _faker.Random.String(),
-                Name = _faker.Random.String(),
-            }
+            CreatingMetricResponse(resourceId),
+            CreatingMetricResponse(resourceId)
         };
         _metricServiceMock.Setup(x => x.GetAllMetricsByResourceId(resourceId)).ReturnsAsync(metrics);
 
@@ -160,20 +142,8 @@ public class MetricServiceControllerTests
         // Arrange
         var metrics = new List<MetricResponse>
         {
-            new MetricResponse
-            {
-                ResourceId = _faker.Random.Int(1, 100),
-                Created = DateTime.Now,
-                Unit = _faker.Random.String(),
-                Name = _faker.Random.String(),
-            },
-            new MetricResponse
-            {
-                ResourceId = _faker.Random.Int(1, 100),
-                Created = DateTime.Now,
-                Unit = _faker.Random.String(),
-                Name = _faker.Random.String(),
-            }
+            CreatingMetricResponse(_faker.Random.Int(1, 100)),
+            CreatingMetricResponse(_faker.Random.Int(1,100))
         };
         _metricServiceMock.Setup(x => x.GetAll()).ReturnsAsync(metrics);
         
@@ -186,4 +156,17 @@ public class MetricServiceControllerTests
         _metricServiceMock.Verify(x => x.GetAll(), Times.Once());
     }
     #endregion
+
+    private MetricResponse CreatingMetricResponse(int resourceId)
+    {
+        var metric = new MetricResponse()
+        {
+            ResourceId = resourceId,
+            Created = DateTime.Now,
+            Unit = _faker.Random.String(),
+            Name = _faker.Random.String(),
+        };
+
+        return metric;
+    }
 }

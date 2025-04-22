@@ -54,7 +54,7 @@ public class MetricPostgresRepository : IMetricRepository
         return metric;
     }
 
-    public async Task<Metric> ReadMetricId(int metricId)
+    public async Task<Metric?> ReadMetricId(int metricId)
     {
         var metric = await _connection.QueryFirstOrDefaultAsync<Metric>(
             @"SELECT id, name, resource_id, unit

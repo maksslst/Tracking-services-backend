@@ -154,15 +154,10 @@ public class TaskControllerTests
     {
         // Arrange
         var taskId = _faker.Random.Int(1, 100);
-        var task = new TaskResponse()
-        {
-            AssignedUserId = _faker.Random.Int(1, 100),
-            CreatedById = _faker.Random.Int(1, 100),
-            Status = TaskStatus.Opened,
-            Description = _faker.Random.String(),
-            ResourceId = _faker.Random.Int(1, 100),
-            StartTime = DateTime.Now
-        };
+        var assignedUserId = _faker.Random.Int(1, 100);
+        var createdById = _faker.Random.Int(1, 100);
+        var resourceId = _faker.Random.Int(1, 100);
+        var task = CreatingTaskResponse(assignedUserId, createdById, resourceId);
         _taskServiceMock.Setup(x => x.GetTask(taskId)).ReturnsAsync(task);
 
         // Act
@@ -180,26 +175,13 @@ public class TaskControllerTests
     {
         // Arrange
         var companyId = _faker.Random.Int(1, 100);
+        var assignedUserId = _faker.Random.Int(1, 100);
+        var createdById = _faker.Random.Int(1, 100);
+        var resourceId = _faker.Random.Int(1, 100);
         var tasks = new List<TaskResponse>
         {
-            new TaskResponse
-            {
-                AssignedUserId = _faker.Random.Int(1, 100),
-                CreatedById = _faker.Random.Int(1, 100),
-                Status = TaskStatus.Opened,
-                Description = _faker.Random.String(),
-                ResourceId = _faker.Random.Int(1, 100),
-                StartTime = DateTime.Now
-            },
-            new TaskResponse
-            {
-                AssignedUserId = _faker.Random.Int(1, 100),
-                CreatedById = _faker.Random.Int(1, 100),
-                Status = TaskStatus.Opened,
-                Description = _faker.Random.String(),
-                ResourceId = _faker.Random.Int(1, 100),
-                StartTime = DateTime.Now
-            }
+            CreatingTaskResponse(assignedUserId, createdById, resourceId),
+            CreatingTaskResponse(assignedUserId, createdById, resourceId)
         };
         _taskServiceMock.Setup(x => x.GetAllCompanyTasks(companyId)).ReturnsAsync(tasks);
 
@@ -216,65 +198,60 @@ public class TaskControllerTests
     public async Task GetTaskUser_ExistingTask_ReturnsOkWithTask()
     {
         // Arrange
-        var userId = _faker.Random.Int(1, 100);
         var taskId = _faker.Random.Int(1, 100);
-        var task = new TaskResponse()
-        {
-            AssignedUserId = userId,
-            CreatedById = _faker.Random.Int(1, 100),
-            Status = TaskStatus.Opened,
-            Description = _faker.Random.String(),
-            ResourceId = _faker.Random.Int(1, 100),
-            StartTime = DateTime.Now
-        };
-        _taskServiceMock.Setup(x => x.GetTaskForUser(userId, taskId)).ReturnsAsync(task);
+        var assignedUserId = _faker.Random.Int(1, 100);
+        var createdById = _faker.Random.Int(1, 100);
+        var resourceId = _faker.Random.Int(1, 100);
+        var task = CreatingTaskResponse(assignedUserId, createdById, resourceId);
+        _taskServiceMock.Setup(x => x.GetTaskForUser(assignedUserId, taskId)).ReturnsAsync(task);
 
         // Act
-        var result = await _controller.GetTaskUser(userId, taskId);
+        var result = await _controller.GetTaskUser(assignedUserId, taskId);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
         okResult?.Value.Should().BeEquivalentTo(task);
-        _taskServiceMock.Verify(x => x.GetTaskForUser(userId, taskId), Times.Once());
+        _taskServiceMock.Verify(x => x.GetTaskForUser(assignedUserId, taskId), Times.Once());
     }
 
     [Fact]
     public async Task GetAllUserTasks_WithTasks_ReturnsOkWithTasks()
     {
         // Arrange
-        var userId = _faker.Random.Int(1, 100);
+        var assignedUserId = _faker.Random.Int(1, 100);
+        var createdById = _faker.Random.Int(1, 100);
+        var resourceId = _faker.Random.Int(1, 100);
         var tasks = new List<TaskResponse>
         {
-            new TaskResponse
-            {
-                AssignedUserId = userId,
-                CreatedById = _faker.Random.Int(1, 100),
-                Status = TaskStatus.Opened,
-                Description = _faker.Random.String(),
-                ResourceId = _faker.Random.Int(1, 100),
-                StartTime = DateTime.Now
-            },
-            new TaskResponse
-            {
-                AssignedUserId = userId,
-                CreatedById = _faker.Random.Int(1, 100),
-                Status = TaskStatus.Opened,
-                Description = _faker.Random.String(),
-                ResourceId = _faker.Random.Int(1, 100),
-                StartTime = DateTime.Now
-            }
+            CreatingTaskResponse(assignedUserId, createdById, resourceId),
+            CreatingTaskResponse(assignedUserId, createdById, resourceId)
         };
-        _taskServiceMock.Setup(x => x.GetAllUserTasks(userId)).ReturnsAsync(tasks);
+        _taskServiceMock.Setup(x => x.GetAllUserTasks(assignedUserId)).ReturnsAsync(tasks);
 
         // Act
-        var result = await _controller.GetAllUserTasks(userId);
+        var result = await _controller.GetAllUserTasks(assignedUserId);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>()
             .Which.Value.Should().BeEquivalentTo(tasks);
-        _taskServiceMock.Verify(x => x.GetAllUserTasks(userId), Times.Once());
+        _taskServiceMock.Verify(x => x.GetAllUserTasks(assignedUserId), Times.Once());
     }
 
     #endregion
+
+    private TaskResponse CreatingTaskResponse(int assignedUserId, int createdById, int resourceId)
+    {
+        var task = new TaskResponse
+        {
+            AssignedUserId = assignedUserId,
+            CreatedById = createdById,
+            Status = TaskStatus.Opened,
+            Description = _faker.Random.String(),
+            ResourceId = resourceId,
+            StartTime = DateTime.Now
+        };
+
+        return task;
+    }
 }

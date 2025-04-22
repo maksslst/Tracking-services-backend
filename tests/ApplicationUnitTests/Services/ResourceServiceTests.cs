@@ -61,14 +61,9 @@ public class ResourceServiceTests
     {
         // Arrange
         var request = new UpdateResourceRequest { Id = 1, Name = _faker.Commerce.ProductName() };
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(new Resource
-        {
-            Id = request.Id,
-            Name = _faker.Commerce.ProductName(),
-            Type = _faker.Commerce.ProductMaterial(),
-            Source = _faker.Internet.Url(),
-            Status = ResourceStatus.Active
-        });
+        var resource = CreatingResource(_faker.Random.Int(1, 100));
+        resource.Id = request.Id;
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(resource);
 
         _resourceRepoMock.Setup(r => r.UpdateResource(It.IsAny<Resource>())).ReturnsAsync(true);
 
@@ -86,23 +81,22 @@ public class ResourceServiceTests
         var request = new UpdateResourceRequest { Id = 1 };
         _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync((Resource)null!);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<NotFoundApplicationException>(() => _resourceService.Update(request));
+        // Act
+        Func<Task> act = () => _resourceService.Update(request);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundApplicationException>();
     }
 
     [Fact]
     public async Task Update_UpdateFails_ThrowsEntityUpdateException()
     {
         // Arrange
-        var request = new UpdateResourceRequest { Id = 1, Name = "Test" };
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(new Resource
-        {
-            Id = request.Id,
-            Name = _faker.Commerce.ProductName(),
-            Type = _faker.Commerce.ProductMaterial(),
-            Source = _faker.Internet.Url(),
-            Status = ResourceStatus.Active
-        });
+        var request = new UpdateResourceRequest { Id = 1, Name = "Test", CompanyId = _faker.Random.Int(1, 100) };
+        var resource = CreatingResource(request.CompanyId ?? 1);
+        resource.Id = request.Id;
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(resource);
+
         _resourceRepoMock.Setup(r => r.UpdateResource(It.IsAny<Resource>())).ReturnsAsync(false);
 
         // Act & Assert
@@ -181,15 +175,18 @@ public class ResourceServiceTests
     public async Task UpdateCompanyResource_ValidRequest_UpdatesResource()
     {
         // Arrange
-        var request = new UpdateResourceRequest { Id = 1, Name = "Updated" };
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(new Resource
+        var request = new UpdateResourceRequest { Id = 1, Name = "Updated", CompanyId = _faker.Random.Int(1, 100) };
+        var resource = new Resource
         {
             Id = request.Id,
             Name = _faker.Commerce.ProductName(),
             Type = _faker.Commerce.ProductMaterial(),
             Source = _faker.Internet.Url(),
-            Status = ResourceStatus.Active
-        });
+            Status = ResourceStatus.Active,
+            CompanyId = request.CompanyId ?? 1
+        };
+
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(resource);
         _resourceRepoMock.Setup(r => r.UpdateResource(It.IsAny<Resource>())).ReturnsAsync(true);
 
         // Act
@@ -215,16 +212,18 @@ public class ResourceServiceTests
     public async Task UpdateCompanyResource_UpdateFails_ThrowsEntityUpdateException()
     {
         // Arrange
-        var request = new UpdateResourceRequest { Id = 1 };
-        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(new Resource
+        var request = new UpdateResourceRequest { Id = 1 , CompanyId = _faker.Random.Int(1, 100) };
+        var resource = new Resource
         {
             Id = request.Id,
             Name = _faker.Commerce.ProductName(),
             Type = _faker.Commerce.ProductMaterial(),
             Source = _faker.Internet.Url(),
-            Status = ResourceStatus.Active
-        });
-
+            Status = ResourceStatus.Active,
+            CompanyId = request.CompanyId ?? 1
+        };
+        
+        _resourceRepoMock.Setup(r => r.ReadByResourceId(request.Id)).ReturnsAsync(resource);
         _resourceRepoMock.Setup(r => r.UpdateResource(It.IsAny<Resource>())).ReturnsAsync(false);
 
         // Act & Assert
@@ -267,13 +266,7 @@ public class ResourceServiceTests
     public async Task GetResource_ValidId_ReturnsResourceResponse()
     {
         // Arrange
-        var resource = new Resource
-        {
-            Id = 1, Name = _faker.Commerce.ProductName(),
-            Type = _faker.Commerce.ProductMaterial(),
-            Source = _faker.Internet.Url(),
-            Status = ResourceStatus.Active
-        };
+        var resource = CreatingResource(_faker.Random.Int(1, 100));
         _resourceRepoMock.Setup(r => r.ReadByResourceId(1)).ReturnsAsync(resource);
 
         // Act
@@ -304,20 +297,8 @@ public class ResourceServiceTests
         // Arrange
         var list = new List<Resource>
         {
-            new()
-            {
-                Id = 1, Name = _faker.Commerce.ProductName(),
-                Type = _faker.Commerce.ProductMaterial(),
-                Source = _faker.Internet.Url(),
-                Status = ResourceStatus.Active
-            },
-            new()
-            {
-                Id = 2, Name = _faker.Commerce.ProductName(),
-                Type = _faker.Commerce.ProductMaterial(),
-                Source = _faker.Internet.Url(),
-                Status = ResourceStatus.Active
-            }
+            CreatingResource(_faker.Random.Int(1, 100)),
+            CreatingResource(_faker.Random.Int(1, 100))
         };
         _resourceRepoMock.Setup(r => r.ReadAllResources()).ReturnsAsync(list);
 
@@ -336,7 +317,7 @@ public class ResourceServiceTests
     public async Task GetCompanyResources_CompanyExists_ReturnsResources()
     {
         // Arrange
-        var companyId = 1;
+        var companyId = _faker.Random.Int(1, 100);
         _companyRepoMock.Setup(c => c.ReadByCompanyId(companyId)).ReturnsAsync(new Company()
         {
             Id = companyId,
@@ -346,20 +327,8 @@ public class ResourceServiceTests
         });
         _resourceRepoMock.Setup(r => r.ReadCompanyResources(companyId)).ReturnsAsync(new List<Resource>
         {
-            new()
-            {
-                Id = 1, Name = _faker.Commerce.ProductName(),
-                Type = _faker.Commerce.ProductMaterial(),
-                Source = _faker.Internet.Url(),
-                Status = ResourceStatus.Active
-            },
-            new()
-            {
-                Id = 2, Name = _faker.Commerce.ProductName(),
-                Type = _faker.Commerce.ProductMaterial(),
-                Source = _faker.Internet.Url(),
-                Status = ResourceStatus.Active
-            }
+            CreatingResource(companyId),
+            CreatingResource(companyId)
         });
 
         // Act
@@ -380,4 +349,19 @@ public class ResourceServiceTests
     }
 
     #endregion
+
+    private Resource CreatingResource(int companyId)
+    {
+        var resource = new Resource
+        {
+            Id = _faker.Random.Int(1, 100),
+            Name = _faker.Commerce.ProductName(),
+            Type = _faker.Commerce.ProductMaterial(),
+            Source = _faker.Internet.Url(),
+            Status = ResourceStatus.Active,
+            CompanyId = companyId
+        };
+
+        return resource;
+    }
 }

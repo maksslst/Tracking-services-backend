@@ -96,13 +96,7 @@ public class CompanyServiceTests
             CompanyName = _faker.Company.CompanyName(),
         };
 
-        var response = new Company()
-        {
-            Id = request.Id,
-            CompanyName = _faker.Company.CompanyName(),
-            Resources = [],
-            Users = []
-        };
+        var response = CompanyCreation(request.Id);
 
         _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync(response);
         _companyRepositoryMock.Setup(i => i.UpdateCompany(It.IsAny<Company>())).ReturnsAsync(true);
@@ -127,13 +121,8 @@ public class CompanyServiceTests
             CompanyName = _faker.Company.CompanyName(),
         };
 
-        var response = new Company()
-        {
-            Id = request.Id,
-            CompanyName = request.CompanyName,
-            Resources = [],
-            Users = []
-        };
+        var response = CompanyCreation(request.Id);
+        request.CompanyName = request.CompanyName;
 
         _companyRepositoryMock.Setup(i => i.ReadByCompanyId(It.IsAny<int>())).ReturnsAsync(response);
         _companyRepositoryMock.Setup(i => i.UpdateCompany(It.IsAny<Company>())).ReturnsAsync(false);
@@ -238,13 +227,7 @@ public class CompanyServiceTests
     public async Task GetCompanyGetAllMetricValuesForResource()
     {
         // Arrange
-        var company = new Company()
-        {
-            Id = 1,
-            CompanyName = _faker.Company.CompanyName(),
-            Resources = [],
-            Users = []
-        };
+        var company = CompanyCreation(_faker.Random.Int(1, 100));
 
         _companyRepositoryMock.Setup(i => i.ReadByCompanyId(company.Id)).ReturnsAsync(company);
 
@@ -279,8 +262,8 @@ public class CompanyServiceTests
         // Arrange
         var companies = new List<Company>()
         {
-            new() { Id = 1, CompanyName = _faker.Company.CompanyName() },
-            new() { Id = 2, CompanyName = _faker.Company.CompanyName() },
+            CompanyCreation(_faker.Random.Int(1)),
+            CompanyCreation(_faker.Random.Int(2))
         };
 
         _companyRepositoryMock.Setup(i => i.ReadAllCompanies()).ReturnsAsync(companies);
@@ -311,13 +294,7 @@ public class CompanyServiceTests
     public async Task GetCompanyUsers_GetAllMetricValuesForResource()
     {
         // Arrange
-        var company = new Company()
-        {
-            Id = 1,
-            CompanyName = _faker.Company.CompanyName(),
-            Resources = [],
-            Users = []
-        };
+        var company = CompanyCreation(_faker.Random.Int(1, 100));
 
         var users = new List<User>()
         {
@@ -341,11 +318,11 @@ public class CompanyServiceTests
             }
         };
 
-        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(1)).ReturnsAsync(company);
+        _companyRepositoryMock.Setup(i => i.ReadByCompanyId(company.Id)).ReturnsAsync(company);
         _companyRepositoryMock.Setup(i => i.ReadCompanyUsers(It.IsAny<int>())).ReturnsAsync(users);
 
         // Act
-        var result = await _companyService.GetCompanyUsers(company.Id);
+        var result = (await _companyService.GetCompanyUsers(company.Id)).ToList();
 
         // Assert
         result.Should().HaveCount(2);
@@ -371,4 +348,17 @@ public class CompanyServiceTests
     }
 
     #endregion
+
+    private Company CompanyCreation(int id)
+    {
+        var company = new Company()
+        {
+            Id = id,
+            CompanyName = _faker.Company.CompanyName(),
+            Resources = [],
+            Users = []
+        };
+
+        return company;
+    }
 }

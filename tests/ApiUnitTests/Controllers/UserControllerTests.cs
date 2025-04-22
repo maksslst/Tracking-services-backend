@@ -106,14 +106,7 @@ public class UserControllerTests
     {
         // Arrange
         var userId = _faker.Random.Int(1, 100);
-        var user = new UserResponse()
-        {
-            Username = _faker.Person.UserName,
-            FirstName = _faker.Person.FirstName,
-            LastName = _faker.Person.LastName,
-            CompanyId = _faker.Random.Int(1, 100),
-            Email = _faker.Person.Email
-        };
+        var user = CreatingUserResponse(_faker.Random.Int(1, 100));
         _userServiceMock.Setup(x => x.GetById(userId)).ReturnsAsync(user);
 
         // Act
@@ -132,22 +125,8 @@ public class UserControllerTests
         // Arrange
         var users = new List<UserResponse>
         {
-            new UserResponse()
-            {
-                Username = _faker.Person.UserName,
-                FirstName = _faker.Person.FirstName,
-                LastName = _faker.Person.LastName,
-                CompanyId = _faker.Random.Int(1, 100),
-                Email = _faker.Person.Email
-            },
-            new UserResponse()
-            {
-            Username = _faker.Person.UserName,
-            FirstName = _faker.Person.FirstName,
-            LastName = _faker.Person.LastName,
-            CompanyId = _faker.Random.Int(1, 100),
-            Email = _faker.Person.Email
-        }
+            CreatingUserResponse(_faker.Random.Int(1, 100)),
+            CreatingUserResponse(_faker.Random.Int(1, 100))
         };
         _userServiceMock.Setup(x => x.GetAll()).ReturnsAsync(users);
 
@@ -159,5 +138,20 @@ public class UserControllerTests
             .Which.Value.Should().BeEquivalentTo(users);
         _userServiceMock.Verify(x => x.GetAll(), Times.Once());
     }
+
     #endregion
+
+    private UserResponse CreatingUserResponse(int companyId)
+    {
+        var user = new UserResponse()
+        {
+            Username = _faker.Person.UserName,
+            FirstName = _faker.Person.FirstName,
+            LastName = _faker.Person.LastName,
+            CompanyId = _faker.Random.Int(1, 100),
+            Email = _faker.Person.Email
+        };
+
+        return user;
+    }
 }
