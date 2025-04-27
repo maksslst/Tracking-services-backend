@@ -148,7 +148,7 @@ public class UserControllerTests
             Username = _faker.Person.UserName,
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
-            CompanyId = _faker.Random.Int(1, 100),
+            CompanyId = companyId,
             Email = _faker.Person.Email
         };
 
