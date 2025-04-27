@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.CompanyRepository;
 
+[ExcludeFromCodeCoverage]
 public class CompanyInMemoryRepository : ICompanyRepository
 {
     private List<Company> _companies;

@@ -1,4 +1,3 @@
-using Application.DTOs.Mappings;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
@@ -57,10 +56,6 @@ public class MonitoringSettingController : ControllerBase
     public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {
         var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resourceId);
-        if (monitoringSetting == null)
-        {
-            return BadRequest("Не удалось найти настройку");
-        }
 
         return Ok(monitoringSetting);
     }

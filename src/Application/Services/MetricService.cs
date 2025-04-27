@@ -2,7 +2,6 @@ using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Repositories.MetricRepository;
-using Infrastructure.Repositories.ResourceRepository;
 using Application.Requests;
 using Application.Responses;
 using Microsoft.Extensions.Logging;
@@ -13,15 +12,12 @@ public class MetricService : IMetricService
 {
     private readonly IMetricRepository _metricRepository;
     private readonly IMapper _mapper;
-    private readonly IResourceRepository _resourceRepository;
     private readonly ILogger<MetricService> _logger;
 
-    public MetricService(IMetricRepository repository, IMapper mapper, IResourceRepository resourceRepository,
-        ILogger<MetricService> logger)
+    public MetricService(IMetricRepository repository, IMapper mapper, ILogger<MetricService> logger)
     {
         _metricRepository = repository;
         _mapper = mapper;
-        _resourceRepository = resourceRepository;
         _logger = logger;
     }
 

@@ -13,7 +13,7 @@ public class UserPostgresRepository : IUserRepository
         _connection = connection;
     }
 
-    public async Task<int> CreateUser(User user)
+    public async Task<int> CreateUser(User? user)
     {
         var userId = await _connection.QuerySingleAsync<int>(
             @"INSERT INTO users (username, first_name, last_name, patronymic, email, company_id)

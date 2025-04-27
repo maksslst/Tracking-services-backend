@@ -37,6 +37,8 @@ Log.Logger = new LoggerConfiguration()
         DetectElasticsearchVersion = true
     }).CreateLogger();
 
+builder.Services.AddSerilog();
+
 // Add services to the container.
 
 builder.Services.AddControllers();

@@ -1,27 +1,29 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.UserRepository;
 
+[ExcludeFromCodeCoverage]
 public class UserInMemoryRepository : IUserRepository
 {
-    private List<User> _users;
+    private List<User?> _users;
 
     public UserInMemoryRepository()
     {
-        _users = new List<User>();
+        _users = new List<User?>();
         DataGeneration();
     }
 
-    public Task<int> CreateUser(User user)
+    public Task<int> CreateUser(User? user)
     {
         _users.Add(user);
-        return Task.FromResult(user.Id);
+        return Task.FromResult(user!.Id);
     }
 
     public Task<bool> UpdateUser(User user)
     {
-        User userToUpdate = _users.Find(i => i.Id == user.Id);
+        User? userToUpdate = _users.Find(i => i!.Id == user.Id);
         if (userToUpdate == null)
         {
             return Task.FromResult(false);
@@ -40,7 +42,7 @@ public class UserInMemoryRepository : IUserRepository
 
     public Task<bool> DeleteUser(int userId)
     {
-        User userToDelete = _users.Find(i => i.Id == userId);
+        User? userToDelete = _users.Find(i => i!.Id == userId);
         if (userToDelete == null)
         {
             return Task.FromResult(false);
@@ -52,7 +54,7 @@ public class UserInMemoryRepository : IUserRepository
 
     public Task<User?> ReadById(int id)
     {
-        User user = _users.Find(i => i.Id == id);
+        User? user = _users.Find(i => i!.Id == id);
         return Task.FromResult(user);
     }
 
@@ -66,7 +68,7 @@ public class UserInMemoryRepository : IUserRepository
         var faker = new Faker();
         for (int i = 0; i < 5; i++)
         {
-            User user = new User()
+            User user = new User
             {
                 Id = i + 1,
                 FirstName = faker.Person.FirstName,

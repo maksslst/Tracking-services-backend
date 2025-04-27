@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Api.ExceptionHandlers;
 
-public class GlobalExceptionHandler(IProblemDetailsService _problemDetailsService) : IExceptionHandler
+public class GlobalExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception,
         CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler(IProblemDetailsService _problemDetailsServic
             Exception = exception
         };
             
-        await _problemDetailsService.WriteAsync(problemDetailsContext);
+        await problemDetailsService.WriteAsync(problemDetailsContext);
         return true;
     }
 }

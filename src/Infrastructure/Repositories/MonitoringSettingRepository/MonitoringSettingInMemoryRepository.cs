@@ -1,8 +1,9 @@
-using Bogus;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.MonitoringSettingRepository;
 
+[ExcludeFromCodeCoverage]
 public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
 {
     private List<MonitoringSetting> _monitoringSettings;
@@ -61,8 +62,6 @@ public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
 
     private void DataGeneration()
     {
-        var faker = new Faker();
-        Random random = new Random();
         for (int i = 0; i < 5;i++)
         {
             MonitoringSetting monitoringSetting = new MonitoringSetting()
@@ -70,7 +69,7 @@ public class MonitoringSettingInMemoryRepository : IMonitoringSettingRepository
                 Id = i + 1,
                 ResourceId = i + 1,
                 CheckInterval = "0 0/5 * * * ?",
-                Mode = i % 2 == 0 ? true : false
+                Mode = i % 2 == 0
             };
             
             _monitoringSettings.Add(monitoringSetting);

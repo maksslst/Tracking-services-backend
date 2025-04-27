@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 
 namespace Infrastructure.Repositories.MetricValueRepository;
 
+[ExcludeFromCodeCoverage]
 public class MetricValueInMemoryRepository : IMetricValueRepository
 {
     private List<MetricValue> _metricValues;
@@ -27,7 +29,7 @@ public class MetricValueInMemoryRepository : IMetricValueRepository
             return Task.FromResult<MetricValue?>(null);
         }
         
-        return Task.FromResult(metricValue);
+        return Task.FromResult(metricValue)!;
     }
 
     public Task<IEnumerable<MetricValue?>> ReadAllMetricValuesForMetricsId(IEnumerable<int> metricsId)

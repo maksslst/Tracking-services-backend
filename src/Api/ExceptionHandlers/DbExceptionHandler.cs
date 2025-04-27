@@ -1,11 +1,10 @@
 using System.Data.Common;
-using Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.ExceptionHandlers;
 
-public class DbExceptionHandler(IProblemDetailsService _problemDetailsService) : IExceptionHandler
+public class DbExceptionHandler(IProblemDetailsService problemDetailsService) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
@@ -33,7 +32,7 @@ public class DbExceptionHandler(IProblemDetailsService _problemDetailsService) :
             Exception = ex
         };
 
-        await _problemDetailsService.WriteAsync(problemDetailsContext);
+        await problemDetailsService.WriteAsync(problemDetailsContext);
 
         return true;
     }

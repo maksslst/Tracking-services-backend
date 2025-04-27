@@ -22,7 +22,7 @@ public class InitialMigration : Migration
             .WithColumn("last_name").AsString(100).NotNullable()
             .WithColumn("patronymic").AsString(100).Nullable()
             .WithColumn("email").AsString(100).Nullable().Unique()
-            .WithColumn("company_id").AsInt32().NotNullable()
+            .WithColumn("company_id").AsInt32().Nullable()
             .ForeignKey("companies", "id")
             .OnDeleteOrUpdate(Rule.Cascade);
         #endregion
@@ -213,12 +213,12 @@ public class InitialMigration : Migration
 
     public override void Down()
     {
-        Delete.Table("monitoringSettings");
-        Delete.Table("resources");
-        Delete.Table("metricValues");
+        Delete.Table("service_tasks");
+        Delete.Table("monitoring_settings");
+        Delete.Table("metric_values");
         Delete.Table("metrics");
-        Delete.Table("companies");
+        Delete.Table("resources");
         Delete.Table("users");
-        Delete.Table("serviceTasks");
+        Delete.Table("companies");
     }
 }

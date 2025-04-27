@@ -8,7 +8,7 @@ public class CreateResourceRequest
     public string Name { get; set; } = null!;
     public string Type { get; set; } = null!;
     public string Source { get; set; } = null!;
-    public int? CompanyId { get; set; }
+    public int CompanyId { get; set; }
     public ResourceStatus Status { get; set; } = ResourceStatus.Inactive;
 }
 

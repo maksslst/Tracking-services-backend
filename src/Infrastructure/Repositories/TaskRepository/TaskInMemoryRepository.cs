@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 using TaskStatus = Domain.Enums.TaskStatus;
 
 namespace Infrastructure.Repositories.TaskRepository;
 
+[ExcludeFromCodeCoverage]
 public class TaskInMemoryRepository : ITaskRepository
 {
     private List<ServiceTask> _tasks;
@@ -59,7 +61,7 @@ public class TaskInMemoryRepository : ITaskRepository
             return Task.FromResult<ServiceTask?>(null);
         }
         
-        return Task.FromResult(task);
+        return Task.FromResult(task)!;
     }
 
     public Task<IEnumerable<ServiceTask?>> ReadAllTasksCompanyId(int companyId)
@@ -67,7 +69,7 @@ public class TaskInMemoryRepository : ITaskRepository
         List<ServiceTask> companyTasks = new List<ServiceTask>();
         foreach (var task in _tasks)
         {
-            if (task.Resource.CompanyId == companyId)
+            if (task.Resource?.CompanyId == companyId)
             {
                 companyTasks.Add(task);
             }

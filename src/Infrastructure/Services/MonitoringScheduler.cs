@@ -16,10 +16,13 @@ public class MonitoringScheduler
 
     public async Task StartMonitoring()
     {
-        IEnumerable<MonitoringSetting> monitoringSettings = _monitoringSettingRepository.ReadAll().Result;
+        var monitoringSettings = await _monitoringSettingRepository.ReadAll();
         foreach (var monitoringSetting in monitoringSettings)
         {
-            MonitoringTaskSchedule(monitoringSetting);
+            if (monitoringSetting != null)
+            {
+                await MonitoringTaskSchedule(monitoringSetting);
+            }
         }
     }
 

@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using Bogus;
 using Domain.Entities;
 using Domain.Enums;
 
 namespace Infrastructure.Repositories.ResourceRepository;
 
+[ExcludeFromCodeCoverage]
 public class ResourceInMemoryRepository : IResourceRepository
 {
     private List<Resource> _resources;
@@ -53,7 +55,7 @@ public class ResourceInMemoryRepository : IResourceRepository
         bool isCorrect = DataVerification(resource);
         if (isCorrect)
         {
-            resource.Company.Resources.Add(resource);
+            resource.Company?.Resources.Add(resource);
         }
 
         return Task.FromResult(isCorrect);
@@ -106,7 +108,7 @@ public class ResourceInMemoryRepository : IResourceRepository
         }
     }
 
-    private bool DataVerification(Resource resource)
+    private bool DataVerification(Resource? resource)
     {
         if (resource == null)
         {
