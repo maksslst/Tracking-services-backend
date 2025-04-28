@@ -88,7 +88,8 @@ public class TaskServiceTests
             Email = _faker.Person.Email,
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
-            Username = _faker.Person.UserName
+            Username = _faker.Person.UserName,
+            PasswordHash = _faker.Random.String()
         };
         var task = new ServiceTask
         {
@@ -102,7 +103,8 @@ public class TaskServiceTests
                 Email = _faker.Person.Email,
                 FirstName = _faker.Person.FirstName,
                 LastName = _faker.Person.LastName,
-                Username = _faker.Person.UserName
+                Username = _faker.Person.UserName,
+                PasswordHash = _faker.Random.String()
             },
             Description = _faker.Random.String(),
             CreatedById = _faker.Random.Int(1, 100),
@@ -183,7 +185,8 @@ public class TaskServiceTests
                 Email = _faker.Person.Email,
                 FirstName = _faker.Person.FirstName,
                 LastName = _faker.Person.LastName,
-                Username = _faker.Person.UserName
+                Username = _faker.Person.UserName,
+                PasswordHash = _faker.Random.String()
             },
             Description = _faker.Random.String(),
             Status = TaskStatus.InProgress,
@@ -198,7 +201,8 @@ public class TaskServiceTests
             Email = _faker.Person.Email,
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
-            Username = _faker.Person.UserName
+            Username = _faker.Person.UserName,
+            PasswordHash = _faker.Random.String()
         };
 
         _taskRepositoryMock.Setup(i => i.ReadTaskId(request.Id)).ReturnsAsync(task);
@@ -238,7 +242,8 @@ public class TaskServiceTests
                 Email = _faker.Person.Email,
                 FirstName = _faker.Person.FirstName,
                 LastName = _faker.Person.LastName,
-                Username = _faker.Person.UserName
+                Username = _faker.Person.UserName,
+                PasswordHash = _faker.Random.String()
             },
             Description = _faker.Random.String(),
             Status = TaskStatus.Completed,
@@ -253,7 +258,8 @@ public class TaskServiceTests
             Email = _faker.Person.Email,
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
-            Username = _faker.Person.UserName
+            Username = _faker.Person.UserName,
+            PasswordHash = _faker.Random.String()
         };
 
         _taskRepositoryMock.Setup(i => i.ReadTaskId(request.Id)).ReturnsAsync(task);

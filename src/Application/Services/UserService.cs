@@ -4,6 +4,7 @@ using Domain.Entities;
 using Infrastructure.Repositories.UserRepository;
 using Application.Requests;
 using Application.Responses;
+using Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
@@ -24,6 +25,7 @@ public class UserService : IUserService
     public async Task<int> Add(CreateUserRequest request)
     {
         var user = _mapper.Map<User>(request);
+        user.Role = UserRoles.User;
         var userId = await _userRepository.CreateUser(user);
         _logger.LogInformation("Created user with id: {userId}", userId);
         return userId;

@@ -1,26 +1,22 @@
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class MetricServiceController : ControllerBase
+public class MetricServiceController(IMetricService metricService) : ControllerBase
 {
-    private readonly IMetricService _metricService;
-
-    public MetricServiceController(IMetricService metricService)
-    {
-        _metricService = metricService;
-    }
-
     #region HttpPost
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> AddMetric([FromBody] CreateMetricRequest request)
     {
-        int metric = await _metricService.AddMetric(request);
+        int metric = await metricService.AddMetric(request);
         return CreatedAtAction(nameof(GetMetricByResourceId), new { resourceId = metric }, metric);
     }
 
@@ -28,10 +24,11 @@ public class MetricServiceController : ControllerBase
 
     #region HttpPut
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> UpdateMetric([FromBody] UpdateMetricRequest request)
     {
-        await _metricService.UpdateMetric(request);
+        await metricService.UpdateMetric(request);
         return NoContent();
     }
 
@@ -39,10 +36,11 @@ public class MetricServiceController : ControllerBase
 
     #region HttpDelete
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
     {
-        await _metricService.DeleteMetric(metricId);
+        await metricService.DeleteMetric(metricId);
         return NoContent();
     }
 
@@ -50,24 +48,27 @@ public class MetricServiceController : ControllerBase
 
     #region HttpGet
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMetricByResourceId(int resourceId)
     {
-        var metric = await _metricService.GetMetricByResourceId(resourceId);
+        var metric = await metricService.GetMetricByResourceId(resourceId);
         return Ok(metric);
     }
 
-    [HttpGet("GetAllMetricServiceId/{serviceId}")]
-    public async Task<IActionResult> GetAllMetricServiceId(int serviceId)
+    [Authorize(Roles = "Admin, Moderator, User")]
+    [HttpGet("GetAllMetricResourceId/{resourceId}")]
+    public async Task<IActionResult> GetAllMetricResourceId(int resourceId)
     {
-        var metrics = await _metricService.GetAllMetricsByResourceId(serviceId);
+        var metrics = await metricService.GetAllMetricsByResourceId(resourceId);
         return Ok(metrics);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var metrics = await _metricService.GetAll();
+        var metrics = await metricService.GetAll();
         return Ok(metrics);
     }
 

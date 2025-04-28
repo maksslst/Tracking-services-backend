@@ -94,6 +94,8 @@ public sealed class TestingFixture : IAsyncLifetime
             Email = _faker.Random.Word() + _faker.Random.Word() + "@gmail.com",
             Username = $"user_{Guid.NewGuid().ToString("N")}",
             CompanyId = companyId,
+            Role = UserRoles.User,
+            PasswordHash = _faker.Random.Word()
         });
 
         var user = await userRepository.ReadById(userId);

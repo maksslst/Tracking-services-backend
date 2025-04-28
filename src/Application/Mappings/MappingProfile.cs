@@ -28,5 +28,6 @@ public class MappingProfile : Profile
         CreateMap<Resource, ResourceResponse>().ReverseMap();
         CreateMap<CreateResourceRequest, Resource>();
         CreateMap<UpdateResourceRequest, Resource>();
+        CreateMap<RegistrationRequest, User>();
     }
 }

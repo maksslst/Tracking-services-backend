@@ -8,6 +8,7 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Bogus;
 using Domain.Entities;
+using Domain.Enums;
 using FluentAssertions;
 
 namespace ApplicationUnitTests.Services;
@@ -284,7 +285,9 @@ public class UserServiceTests
             Username = _faker.Person.UserName,
             LastName = _faker.Person.LastName,
             Email = _faker.Person.Email,
-            CompanyId = companyId
+            CompanyId = companyId,
+            Role = UserRoles.User,
+            PasswordHash = _faker.Random.String()
         };
         
         return user;

@@ -19,6 +19,8 @@ public static class DependencyInjection
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<IMetricService, MetricService>();
         services.AddTransient<IMetricValueService, MetricValueService>();
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IPasswordHasher, BCryptHasher>();
 
         services.AddFluentValidationAutoValidation();
         services.AddFluentValidationClientsideAdapters();

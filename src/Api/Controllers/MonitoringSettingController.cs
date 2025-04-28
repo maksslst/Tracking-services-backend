@@ -1,26 +1,22 @@
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class MonitoringSettingController : ControllerBase
+public class MonitoringSettingController(IMonitoringSettingService monitoringSettingService) : ControllerBase
 {
-    private readonly IMonitoringSettingService _monitoringSettingService;
-
-    public MonitoringSettingController(IMonitoringSettingService monitoringSettingService)
-    {
-        _monitoringSettingService = monitoringSettingService;
-    }
-
     #region HttpPost
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateMonitoringSettingRequest request)
     {
-        int monitoringSetting = await _monitoringSettingService.Add(request);
+        int monitoringSetting = await monitoringSettingService.Add(request);
 
         return CreatedAtAction(nameof(GetMonitoringSettingByResourceId), new { resourceId = monitoringSetting },
             monitoringSetting);
@@ -30,10 +26,11 @@ public class MonitoringSettingController : ControllerBase
 
     #region HttpPut
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateMonitoringSettingRequest request)
     {
-        await _monitoringSettingService.Update(request);
+        await monitoringSettingService.Update(request);
         return NoContent();
     }
 
@@ -41,10 +38,11 @@ public class MonitoringSettingController : ControllerBase
 
     #region HttpDelete
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpDelete("{monitoringSettingId}")]
     public async Task<IActionResult> Delete(int monitoringSettingId)
     {
-        await _monitoringSettingService.Delete(monitoringSettingId);
+        await monitoringSettingService.Delete(monitoringSettingId);
         return NoContent();
     }
 
@@ -52,10 +50,11 @@ public class MonitoringSettingController : ControllerBase
 
     #region HttpGet
 
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {
-        var monitoringSetting = await _monitoringSettingService.GetMonitoringSetting(resourceId);
+        var monitoringSetting = await monitoringSettingService.GetMonitoringSetting(resourceId);
 
         return Ok(monitoringSetting);
     }

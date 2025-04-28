@@ -1,33 +1,30 @@
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class CompanyController : ControllerBase
+public class CompanyController(ICompanyService companyService) : ControllerBase
 {
-    private readonly ICompanyService _companyService;
-
-    public CompanyController(ICompanyService companyService)
-    {
-        _companyService = companyService;
-    }
-
     #region HttpPost
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateCompanyRequest request)
     {
-        int company = await _companyService.Add(request);
+        int company = await companyService.Add(request);
         return CreatedAtAction(nameof(GetByCompanyId), new { companyId = company }, company);
     }
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpPost("AddUserToCompany/{userId}/{companyId}")]
     public async Task<IActionResult> AddUserToCompany(int userId, int companyId)
     {
-        await _companyService.AddUserToCompany(userId, companyId);
+        await companyService.AddUserToCompany(userId, companyId);
         return NoContent();
     }
 
@@ -35,10 +32,11 @@ public class CompanyController : ControllerBase
 
     #region HttpPut
 
+    [Authorize(Roles = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateCompanyRequest request)
     {
-        await _companyService.Update(request);
+        await companyService.Update(request);
         return NoContent();
     }
 
@@ -46,17 +44,19 @@ public class CompanyController : ControllerBase
 
     #region HttpDelete
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{companyId}")]
     public async Task<IActionResult> Delete(int companyId)
     {
-        await _companyService.Delete(companyId);
+        await companyService.Delete(companyId);
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("DeleteUserFromCompany/{userId}/{companyId}")]
     public async Task<IActionResult> DeleteUserFromCompany(int userId, int companyId)
     {
-        await _companyService.DeleteUserFromCompany(userId, companyId);
+        await companyService.DeleteUserFromCompany(userId, companyId);
         return NoContent();
     }
 
@@ -64,24 +64,27 @@ public class CompanyController : ControllerBase
 
     #region HttpGet
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("{companyId}")]
     public async Task<IActionResult> GetByCompanyId(int companyId)
     {
-        var company = await _companyService.GetCompany(companyId);
+        var company = await companyService.GetCompany(companyId);
         return Ok(company);
     }
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet]
     public async Task<IActionResult> GetAllCompanies()
     {
-        var companies = await _companyService.GetAllCompanies();
+        var companies = await companyService.GetAllCompanies();
         return Ok(companies);
     }
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("GetCompanyUsers/{companyId}")]
     public async Task<IActionResult> GetCompanyUsers(int companyId)
     {
-        var users = await _companyService.GetCompanyUsers(companyId);
+        var users = await companyService.GetCompanyUsers(companyId);
         return Ok(users);
     }
 

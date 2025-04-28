@@ -58,6 +58,12 @@ public class UserInMemoryRepository : IUserRepository
         return Task.FromResult(user);
     }
 
+    public Task<User?> ReadByUsername(string username)
+    {
+        var user = _users.Find(i => i?.Username == username);
+        return Task.FromResult(user);
+    }
+    
     public Task<IEnumerable<User?>> ReadAll()
     {
         return Task.FromResult<IEnumerable<User?>>(_users);
@@ -75,7 +81,8 @@ public class UserInMemoryRepository : IUserRepository
                 LastName = faker.Person.LastName,
                 Username = faker.Person.UserName,
                 Patronymic = faker.Name.LastName(),
-                Email = faker.Person.Email
+                Email = faker.Person.Email,
+                PasswordHash = faker.Random.String()
             };
 
             _users.Add(user);
