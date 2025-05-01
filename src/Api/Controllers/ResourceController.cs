@@ -12,7 +12,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
 {
     #region HttpPost
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateResourceRequest request)
     {
@@ -20,7 +19,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         return CreatedAtAction(nameof(GetByResourceId), new { resourceId = resource }, resource);
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpPost("{companyId}")]
     public async Task<IActionResult> AddCompanyResource(int companyId, [FromBody] CreateResourceRequest request)
     {
@@ -32,7 +30,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
 
     #region HttpPut
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateResourceRequest request)
     {
@@ -40,7 +37,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         return NoContent();
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpPut("{companyId}/{resourceId}")]
     public async Task<IActionResult> UpdateCompanyResource(int companyId, int resourceId,
         [FromBody] UpdateResourceRequest request)
@@ -53,7 +49,7 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
 
     #region HttpDelete
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("{resourceId}")]
     public async Task<IActionResult> Delete(int resourceId)
     {
@@ -73,7 +69,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetByResourceId(int resourceId)
     {
@@ -81,7 +76,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         return Ok(service);
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet]
     public async Task<IActionResult> GetAllResources()
     {
@@ -89,7 +83,6 @@ public class ResourceController(IResourceService resourceService) : ControllerBa
         return Ok(resources);
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("GetCompanyResources/{companyId}")]
     public async Task<IActionResult> GetCompanyResources(int companyId)
     {

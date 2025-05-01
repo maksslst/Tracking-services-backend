@@ -12,7 +12,6 @@ public class MonitoringSettingController(IMonitoringSettingService monitoringSet
 {
     #region HttpPost
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateMonitoringSettingRequest request)
     {
@@ -26,7 +25,6 @@ public class MonitoringSettingController(IMonitoringSettingService monitoringSet
 
     #region HttpPut
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateMonitoringSettingRequest request)
     {
@@ -38,7 +36,7 @@ public class MonitoringSettingController(IMonitoringSettingService monitoringSet
 
     #region HttpDelete
 
-    [Authorize(Roles = "Admin, Moderator, User")]
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("{monitoringSettingId}")]
     public async Task<IActionResult> Delete(int monitoringSettingId)
     {
@@ -50,7 +48,6 @@ public class MonitoringSettingController(IMonitoringSettingService monitoringSet
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMonitoringSettingByResourceId(int resourceId)
     {

@@ -64,7 +64,6 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("{companyId}")]
     public async Task<IActionResult> GetByCompanyId(int companyId)
     {
@@ -72,7 +71,6 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
         return Ok(company);
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet]
     public async Task<IActionResult> GetAllCompanies()
     {
@@ -80,7 +78,6 @@ public class CompanyController(ICompanyService companyService) : ControllerBase
         return Ok(companies);
     }
 
-    [Authorize(Roles = "Admin, Moderator")]
     [HttpGet("GetCompanyUsers/{companyId}")]
     public async Task<IActionResult> GetCompanyUsers(int companyId)
     {

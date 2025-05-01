@@ -11,4 +11,5 @@ public class ValidationConstants
     public const int ResourceSourceLength = 100;
     public const int TaskDescriptionLength = 100;
     public const int UserValidLength = 100;
+    public const int MinimumPasswordLength = 8;
 }

@@ -12,7 +12,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
 {
     #region HttpPost
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateTaskRequest request)
     {
@@ -32,7 +31,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
 
     #region HttpPut
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
     {
@@ -72,7 +70,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{taskId}")]
     public async Task<IActionResult> GetTaskId(int taskId)
     {
@@ -80,7 +77,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
         return Ok(serviceTask);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("GetAllCompanyTasks/{companyId}")]
     public async Task<IActionResult> GetAllCompanyTasks(int companyId)
     {
@@ -88,7 +84,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
         return Ok(serviceTasks);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("GetTaskUser/{userId}/{taskId}")]
     public async Task<IActionResult> GetTaskUser(int userId, int taskId)
     {
@@ -96,7 +91,6 @@ public class TaskController(ITaskService taskService) : ControllerBase
         return Ok(serviceTask);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("GetAllUserTasks/{userId}")]
     public async Task<IActionResult> GetAllUserTasks(int userId)
     {

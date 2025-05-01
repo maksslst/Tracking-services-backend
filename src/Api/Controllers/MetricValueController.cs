@@ -12,7 +12,6 @@ public class MetricValueController(IMetricValueService metricValueService) : Con
 {
     #region HttpPost
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> AddMetricValue([FromBody] CreateMetricValueRequest request)
     {
@@ -24,7 +23,6 @@ public class MetricValueController(IMetricValueService metricValueService) : Con
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("GetAllMetricValuesByResourceId/{resourceId}")]
     public async Task<IActionResult> GetAllMetricValuesByResourceId(int resourceId)
     {
@@ -32,7 +30,6 @@ public class MetricValueController(IMetricValueService metricValueService) : Con
         return Ok(metricValue);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{metricValueId}")]
     public async Task<IActionResult> GetByMetricValueId(int metricValueId)
     {

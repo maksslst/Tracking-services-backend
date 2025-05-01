@@ -12,7 +12,6 @@ public class MetricServiceController(IMetricService metricService) : ControllerB
 {
     #region HttpPost
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPost]
     public async Task<IActionResult> AddMetric([FromBody] CreateMetricRequest request)
     {
@@ -24,7 +23,6 @@ public class MetricServiceController(IMetricService metricService) : ControllerB
 
     #region HttpPut
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> UpdateMetric([FromBody] UpdateMetricRequest request)
     {
@@ -36,7 +34,7 @@ public class MetricServiceController(IMetricService metricService) : ControllerB
 
     #region HttpDelete
 
-    [Authorize(Roles = "Admin, Moderator, User")]
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("{metricId}")]
     public async Task<IActionResult> DeleteMetric(int metricId)
     {
@@ -48,7 +46,6 @@ public class MetricServiceController(IMetricService metricService) : ControllerB
 
     #region HttpGet
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetMetricByResourceId(int resourceId)
     {
@@ -56,7 +53,6 @@ public class MetricServiceController(IMetricService metricService) : ControllerB
         return Ok(metric);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("GetAllMetricResourceId/{resourceId}")]
     public async Task<IActionResult> GetAllMetricResourceId(int resourceId)
     {

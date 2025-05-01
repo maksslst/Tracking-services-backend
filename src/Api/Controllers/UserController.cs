@@ -13,7 +13,7 @@ public class UserController(IUserService userService) : ControllerBase
 {
     #region HttPost
 
-    [Authorize(Roles = "Admin, Moderator")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateUserRequest request)
     {
@@ -37,7 +37,7 @@ public class UserController(IUserService userService) : ControllerBase
 
     #region HttDelete
 
-    [Authorize(Roles = "Admin, Moderator")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{userId}")]
     public async Task<IActionResult> Delete(int userId)
     {
@@ -49,7 +49,6 @@ public class UserController(IUserService userService) : ControllerBase
 
     #region HttGet
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetById(int userId)
     {
@@ -57,7 +56,6 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -65,7 +63,6 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(users);
     }
 
-    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpGet("UserInfo")]
     public async Task<IActionResult> GetUserInfo()
     {

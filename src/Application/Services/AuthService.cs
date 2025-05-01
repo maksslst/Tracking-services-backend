@@ -8,6 +8,7 @@ using Infrastructure.Repositories.UserRepository;
 using Microsoft.Extensions.Configuration;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services;
@@ -16,7 +17,8 @@ public class AuthService(
     IConfiguration configuration,
     IMapper mapper,
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher) : IAuthService
+    IPasswordHasher passwordHasher,
+    ILogger<AuthService> logger) : IAuthService
 {
     public async Task<int> Register(RegistrationRequest request)
     {
@@ -25,6 +27,7 @@ public class AuthService(
         user.Role = UserRoles.User;
 
         var userId = await userRepository.CreateUser(user);
+        logger.LogInformation("User with id: {userId} registered successfully", userId);
         return userId;
     }
 
@@ -38,6 +41,7 @@ public class AuthService(
         }
 
         var token = GenerateJwtToken(user);
+        logger.LogInformation("User with id: {userId} logged in", user.Id);
         return new LoginResponse(token);
     }
 
