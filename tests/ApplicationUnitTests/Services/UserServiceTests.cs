@@ -296,7 +296,8 @@ public class UserServiceTests
             LastName = _faker.Person.LastName,
             Email = _faker.Person.Email,
             CompanyId = companyId,
-            PasswordHash = _faker.Random.String()
+            PasswordHash = _faker.Random.String(),
+            Role = UserRoles.User
         };
         
         return user;

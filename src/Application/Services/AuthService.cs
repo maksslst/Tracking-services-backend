@@ -34,8 +34,13 @@ public class AuthService(
     public async Task<LoginResponse> Login(LoginRequest request)
     {
         var user = await userRepository.ReadByUsername(request.Username);
-        var passwordVerified = passwordHasher.VerifyPassword(request.Password, user?.PasswordHash);
-        if (user == null || user.PasswordHash == null || !passwordVerified)
+        bool passwordVerified = false;
+        if (user != null)
+        {
+            passwordVerified = passwordHasher.VerifyPassword(request.Password, user.PasswordHash);
+        }
+
+        if (!passwordVerified)
         {
             throw new UnauthorizedAccessException("Invalid login attempt");
         }

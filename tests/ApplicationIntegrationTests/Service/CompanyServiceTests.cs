@@ -11,7 +11,6 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
 {
     private readonly TestingFixture _fixture;
     private readonly ICompanyService _companyService;
-    private readonly IUserService _userService;
     private readonly Faker _faker;
 
     public CompanyServiceTests(TestingFixture fixture)
@@ -19,7 +18,6 @@ public class CompanyServiceTests : IClassFixture<TestingFixture>
         _fixture = fixture;
         var scope = fixture.ServiceProvider.CreateScope();
         _companyService = scope.ServiceProvider.GetRequiredService<ICompanyService>();
-        _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
         _faker = new Faker();
     }
 
