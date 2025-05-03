@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Application.Mappings;
 using Application.Requests;
 using Application.Services;
@@ -116,7 +117,7 @@ public class AuthServiceTests
 
         // Act & Assert
         await _authService.Invoking(a => a.Login(request))
-            .Should().ThrowAsync<UnauthorizedAccessException>()
+            .Should().ThrowAsync<UnauthorizedApplicationException>()
             .WithMessage("Invalid login attempt");
 
         _userRepositoryMock.Verify(r => r.ReadByUsername(request.Username), Times.Once());
@@ -142,7 +143,7 @@ public class AuthServiceTests
 
         // Act & Assert
         await _authService.Invoking(a => a.Login(request))
-            .Should().ThrowAsync<UnauthorizedAccessException>()
+            .Should().ThrowAsync<UnauthorizedApplicationException>()
             .WithMessage("Invalid login attempt");
 
         _userRepositoryMock.Verify(r => r.ReadByUsername(request.Username), Times.Once());
