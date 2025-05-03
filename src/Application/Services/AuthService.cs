@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Exceptions;
 using Application.Requests;
 using Application.Responses;
 using AutoMapper;
@@ -42,7 +43,7 @@ public class AuthService(
 
         if (!passwordVerified)
         {
-            throw new UnauthorizedAccessException("Invalid login attempt");
+            throw new UnauthorizedApplicationException("Invalid login attempt");
         }
 
         var token = GenerateJwtToken(user);

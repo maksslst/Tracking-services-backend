@@ -328,7 +328,6 @@ public class TaskServiceTests
         
         _taskRepositoryMock.Verify(i => i.ReadTaskId(request.Id), Times.Once());
         _userRepositoryMock.Verify(i => i.ReadById(request.AssignedUserId), Times.Once());
-
     }
     
     #endregion
