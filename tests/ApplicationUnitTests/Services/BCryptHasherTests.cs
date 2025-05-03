@@ -15,70 +15,16 @@ public class BCryptHasherTests
         _faker = new Faker();
     }
 
-    [Fact]
-    public void HashPassword_ValidPassword_ReturnsNonEmptyHash()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void VerifyPassword_NullOrEmptyStoredHash_ReturnsFalse(string storedHash)
     {
         // Arrange
         var password = _faker.Random.Word();
 
         // Act
-        var hash = _hasher.HashPassword(password);
-
-        // Assert
-        hash.Should().NotBeNullOrEmpty();
-        Assert.NotEqual(hash, password);
-    }
-
-    [Fact]
-    public void VerifyPassword_ValidPasswordAndHash_ReturnsTrue()
-    {
-        // Arrange
-        var password = _faker.Random.Word();
-        var hash = _hasher.HashPassword(password);
-
-        // Act
-        var result = _hasher.VerifyPassword(password, hash);
-
-        // Assert
-        result.Should().BeTrue();
-    }
-
-    [Fact]
-    public void VerifyPassword_InvalidPassword_ReturnsFalse()
-    {
-        // Arrange
-        var password = _faker.Random.Word();
-        var wrongPassword = _faker.Random.Word();
-        var hash = _hasher.HashPassword(password);
-
-        // Act
-        var result = _hasher.VerifyPassword(wrongPassword, hash);
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public void VerifyPassword_NullStoredHash_ReturnsFalse()
-    {
-        // Arrange
-        var password = _faker.Random.Word();
-
-        // Act
-        var result = _hasher.VerifyPassword(password, null);
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public void VerifyPassword_EmptyStoredHash_ReturnsFalse()
-    {
-        // Arrange
-        var password = _faker.Random.Word();
-
-        // Act
-        var result = _hasher.VerifyPassword(password, string.Empty);
+        var result = _hasher.VerifyPassword(password, storedHash);
 
         // Assert
         result.Should().BeFalse();

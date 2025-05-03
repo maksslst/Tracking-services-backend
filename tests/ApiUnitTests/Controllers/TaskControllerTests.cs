@@ -1,9 +1,11 @@
+using System.Security.Claims;
 using Api.Controllers;
 using Application.Requests;
 using Application.Responses;
 using Application.Services;
 using Bogus;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using TaskStatus = Domain.Enums.TaskStatus;
@@ -135,6 +137,31 @@ public class TaskControllerTests
         // Arrange
         var userId = _faker.Random.Int(1, 100);
         var taskId = _faker.Random.Int(1, 100);
+        _taskServiceMock.Setup(x => x.DeleteTaskForUser(userId, taskId)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteTaskToUser(userId, taskId);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+        _taskServiceMock.Verify(x => x.DeleteTaskForUser(userId, taskId), Times.Once());
+    }
+
+    [Fact]
+    public async Task DeleteTaskToUser_AdminRole_ReturnsNoContent()
+    {
+        // Arrange
+        var userId = _faker.Random.Int(1, 100);
+        var taskId = _faker.Random.Int(1, 100);
+        var adminUser = new ClaimsPrincipal(new ClaimsIdentity([
+            new Claim(ClaimTypes.Role, "Admin")
+        ]));
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = adminUser }
+        };
+
         _taskServiceMock.Setup(x => x.DeleteTaskForUser(userId, taskId)).Returns(Task.CompletedTask);
 
         // Act

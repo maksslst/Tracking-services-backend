@@ -72,6 +72,7 @@ public class TaskServiceTests
     [Fact]
     public async Task Update_WhenTaskAndUserExistInSameCompany_UpdatesTaskSuccessfully()
     {
+        // Arrange
         var companyId = _faker.Random.Int(1, 100);
         var request = new UpdateTaskRequest
         {
@@ -210,7 +211,7 @@ public class TaskServiceTests
 
         // Act & Assert
         await _taskService.Invoking(i => i.Update(request))
-            .Should().ThrowAsync<UserAuthorizationException>()
+            .Should().ThrowAsync<UnauthorizedApplicationException>()
             .WithMessage("User is not in the company");
 
         _taskRepositoryMock.Verify(i => i.ReadTaskId(request.Id), Times.Once());
@@ -272,12 +273,64 @@ public class TaskServiceTests
             .ThrowAsync<EntityUpdateException>()
             .WithMessage("Failed to update task");
 
-        // Assert
         _taskRepositoryMock.Verify(i => i.ReadTaskId(request.Id), Times.Once());
         _userRepositoryMock.Verify(i => i.ReadById(request.AssignedUserId), Times.Once());
         _taskRepositoryMock.Verify(i => i.UpdateTask(It.IsAny<ServiceTask>(), user), Times.Once());
     }
 
+    [Fact]
+    public async Task Update_WhenUserNotInCompany_ThrowsUnauthorizedApplicationException()
+    {
+        // Arrange
+        var assignedUserId = _faker.Random.Int(1, 100);
+        var request = new UpdateTaskRequest
+        {
+            Id = _faker.Random.Int(1, 100),
+            AssignedUserId = assignedUserId,
+            ResourceId = _faker.Random.Int(1, 100),
+            Status = TaskStatus.Opened,
+            Description = _faker.Random.Word()
+        };
+
+        var task = new ServiceTask
+        {
+            Id = 1,
+            AssignedUserId = assignedUserId,
+            AssignedUser = new User
+            {
+                Id = request.Id,
+                CompanyId = _faker.Random.Int(1, 50),
+                Username = _faker.Person.UserName,
+                FirstName = _faker.Person.FirstName,
+                LastName = _faker.Person.LastName,
+                Email = _faker.Person.Email,
+            }
+        };
+
+        var user = new User
+        {
+            Id = request.AssignedUserId,
+            CompanyId = _faker.Random.Int(51, 100),
+            Username = _faker.Person.UserName,
+            FirstName = _faker.Person.FirstName,
+            LastName = _faker.Person.LastName,
+            Email = _faker.Person.Email
+        };
+
+        _taskRepositoryMock.Setup(i => i.ReadTaskId(request.Id)).ReturnsAsync(task);
+        _userRepositoryMock.Setup(i => i.ReadById(request.AssignedUserId)).ReturnsAsync(user);
+
+        // Act & Assert
+        await _taskService.Invoking(i => i.Update(request))
+            .Should()
+            .ThrowAsync<UnauthorizedApplicationException>()
+            .WithMessage("User is not in the company");
+        
+        _taskRepositoryMock.Verify(i => i.ReadTaskId(request.Id), Times.Once());
+        _userRepositoryMock.Verify(i => i.ReadById(request.AssignedUserId), Times.Once());
+
+    }
+    
     #endregion
 
     #region DeleteTests
@@ -359,6 +412,27 @@ public class TaskServiceTests
             .WithMessage("Task not found");
 
         _taskRepositoryMock.Verify(i => i.ReadTaskId(taskId), Times.Once());
+    }
+    
+    [Fact]
+    public async Task GetTaskForUser_UserIsNotOwner_ThrowsUnauthorizedApplicationException()
+    {
+        // Arrange
+        var userId = _faker.Random.Int(1, 50);
+        var taskId = 20;
+        var task = new ServiceTask
+        {
+            Id = taskId,
+            AssignedUserId = _faker.Random.Int(51, 100),
+        };
+
+        _taskRepositoryMock.Setup(i => i.ReadTaskId(taskId)).ReturnsAsync(task);
+
+        // Act & Assert
+        await _taskService.Invoking(i => i.GetTaskForUser(userId, taskId))
+            .Should()
+            .ThrowAsync<UnauthorizedApplicationException>()
+            .WithMessage("This user does not own this task");
     }
 
     #endregion
@@ -588,7 +662,7 @@ public class TaskServiceTests
 
         // Act & Assert
         await _taskService.Invoking(i => i.GetTaskForUser(userId, taskId))
-            .Should().ThrowAsync<UserAuthorizationException>()
+            .Should().ThrowAsync<UnauthorizedApplicationException>()
             .WithMessage("This user does not own this task");
 
         // Assert
@@ -615,7 +689,7 @@ public class TaskServiceTests
 
         // Act & Assert
         await _taskService.Invoking(i => i.GetTaskForUser(userId, taskId))
-            .Should().ThrowAsync<UserAuthorizationException>()
+            .Should().ThrowAsync<UnauthorizedApplicationException>()
             .WithMessage("This user does not own this task");
 
         // Assert

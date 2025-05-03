@@ -47,7 +47,7 @@ public class TaskService : ITaskService
         var assignedUserToUpdate = await _userRepository.ReadById(request.AssignedUserId);
         if (assignedUserToUpdate == null || taskToUpdate.AssignedUser?.CompanyId != assignedUserToUpdate.CompanyId)
         {
-            throw new UserAuthorizationException("User is not in the company");
+            throw new UnauthorizedApplicationException("User is not in the company");
         }
 
         taskToUpdate = _mapper.Map<ServiceTask>(request);
@@ -132,7 +132,7 @@ public class TaskService : ITaskService
         var serviceTask = await _taskRepository.ReadTaskId(taskId);
         if (serviceTask == null || serviceTask.AssignedUserId != userId)
         {
-            throw new UserAuthorizationException("This user does not own this task");
+            throw new UnauthorizedApplicationException("This user does not own this task");
         }
 
         return _mapper.Map<TaskResponse>(serviceTask);
