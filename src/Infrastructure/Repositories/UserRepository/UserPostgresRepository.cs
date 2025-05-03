@@ -53,7 +53,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<User?> ReadById(int id)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
-            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role::text
                 FROM users
                 WHERE id = @Id", new { Id = id });
 
@@ -63,7 +63,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<User?> ReadByUsername(string username)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
-            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role, password_hash
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role::text, password_hash
                 FROM users
                 WHERE username = @Username", new { Username = username });
 
@@ -73,7 +73,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<IEnumerable<User?>> ReadAll()
     {
         var users = await _connection.QueryAsync<User>(
-            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role::text
                 FROM users");
 
         return users;
