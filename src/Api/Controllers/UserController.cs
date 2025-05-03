@@ -1,26 +1,23 @@
+using Api.Extensions;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class UserController : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UserController(IUserService userService)
-    {
-        _userService = userService;
-    }
-
     #region HttPost
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateUserRequest request)
     {
-        int user = await _userService.Add(request);
+        int user = await userService.Add(request);
         return CreatedAtAction(nameof(GetById), new { userId = user }, user);
     }
 
@@ -28,10 +25,11 @@ public class UserController : ControllerBase
 
     #region HttPut
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
     {
-        await _userService.Update(request);
+        await userService.Update(request);
         return NoContent();
     }
 
@@ -39,10 +37,11 @@ public class UserController : ControllerBase
 
     #region HttDelete
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{userId}")]
     public async Task<IActionResult> Delete(int userId)
     {
-        await _userService.Delete(userId);
+        await userService.Delete(userId);
         return NoContent();
     }
 
@@ -53,15 +52,28 @@ public class UserController : ControllerBase
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetById(int userId)
     {
-        var user = await _userService.GetById(userId);
+        var user = await userService.GetById(userId);
         return Ok(user);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var users = await _userService.GetAll();
+        var users = await userService.GetAll();
         return Ok(users);
+    }
+
+    [HttpGet("UserInfo")]
+    public async Task<IActionResult> GetUserInfo()
+    {
+        var userId = User.GetUserId();
+        if (!userId.HasValue)
+        {
+            return NotFound("User not found");
+        }
+        
+        var user = await userService.GetById(userId.Value);
+        return Ok(user);
     }
 
     #endregion

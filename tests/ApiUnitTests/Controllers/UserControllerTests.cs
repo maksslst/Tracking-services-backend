@@ -3,6 +3,7 @@ using Application.Requests;
 using Application.Responses;
 using Application.Services;
 using Bogus;
+using Domain.Enums;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -13,12 +14,14 @@ public class UserControllerTests
 {
     private readonly Mock<IUserService> _userServiceMock;
     private readonly UserController _controller;
+    private readonly Mock<IPasswordHasher> _passwordHasherMock;
     private readonly Faker _faker;
 
     public UserControllerTests()
     {
         _userServiceMock = new Mock<IUserService>();
         _controller = new UserController(_userServiceMock.Object);
+        _passwordHasherMock = new Mock<IPasswordHasher>();
         _faker = new Faker();
     }
 
@@ -34,7 +37,9 @@ public class UserControllerTests
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
             CompanyId = _faker.Random.Int(1, 100),
-            Email = _faker.Person.Email
+            Email = _faker.Person.Email,
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
         var userId = _faker.Random.Int(1, 100);
         _userServiceMock.Setup(x => x.Add(request)).ReturnsAsync(userId);
@@ -66,7 +71,9 @@ public class UserControllerTests
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
             CompanyId = _faker.Random.Int(1, 100),
-            Email = _faker.Person.Email
+            Email = _faker.Person.Email,
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
         _userServiceMock.Setup(x => x.Update(request)).Returns(Task.CompletedTask);
 

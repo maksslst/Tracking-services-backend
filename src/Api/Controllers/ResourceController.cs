@@ -1,33 +1,28 @@
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using Application.Requests;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
-public class ResourceController : ControllerBase
+public class ResourceController(IResourceService resourceService) : ControllerBase
 {
-    private readonly IResourceService _resourceService;
-
-    public ResourceController(IResourceService resourceService)
-    {
-        _resourceService = resourceService;
-    }
-
     #region HttpPost
 
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateResourceRequest request)
     {
-        int resource = await _resourceService.Add(request);
+        int resource = await resourceService.Add(request);
         return CreatedAtAction(nameof(GetByResourceId), new { resourceId = resource }, resource);
     }
 
     [HttpPost("{companyId}")]
     public async Task<IActionResult> AddCompanyResource(int companyId, [FromBody] CreateResourceRequest request)
     {
-        await _resourceService.AddCompanyResource(companyId, request);
+        await resourceService.AddCompanyResource(companyId, request);
         return NoContent();
     }
 
@@ -38,7 +33,7 @@ public class ResourceController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateResourceRequest request)
     {
-        await _resourceService.Update(request);
+        await resourceService.Update(request);
         return NoContent();
     }
 
@@ -46,7 +41,7 @@ public class ResourceController : ControllerBase
     public async Task<IActionResult> UpdateCompanyResource(int companyId, int resourceId,
         [FromBody] UpdateResourceRequest request)
     {
-        await _resourceService.UpdateCompanyResource(companyId, request, resourceId);
+        await resourceService.UpdateCompanyResource(companyId, request, resourceId);
         return NoContent();
     }
 
@@ -54,17 +49,19 @@ public class ResourceController : ControllerBase
 
     #region HttpDelete
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("{resourceId}")]
     public async Task<IActionResult> Delete(int resourceId)
     {
-        await _resourceService.Delete(resourceId);
+        await resourceService.Delete(resourceId);
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin, Moderator")]
     [HttpDelete("{resourceId}/{companyId}")]
     public async Task<IActionResult> DeleteCompanyResource(int resourceId, int companyId)
     {
-        await _resourceService.DeleteCompanyResource(resourceId, companyId);
+        await resourceService.DeleteCompanyResource(resourceId, companyId);
         return NoContent();
     }
 
@@ -75,21 +72,21 @@ public class ResourceController : ControllerBase
     [HttpGet("{resourceId}")]
     public async Task<IActionResult> GetByResourceId(int resourceId)
     {
-        var service = await _resourceService.GetResource(resourceId);
+        var service = await resourceService.GetResource(resourceId);
         return Ok(service);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllResources()
     {
-        var resources = await _resourceService.GetAllResources();
+        var resources = await resourceService.GetAllResources();
         return Ok(resources);
     }
 
     [HttpGet("GetCompanyResources/{companyId}")]
     public async Task<IActionResult> GetCompanyResources(int companyId)
     {
-        var resources = await _resourceService.GetCompanyResources(companyId);
+        var resources = await resourceService.GetCompanyResources(companyId);
         return Ok(resources);
     }
 

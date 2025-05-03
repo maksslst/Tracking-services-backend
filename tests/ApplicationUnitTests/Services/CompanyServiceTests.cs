@@ -306,6 +306,7 @@ public class CompanyServiceTests
                 FirstName = _faker.Person.FirstName,
                 LastName = _faker.Person.LastName,
                 Username = _faker.Person.UserName,
+                PasswordHash = _faker.Random.String()
             },
             new User()
             {
@@ -315,6 +316,7 @@ public class CompanyServiceTests
                 FirstName = _faker.Person.FirstName,
                 LastName = _faker.Person.LastName,
                 Username = _faker.Person.UserName,
+                PasswordHash = _faker.Random.String()
             }
         };
 

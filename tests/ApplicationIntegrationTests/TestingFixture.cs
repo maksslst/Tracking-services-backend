@@ -1,5 +1,6 @@
 using System.Reflection;
 using Application;
+using Application.Services;
 using Bogus;
 using Domain.Entities;
 using Domain.Enums;
@@ -82,11 +83,12 @@ public sealed class TestingFixture : IAsyncLifetime
         });
     }
 
-    public async Task<User> CreateUser(int companyId)
+    public async Task<User> CreateUser(int companyId, string? password = null)
     {
         using var scope = ServiceProvider.CreateScope();
         var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        string passwd = password ?? _faker.Random.Word();
         var userId = await userRepository.CreateUser(new User
         {
             FirstName = _faker.Name.FirstName(),
@@ -94,6 +96,7 @@ public sealed class TestingFixture : IAsyncLifetime
             Email = _faker.Random.Word() + _faker.Random.Word() + "@gmail.com",
             Username = $"user_{Guid.NewGuid().ToString("N")}",
             CompanyId = companyId,
+            PasswordHash = passwordHasher.HashPassword(passwd)
         });
 
         var user = await userRepository.ReadById(userId);

@@ -128,7 +128,7 @@ public class MetricServiceControllerTests
         _metricServiceMock.Setup(x => x.GetAllMetricsByResourceId(resourceId)).ReturnsAsync(metrics);
 
         // Act
-        var result = await _controller.GetAllMetricServiceId(resourceId);
+        var result = await _controller.GetAllMetricResourceId(resourceId);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>()

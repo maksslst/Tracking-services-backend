@@ -8,6 +8,7 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Bogus;
 using Domain.Entities;
+using Domain.Enums;
 using FluentAssertions;
 
 namespace ApplicationUnitTests.Services;
@@ -17,12 +18,14 @@ public class UserServiceTests
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly IUserService _userService;
     private readonly Faker _faker;
+    private readonly Mock<IPasswordHasher> _passwordHasherMock;
 
     public UserServiceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
         var loggerMock = new Mock<ILogger<UserService>>();
         _faker = new Faker();
+        _passwordHasherMock = new Mock<IPasswordHasher>();
 
         var mappingConfig = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
         var mapper = mappingConfig.CreateMapper();
@@ -42,7 +45,9 @@ public class UserServiceTests
             Email = _faker.Person.Email,
             FirstName = _faker.Person.FirstName,
             LastName = _faker.Person.LastName,
-            CompanyId = _faker.Random.Int(1, 100)
+            CompanyId = _faker.Random.Int(1, 100),
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
         _userRepositoryMock.Setup(i => i.CreateUser(It.IsAny<User>())).ReturnsAsync(1);
@@ -75,7 +80,9 @@ public class UserServiceTests
             LastName = _faker.Person.LastName,
             Username = _faker.Person.UserName,
             Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
+            CompanyId = _faker.Random.Int(1, 100),
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
         var user = CreatingUser(request.CompanyId);
@@ -115,7 +122,9 @@ public class UserServiceTests
             LastName = _faker.Person.LastName,
             Username = _faker.Person.UserName,
             Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
+            CompanyId = _faker.Random.Int(1, 100),
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync((User)null!);
@@ -142,7 +151,9 @@ public class UserServiceTests
             LastName = _faker.Person.LastName,
             Username = _faker.Person.UserName,
             Email = _faker.Person.Email,
-            CompanyId = _faker.Random.Int(1, 100)
+            CompanyId = _faker.Random.Int(1, 100),
+            Role = UserRoles.User,
+            Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
         var user = CreatingUser(request.CompanyId);
@@ -284,7 +295,9 @@ public class UserServiceTests
             Username = _faker.Person.UserName,
             LastName = _faker.Person.LastName,
             Email = _faker.Person.Email,
-            CompanyId = companyId
+            CompanyId = companyId,
+            PasswordHash = _faker.Random.String(),
+            Role = UserRoles.User
         };
         
         return user;

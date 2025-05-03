@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using System.Reflection;
+using Domain.Enums;
 
 namespace Infrastructure;
 
