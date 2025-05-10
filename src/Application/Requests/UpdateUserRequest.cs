@@ -14,6 +14,7 @@ public class UpdateUserRequest
     public string Email { get; set; } = null!;
     public UserRoles Role { get; set; }
     public int CompanyId { get; set; }
+    public int? LogoAttachmentId { get; set; }
 }
 
 public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
