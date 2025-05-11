@@ -17,8 +17,8 @@ public class UserPostgresRepository : IUserRepository
     public async Task<int> CreateUser(User? user)
     {
         var userId = await _connection.QuerySingleAsync<int>(
-            @"INSERT INTO users (username, first_name, last_name, patronymic, email, company_id, role, password_hash)
-                VALUES(@Username, @FirstName, @LastName, @Patronymic, @Email, @CompanyId, @Role::user_role, @PasswordHash)
+            @"INSERT INTO users (username, first_name, last_name, patronymic, email, company_id, role, password_hash, logo_attachment_id)
+                VALUES(@Username, @FirstName, @LastName, @Patronymic, @Email, @CompanyId, @Role::user_role, @PasswordHash, @LogoAttachmentId)
                 RETURNING Id", user.AsDapperParams());
 
         return userId;
@@ -35,7 +35,8 @@ public class UserPostgresRepository : IUserRepository
                     email = @Email,
                     company_id = @CompanyId,
                     role = @Role,
-                    password_hash = @PasswordHash
+                    password_hash = @PasswordHash,
+                    logo_attachment_id = LogoAttachmentId
                 WHERE Id = @Id", user.AsDapperParams());
 
         return userToUpdate > 0;
@@ -53,7 +54,7 @@ public class UserPostgresRepository : IUserRepository
     public async Task<User?> ReadById(int id)
     {
         var user = await _connection.QueryFirstOrDefaultAsync<User>(
-            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role::text
+            @"SELECT id, username, first_name, last_name, patronymic, email, company_id, role::text, logo_attachment_id
                 FROM users
                 WHERE id = @Id", new { Id = id });
 

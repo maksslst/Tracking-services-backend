@@ -14,9 +14,11 @@ using Infrastructure.Repositories.MonitoringSettingRepository;
 using Infrastructure.Repositories.ResourceRepository;
 using Infrastructure.Repositories.TaskRepository;
 using Infrastructure.Repositories.UserRepository;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Moq;
 using Npgsql;
 using Respawn;
 using MigrationRunner = Infrastructure.Database.MigrationRunner;
@@ -37,6 +39,9 @@ public sealed class TestingFixture : IAsyncLifetime
             {
                 services.AddInfrastructure();
                 services.AddApplication();
+                var webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
+                webHostEnvironmentMock.Setup(m => m.ContentRootPath).Returns(Directory.GetCurrentDirectory());
+                services.AddSingleton(webHostEnvironmentMock.Object);
                 var connectionString = context.Configuration.GetConnectionString("PostgresDBIntegration");
                 if (string.IsNullOrWhiteSpace(connectionString))
                     throw new ApplicationException("PostgresDBIntegration connection string is empty");

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using System.Reflection;
-using Domain.Enums;
+using Infrastructure.Repositories.AttachmentRepository;
 
 namespace Infrastructure;
 
@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddTransient<IMetricValueRepository, MetricValuePostgresRepository>();
         services.AddTransient<IUserRepository, UserPostgresRepository>();
         services.AddTransient<MonitoringScheduler>();
+        services.AddTransient<IAttachmentRepository, AttachmentPostgresRepository>();
 
         services
             .AddFluentMigratorCore()

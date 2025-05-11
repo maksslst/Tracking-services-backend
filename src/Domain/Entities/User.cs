@@ -14,4 +14,5 @@ public class User
     public string? PasswordHash { get; set; }
     public int? CompanyId { get; set; }
     public Company? Company { get; set; }
+    public int? LogoAttachmentId { get; set; }
 }
