@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Domain.Entities;
 using Infrastructure.Repositories.AttachmentRepository;
 using Microsoft.AspNetCore.Http;
@@ -34,7 +35,7 @@ public class AttachmentService(
         var attachment = await repository.ReadById(id);
         if (attachment == null || !fileStorage.FileExists(attachment.StoredPath))
         {
-            throw new FileNotFoundException("Attachment not found");
+            throw new NotFoundApplicationException("Attachment not found");
         }
         
         return await fileStorage.ReadFile(attachment.StoredPath);
@@ -60,7 +61,7 @@ public class AttachmentService(
         var attachment = await repository.ReadById(id);
         if (attachment == null)
         {
-            throw new FileNotFoundException("Attachment not found");
+            throw new NotFoundApplicationException("Attachment not found");
         }
         
         var baseUrl = $"{request?.Scheme}://{request?.Host}";
