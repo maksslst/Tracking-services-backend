@@ -85,7 +85,7 @@ public class UserServiceTests
             Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
-        var user = CreatingUser(request.CompanyId);
+        var user = CreatingUser(request.CompanyId ?? 0);
         user.Id = userId;
 
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync(user);
@@ -156,7 +156,7 @@ public class UserServiceTests
             Password = _passwordHasherMock.Object.HashPassword(_faker.Random.String(10))
         };
 
-        var user = CreatingUser(request.CompanyId);
+        var user = CreatingUser(request.CompanyId ?? 0);
         user.Id = userId;
 
         _userRepositoryMock.Setup(i => i.ReadById(request.Id)).ReturnsAsync(user);
@@ -254,8 +254,8 @@ public class UserServiceTests
         // Arrange
         var users = new List<User>()
         {
-            CreatingUser( _faker.Random.Int(1, 100)),
-            CreatingUser( _faker.Random.Int(1, 100)),
+            CreatingUser(_faker.Random.Int(1, 100)),
+            CreatingUser(_faker.Random.Int(1, 100)),
         };
 
         _userRepositoryMock.Setup(i => i.ReadAll()).ReturnsAsync(users);
@@ -299,7 +299,7 @@ public class UserServiceTests
             PasswordHash = _faker.Random.String(),
             Role = UserRoles.User
         };
-        
+
         return user;
     }
 }
