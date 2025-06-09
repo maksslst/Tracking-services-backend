@@ -13,7 +13,7 @@ public class UpdateUserRequest
     public required string Password { get; set; }
     public string Email { get; set; } = null!;
     public UserRoles Role { get; set; }
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
     public int? LogoAttachmentId { get; set; }
 }
 

@@ -123,6 +123,19 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+builder.Services.AddCors(
+    (options) =>
+    {
+        options.AddPolicy("AllowLocalhost", policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "https://localhost:5047")
+                .AllowCredentials()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+    }
+);
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -139,6 +152,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowLocalhost");
 
 app.UseRateLimiter();
 

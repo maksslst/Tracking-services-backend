@@ -25,7 +25,7 @@ public class UserController(IUserService userService) : ControllerBase
 
     #region HttPut
 
-    [Authorize(Roles = "Admin, Moderator")]
+    [Authorize(Roles = "Admin, Moderator, User")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateUserRequest request)
     {
