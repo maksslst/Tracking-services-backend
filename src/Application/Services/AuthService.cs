@@ -1,38 +1,35 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Application.Exceptions;
 using Application.Requests;
-using Application.Responses;
 using AutoMapper;
 using Infrastructure.Repositories.UserRepository;
-using Microsoft.Extensions.Configuration;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services;
 
 public class AuthService(
-    IConfiguration configuration,
     IMapper mapper,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     ILogger<AuthService> logger) : IAuthService
 {
-    public async Task<int> Register(RegistrationRequest request)
+    public async Task<ClaimsPrincipal> Register(RegistrationRequest request)
     {
         var user = mapper.Map<User>(request);
         user.PasswordHash = passwordHasher.HashPassword(request.Password);
         user.Role = UserRoles.User;
 
         var userId = await userRepository.CreateUser(user);
+        var createdUser = await userRepository.ReadById(userId);
+        var principal = GenerateClaimsPrincipal(createdUser);
+        
         logger.LogInformation("User with id: {userId} registered successfully", userId);
-        return userId;
+        return principal;
     }
 
-    public async Task<LoginResponse> Login(LoginRequest request)
+    public async Task<ClaimsPrincipal> Login(LoginRequest request)
     {
         var user = await userRepository.ReadByUsername(request.Username);
         bool passwordVerified = false;
@@ -46,36 +43,20 @@ public class AuthService(
             throw new UnauthorizedApplicationException("Invalid login attempt");
         }
 
-        var token = GenerateJwtToken(user);
+        var principal = GenerateClaimsPrincipal(user);
         logger.LogInformation("User with id: {userId} logged in", user.Id);
-        return new LoginResponse(token);
+        return principal;
     }
 
-    private string GenerateJwtToken(User user)
+    private ClaimsPrincipal GenerateClaimsPrincipal(User user)
     {
-        var jwtSecret = configuration["JwtSettings:Secret"] ?? throw new ArgumentNullException("JwtSettings:Secret");
-        var jwtIssuer = configuration["JwtSettings:Issuer"] ?? throw new ArgumentNullException("JwtSettings:Issuer");
-        var jwtAudience = configuration["JwtSettings:Audience"] ??
-                          throw new ArgumentNullException("JwtSettings:Audience");
-        var jwtExpirationMinutes = int.Parse(configuration["JwtSettings:ExpirationInMinutes"] ?? "60");
+        var identity = new ClaimsIdentity([
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        ], "HttponlyAuth");
 
-        var key = Encoding.ASCII.GetBytes(jwtSecret);
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            ]),
-            Expires = DateTime.UtcNow.AddMinutes(jwtExpirationMinutes),
-            Issuer = jwtIssuer,
-            Audience = jwtAudience,
-            SigningCredentials =
-                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var principal = new ClaimsPrincipal(identity);
+        return principal;
     }
 }

@@ -38,12 +38,12 @@ public class AuthServiceTests
         configurationMock.Setup(c => c["JwtSettings:Audience"]).Returns("TestAudience");
         configurationMock.Setup(c => c["JwtSettings:ExpirationInMinutes"]).Returns("60");
 
-        _authService = new AuthService(configurationMock.Object, mapper, _userRepositoryMock.Object,
+        _authService = new AuthService(mapper, _userRepositoryMock.Object,
             _passwordHasherMock.Object, loggerMock.Object);
     }
 
     [Fact]
-    public async Task Register_ValidRequest_ReturnsUserId()
+    public async Task Register_ValidRequest_ReturnsClaimsPrincipal()
     {
         // Arrange
         var password = _faker.Random.String(10);
@@ -60,12 +60,24 @@ public class AuthServiceTests
         var hashedPassword = _faker.Random.String(12);
         _passwordHasherMock.Setup(p => p.HashPassword(request.Password)).Returns(hashedPassword);
         _userRepositoryMock.Setup(r => r.CreateUser(It.IsAny<User>())).ReturnsAsync(1);
-
+        
+        var createdUser = new User
+        {
+            Id = 1,
+            Username = request.Username,
+            Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            PasswordHash = hashedPassword,
+        };
+        _userRepositoryMock.Setup(r => r.ReadById(1)).ReturnsAsync(createdUser);
+        
         // Act
         var result = await _authService.Register(request);
 
         // Assert
-        result.Should().Be(1);
+        result.Should().NotBeNull();
+        result.Identity?.Name.Should().Be(request.Username);
         _userRepositoryMock.Verify(r => r.CreateUser(It.Is<User>(u =>
             u.Username == request.Username &&
             u.Email == request.Email &&
@@ -98,7 +110,6 @@ public class AuthServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Token.Should().NotBeNullOrEmpty();
         _userRepositoryMock.Verify(r => r.ReadByUsername(request.Username), Times.Once());
         _passwordHasherMock.Verify(p => p.VerifyPassword(request.Password, user.PasswordHash), Times.Once());
     }

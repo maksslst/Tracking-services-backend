@@ -1,6 +1,6 @@
 namespace Application.Responses;
 
-public class LoginResponse(string token)
+public class LoginResponse
 {
-    public string? Token { get; set; } = token;
+    public string? Message { get; set; }
 }
