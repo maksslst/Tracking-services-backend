@@ -38,7 +38,7 @@ public class AuthServiceTests
         configurationMock.Setup(c => c["JwtSettings:Audience"]).Returns("TestAudience");
         configurationMock.Setup(c => c["JwtSettings:ExpirationInMinutes"]).Returns("60");
 
-        _authService = new AuthService(configurationMock.Object, mapper, _userRepositoryMock.Object,
+        _authService = new AuthService(mapper, _userRepositoryMock.Object,
             _passwordHasherMock.Object, loggerMock.Object);
     }
 
@@ -98,7 +98,6 @@ public class AuthServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Token.Should().NotBeNullOrEmpty();
         _userRepositoryMock.Verify(r => r.ReadByUsername(request.Username), Times.Once());
         _passwordHasherMock.Verify(p => p.VerifyPassword(request.Password, user.PasswordHash), Times.Once());
     }

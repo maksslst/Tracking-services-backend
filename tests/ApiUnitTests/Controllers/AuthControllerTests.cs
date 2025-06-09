@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Api.Controllers;
 using Application.Requests;
 using Application.Responses;
@@ -36,8 +37,8 @@ public class AuthControllerTests
             Password = password,
             PasswordConfirmation = password
         };
-        var userId = _faker.Random.Int(1, 100);
-        _authServiceMock.Setup(s => s.Register(request)).ReturnsAsync(userId);
+        var principal = new ClaimsPrincipal();
+        _authServiceMock.Setup(s => s.Register(request)).ReturnsAsync(principal);
 
         // Act
         var result = await _controller.Register(request);
@@ -45,8 +46,6 @@ public class AuthControllerTests
         // Assert
         result.Should().BeOfType<CreatedResult>();
         var createdResult = result as CreatedResult;
-        createdResult?.Location.Should().Be(userId.ToString());
-        createdResult?.Value.Should().Be(userId);
         createdResult?.StatusCode.Should().Be(201);
         _authServiceMock.Verify(s => s.Register(request), Times.Once());
     }
@@ -61,8 +60,8 @@ public class AuthControllerTests
             Password = _faker.Random.String(10)
         };
 
-        var response = new LoginResponse(_faker.Random.Word());
-        _authServiceMock.Setup(s => s.Login(request)).ReturnsAsync(response);
+        var principal = new ClaimsPrincipal();
+        _authServiceMock.Setup(s => s.Login(request)).ReturnsAsync(principal);
 
         // Act
         var result = await _controller.Login(request);
@@ -70,7 +69,6 @@ public class AuthControllerTests
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var okResult = result as OkObjectResult;
-        okResult?.Value.Should().Be(response);
         okResult?.StatusCode.Should().Be(200);
         _authServiceMock.Verify(s => s.Login(request), Times.Once());
     }
